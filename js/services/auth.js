@@ -64,9 +64,12 @@ window.AuthService = {
             return { user: null, error: this._translateError(error.message) };
         }
 
-        // Atualiza perfil com nome
+        // Atualiza perfil com nome e status inicial
         if (data.user && name) {
-            await SupabaseService.update('profiles', { name }, { id: data.user.id });
+            await SupabaseService.update('profiles', {
+                name,
+                is_approved: false // Por padrão, entra pendente
+            }, { id: data.user.id });
         }
 
         return { user: data.user, error: null };
@@ -145,20 +148,36 @@ window.AuthService = {
         const authScreen = document.getElementById('auth-screen');
         const appContainer = document.getElementById('app');
         const splashScreen = document.getElementById('splash-screen');
+        const pendingScreen = document.getElementById('pending-screen');
 
-        if (this.isLoggedIn()) {
-            // Esconde auth, mostra app
-            if (authScreen) authScreen.hidden = true;
-            if (appContainer) appContainer.classList.remove('hidden');
-            if (splashScreen) splashScreen.classList.add('hidden');
-            return true;
-        } else {
-            // Mostra auth, esconde app
+        const user = this.getUser();
+
+        // 1. Se NÃO está logado
+        if (!user) {
             if (authScreen) authScreen.hidden = false;
             if (appContainer) appContainer.classList.add('hidden');
             if (splashScreen) splashScreen.classList.add('hidden');
+            if (pendingScreen) pendingScreen.hidden = true;
             return false;
         }
+
+        // 2. Se ESTÁ logado, mas NÃO aprovado (Whitelist Beta)
+        // Buscamos o status guardado no perfil local
+        const profile = StorageService.getSafe(StorageService.KEYS.PROFILE, {});
+        if (profile.is_approved === false) {
+            if (authScreen) authScreen.hidden = true;
+            if (appContainer) appContainer.classList.add('hidden');
+            if (splashScreen) splashScreen.classList.add('hidden');
+            if (pendingScreen) pendingScreen.hidden = false;
+            return true;
+        }
+
+        // 3. Logado e APROVADO: Libera o App
+        if (authScreen) authScreen.hidden = true;
+        if (appContainer) appContainer.classList.remove('hidden');
+        if (splashScreen) splashScreen.classList.add('hidden');
+        if (pendingScreen) pendingScreen.hidden = true;
+        return true;
     },
 
     // ─── AUTH UI HANDLERS ──────────────────────

@@ -312,6 +312,49 @@
     </div>
 
     <!-- ═══════════════════════════════════════════
+         PENDING APPROVAL SCREEN (WHITELIST)
+         ═══════════════════════════════════════════ -->
+    <div id="pending-screen" class="auth-screen" hidden>
+        <div class="auth-container" style="text-align: center; padding: 40px 20px;">
+            <div class="auth-header">
+                <img src="assets/img/logo.svg" alt="Ascenda Icon" class="auth-logo-icon">
+                <div class="auth-wordmark-wrapper">
+                    <svg class="auth-logo-wordmark" viewBox="0 0 7619.98 2539.98">
+                        <use href="#logo-wordmark"></use>
+                    </svg>
+                </div>
+            </div>
+
+            <div style="margin: 30px 0;">
+                <div
+                    style="width: 80px; height: 80px; background: rgba(245, 158, 11, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #F59E0B;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                </div>
+                <h2 style="font-family: 'Outfit', sans-serif; color: var(--text-primary); margin-bottom: 10px;">Acesso
+                    em validação</h2>
+                <p style="color: var(--text-muted); line-height: 1.5; font-size: 0.95rem;">
+                    Olá! O Ascenda está em fase de testes fechados. Sua conta foi criada, mas um administrador precisa
+                    liberar o seu acesso manual.
+                </p>
+            </div>
+
+            <div style="background: var(--bg-input); border-radius: 12px; padding: 15px; margin-bottom: 30px;">
+                <p style="font-size: 0.85rem; color: var(--text-primary); margin: 0;">Fique tranquilo! Você receberá o
+                    acesso em breve.</p>
+            </div>
+
+            <button onclick="AuthService.signOut()" class="btn btn-secondary auth-btn" style="width: 100%;">
+                Sair / Voltar
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
          MAIN APP
          ═══════════════════════════════════════════ -->
     <div id="app" class="app-container hidden">
@@ -1501,25 +1544,32 @@
                     <!-- Header -->
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
                         <h3 style="font-size:1.125rem; font-weight:600; color:var(--text-primary);">Notificações</h3>
-                        <button onclick="UI.closeModal('modal-notificacoes')" style="background:none; border:none; color:var(--text-muted); padding:4px; cursor:pointer; display:flex;">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        <button onclick="UI.closeModal('modal-notificacoes')"
+                            style="background:none; border:none; color:var(--text-muted); padding:4px; cursor:pointer; display:flex;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
                             </svg>
                         </button>
                     </div>
 
                     <!-- Master toggle card -->
-                    <div style="background:var(--bg-input,#F1F5F9); border-radius:14px; padding:14px 16px; margin-bottom:24px;">
+                    <div
+                        style="background:var(--bg-input,#F1F5F9); border-radius:14px; padding:14px 16px; margin-bottom:24px;">
                         <div style="display:flex; align-items:center; justify-content:space-between;">
                             <div style="display:flex; align-items:center; gap:12px;">
-                                <div style="width:40px; height:40px; border-radius:10px; background:rgba(16,185,129,0.12); display:flex; align-items:center; justify-content:center; color:#10B981; flex-shrink:0;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                <div
+                                    style="width:40px; height:40px; border-radius:10px; background:rgba(16,185,129,0.12); display:flex; align-items:center; justify-content:center; color:#10B981; flex-shrink:0;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round">
+                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <div style="font-size:0.9rem; font-weight:600; color:var(--text-primary);">Push Notifications</div>
+                                    <div style="font-size:0.9rem; font-weight:600; color:var(--text-primary);">Push
+                                        Notifications</div>
                                     <div style="font-size:0.72rem; margin-top:2px;">
                                         <span id="notif-permission-status" style="color:var(--text-muted);">—</span>
                                     </div>
@@ -1533,24 +1583,31 @@
                     </div>
 
                     <!-- Section label -->
-                    <div style="font-size:0.7rem; font-weight:600; letter-spacing:0.08em; color:var(--text-muted); text-transform:uppercase; padding:0 4px; margin-bottom:8px;">Lembretes</div>
+                    <div
+                        style="font-size:0.7rem; font-weight:600; letter-spacing:0.08em; color:var(--text-muted); text-transform:uppercase; padding:0 4px; margin-bottom:8px;">
+                        Lembretes</div>
 
                     <!-- Grouped list -->
-                    <div id="notif-settings-body" style="border:1px solid var(--border-color); border-radius:14px; overflow:hidden;">
+                    <div id="notif-settings-body"
+                        style="border:1px solid var(--border-color); border-radius:14px; overflow:hidden;">
 
                         <!-- Dose -->
                         <div style="background:var(--bg-surface); padding:14px 16px;">
                             <div style="display:flex; align-items:center; justify-content:space-between;">
                                 <div style="display:flex; align-items:center; gap:12px;">
-                                    <div style="width:36px; height:36px; border-radius:9px; background:rgba(16,185,129,0.1); display:flex; align-items:center; justify-content:center; color:#10B981; flex-shrink:0;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                            <path d="M9 11l3 3L22 4"/>
-                                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                                    <div
+                                        style="width:36px; height:36px; border-radius:9px; background:rgba(16,185,129,0.1); display:flex; align-items:center; justify-content:center; color:#10B981; flex-shrink:0;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                            <path d="M9 11l3 3L22 4" />
+                                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
                                         </svg>
                                     </div>
                                     <div>
-                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">Lembrete de Dose</div>
-                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">No dia da injeção</div>
+                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">
+                                            Lembrete de Dose</div>
+                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">No dia
+                                            da injeção</div>
                                     </div>
                                 </div>
                                 <label class="toggle-switch" style="margin:0;">
@@ -1577,14 +1634,18 @@
                         <div style="background:var(--bg-surface); padding:14px 16px;">
                             <div style="display:flex; align-items:center; justify-content:space-between;">
                                 <div style="display:flex; align-items:center; gap:12px;">
-                                    <div style="width:36px; height:36px; border-radius:9px; background:rgba(59,130,246,0.1); display:flex; align-items:center; justify-content:center; color:#3B82F6; flex-shrink:0;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                                    <div
+                                        style="width:36px; height:36px; border-radius:9px; background:rgba(59,130,246,0.1); display:flex; align-items:center; justify-content:center; color:#3B82F6; flex-shrink:0;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
                                         </svg>
                                     </div>
                                     <div>
-                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">Hidratação</div>
-                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">Lembretes ao longo do dia</div>
+                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">
+                                            Hidratação</div>
+                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">
+                                            Lembretes ao longo do dia</div>
                                     </div>
                                 </div>
                                 <label class="toggle-switch" style="margin:0;">
@@ -1631,14 +1692,18 @@
                         <div style="background:var(--bg-surface); padding:14px 16px;">
                             <div style="display:flex; align-items:center; justify-content:space-between;">
                                 <div style="display:flex; align-items:center; gap:12px;">
-                                    <div style="width:36px; height:36px; border-radius:9px; background:rgba(245,158,11,0.1); display:flex; align-items:center; justify-content:center; color:#F59E0B; flex-shrink:0;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                    <div
+                                        style="width:36px; height:36px; border-radius:9px; background:rgba(245,158,11,0.1); display:flex; align-items:center; justify-content:center; color:#F59E0B; flex-shrink:0;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
                                         </svg>
                                     </div>
                                     <div>
-                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">Pesagem Semanal</div>
-                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">Acompanhe seu progresso</div>
+                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">
+                                            Pesagem Semanal</div>
+                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">
+                                            Acompanhe seu progresso</div>
                                     </div>
                                 </div>
                                 <label class="toggle-switch" style="margin:0;">
@@ -1674,14 +1739,19 @@
                         <div style="background:var(--bg-surface); padding:14px 16px;">
                             <div style="display:flex; align-items:center; justify-content:space-between;">
                                 <div style="display:flex; align-items:center; gap:12px;">
-                                    <div style="width:36px; height:36px; border-radius:9px; background:rgba(236,72,153,0.1); display:flex; align-items:center; justify-content:center; color:#EC4899; flex-shrink:0;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                    <div
+                                        style="width:36px; height:36px; border-radius:9px; background:rgba(236,72,153,0.1); display:flex; align-items:center; justify-content:center; color:#EC4899; flex-shrink:0;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                            <path
+                                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                                         </svg>
                                     </div>
                                     <div>
-                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">Sintomas Pós-dose</div>
-                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">Como você está se sentindo?</div>
+                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">
+                                            Sintomas Pós-dose</div>
+                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">Como
+                                            você está se sentindo?</div>
                                     </div>
                                 </div>
                                 <label class="toggle-switch" style="margin:0;">
@@ -1708,15 +1778,19 @@
                         <div style="background:var(--bg-surface); padding:14px 16px;">
                             <div style="display:flex; align-items:center; justify-content:space-between;">
                                 <div style="display:flex; align-items:center; gap:12px;">
-                                    <div style="width:36px; height:36px; border-radius:9px; background:rgba(139,92,246,0.1); display:flex; align-items:center; justify-content:center; color:#8B5CF6; flex-shrink:0;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                            <circle cx="12" cy="12" r="10"/>
-                                            <polyline points="12 6 12 12 16 14"/>
+                                    <div
+                                        style="width:36px; height:36px; border-radius:9px; background:rgba(139,92,246,0.1); display:flex; align-items:center; justify-content:center; color:#8B5CF6; flex-shrink:0;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <polyline points="12 6 12 12 16 14" />
                                         </svg>
                                     </div>
                                     <div>
-                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">Refeições</div>
-                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">Registre o que você come</div>
+                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">
+                                            Refeições</div>
+                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">
+                                            Registre o que você come</div>
                                     </div>
                                 </div>
                                 <label class="toggle-switch" style="margin:0;">
@@ -1735,7 +1809,8 @@
                                         <input type="time" id="notif-meals-lunch" class="input-field" value="12:00">
                                     </div>
                                 </div>
-                                <div class="input-group" style="margin-bottom:0; margin-top:10px; max-width:calc(50% - 5px);">
+                                <div class="input-group"
+                                    style="margin-bottom:0; margin-top:10px; max-width:calc(50% - 5px);">
                                     <label>Jantar</label>
                                     <input type="time" id="notif-meals-dinner" class="input-field" value="19:00">
                                 </div>
@@ -1744,7 +1819,8 @@
 
                     </div><!-- /notif-settings-body -->
 
-                    <button id="btn-notif-save" class="btn-primary" style="width:100%; margin-top:20px; padding:14px; border-radius:12px; font-size:0.9rem; font-weight:600;">
+                    <button id="btn-notif-save" class="btn-primary"
+                        style="width:100%; margin-top:20px; padding:14px; border-radius:12px; font-size:0.9rem; font-weight:600;">
                         Salvar Preferências
                     </button>
 
@@ -2663,10 +2739,10 @@
     <!-- Scripts (Engine from VERSAO WEB) -->
     <script src="js/config.js"></script>
     <script src="js/utils/date-service.js"></script>
-    <script src="js/services/storage.js?v=2"></script>
-    <script src="js/services/supabase.js?v=2"></script>
-    <script src="js/services/auth.js?v=2"></script>
-    <script src="js/services/migration.js?v=2"></script>
+    <script src="js/services/storage.js?v=9"></script>
+    <script src="js/services/supabase.js?v=9"></script>
+    <script src="js/services/auth.js?v=9"></script>
+    <script src="js/services/migration.js?v=9"></script>
     <script src="js/services/security.js"></script>
     <script src="js/services/profile.js"></script>
     <script src="js/services/weight.js"></script>
@@ -2697,7 +2773,7 @@
     <script src="js/controllers/journey-controller.js?v=1"></script>
     <script src="js/controllers/onboarding-controller.js?v=1"></script>
     <script src="js/controllers/report-controller.js?v=1"></script>
-    <script src="js/services/notifications.js?v=1"></script>
+    <script src="js/services/notifications.js?v=9"></script>
     <script src="js/controllers/notifications-controller.js?v=1"></script>
     <script>
         // Failsafe: ensure splash always dismisses even if scripts error
