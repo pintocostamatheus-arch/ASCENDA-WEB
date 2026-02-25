@@ -5,7 +5,7 @@ const DoseColorManager = {
     // Curated array of 12 visually distinct colors
     palette: [
         '#EC4899', // Pink
-        '#F97316', // Orange  
+        '#F97316', // Orange
         '#EAB308', // Yellow
         '#10B981', // Emerald
         '#06B6D4', // Cyan

@@ -275,9 +275,15 @@ window.ReportService = {
                     doc.text(item.drug, legX, y + 2.5);
                     legX += doc.getTextWidth(item.drug) + 4;
 
-                    // 2. Dot
-                    doc.setFillColor(236, 72, 153); // #EC4899 (Pink-500)
-                    doc.setDrawColor(236, 72, 153);
+                    // 2. Dot — cor da paleta por dose
+                    const hexColor = window.DoseColorManager
+                        ? DoseColorManager.getColor(item.drug, item.dose)
+                        : '#EC4899';
+                    const r = parseInt(hexColor.slice(1, 3), 16);
+                    const g = parseInt(hexColor.slice(3, 5), 16);
+                    const b = parseInt(hexColor.slice(5, 7), 16);
+                    doc.setFillColor(r, g, b);
+                    doc.setDrawColor(r, g, b);
                     doc.circle(legX, y + 1.5, 1.5, 'F');
                     legX += 5; // space after dot
 
@@ -917,14 +923,14 @@ window.ReportService = {
             const INJ_RADIUS = 15;
             const WEIGHT_RADIUS = 7;
 
-            // FORCE PINK FOR INJECTIONS
-            const pointColors = chartData.map(d => d.injection ? '#EC4899' : themeColors.pointDefault);
+            // Cor por dose (DoseColorManager) — fallback rosa se não disponível
+            const pointColors = chartData.map(d => d.injection ? (d.doseColor || '#EC4899') : themeColors.pointDefault);
             const pointRadius = chartData.map(d => {
                 if (d.injection) return INJ_RADIUS;
                 if (d.isRealWeight) return WEIGHT_RADIUS;
                 return 0;
             });
-            const pointBorderColors = chartData.map(d => d.injection ? '#EC4899' : themeColors.pointDefault);
+            const pointBorderColors = chartData.map(d => d.injection ? (d.doseColor || '#EC4899') : themeColors.pointDefault);
             const pointBorderWidth = chartData.map(d => d.injection ? 5 : 3);
 
 
