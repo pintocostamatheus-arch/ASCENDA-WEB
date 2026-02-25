@@ -482,6 +482,14 @@ window.StorageService = {
                     }).filter(Boolean);
                 }
 
+                // Weights: backups antigos exportam como array; formato interno é objeto keyed by dateISO.
+                // Converter para garantir compatibilidade com WeightService e _syncToCloud.
+                if (key === 'weights' && Array.isArray(value)) {
+                    const obj = {};
+                    value.forEach(w => { if (w.dateISO) obj[w.dateISO] = w; });
+                    value = obj;
+                }
+
                 try {
                     if (mode === 'merge' && Array.isArray(value) && key !== 'profile') {
                         const existing = this.getSafe(keyMap[key], []);
