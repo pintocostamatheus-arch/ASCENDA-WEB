@@ -49,7 +49,19 @@ window.ProfileService = {
 
     isFirstRun() {
         const profile = StorageService.getSafe(StorageService.KEYS.PROFILE, null);
-        return profile === null || !profile.onboardingComplete;
+
+        // Se realmente não existir nenhum perfil na memória
+        if (!profile) return true;
+
+        // Se o usuário já tiver dados chaves preenchidos (Legado), não é First Run.
+        if (profile.heightCm && profile.startWeight) {
+            if (!profile.onboardingComplete) {
+                this.markOnboardingComplete(); // Corrige silenciosamente
+            }
+            return false;
+        }
+
+        return !profile.onboardingComplete;
     },
 
     markOnboardingComplete() {

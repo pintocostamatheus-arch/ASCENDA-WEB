@@ -392,6 +392,14 @@ window.AuthService = {
                 // App já estava rodando, só atualiza a view
                 App.refreshTab(window.Router?.currentTab || 'hoje');
             }
+
+            // CHECK DO WIZARD - EXATAMENTE APÓS O LOGIN TERMINAR O CARREGAMENTO
+            console.log('App: Checking first run after cloud load...');
+            if (window.ProfileService && ProfileService.isFirstRun()) {
+                if (typeof App.showOnboardingModal === 'function') {
+                    App.showOnboardingModal();
+                }
+            }
         }
     },
 

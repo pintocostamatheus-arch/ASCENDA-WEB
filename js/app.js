@@ -145,13 +145,7 @@ window.App = {
             if (e.target === e.currentTarget) UI.hideModal();
         };
 
-        // Check for first run - show onboarding
-        setTimeout(() => {
-            console.log('App: Checking first run...');
-            if (ProfileService.isFirstRun()) {
-                this.showOnboardingModal();
-            }
-        }, 1000);
+        // Check for first run delegated to AuthService._onSignIn AFTER cloud load
     },
 
     // Wizard State
