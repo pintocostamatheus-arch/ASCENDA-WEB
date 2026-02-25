@@ -269,6 +269,9 @@ window.ReportService = {
                 doc.setFont('helvetica', 'normal');
                 let legX = margin + 2;
 
+                // Reset garante ordem consistente entre legenda e canvas do PDF
+                if (window.DoseColorManager) DoseColorManager.reset();
+
                 doses.forEach(item => {
                     // 1. Text (Drug)
                     doc.setTextColor(100, 116, 139); // Slate-500
