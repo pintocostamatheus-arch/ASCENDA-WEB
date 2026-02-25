@@ -521,39 +521,36 @@ window.Charts = {
                     drugsMap[item.drug].push(item);
                 });
 
-                // Display each drug group
+                // Display each drug group — all doses side by side on one row
                 Object.keys(drugsMap).sort().forEach(drug => {
                     const groupDiv = document.createElement('div');
                     groupDiv.className = 'legend-drug-group';
                     groupDiv.style.display = 'flex';
-                    groupDiv.style.flexDirection = 'column';
-                    groupDiv.style.gap = '4px';
-                    groupDiv.style.marginBottom = '8px';
+                    groupDiv.style.flexDirection = 'row';
+                    groupDiv.style.flexWrap = 'wrap';
+                    groupDiv.style.alignItems = 'center';
+                    groupDiv.style.gap = '10px';
+                    groupDiv.style.marginBottom = '4px';
 
                     const items = drugsMap[drug].sort((a, b) => a.dose - b.dose);
 
-                    items.forEach((item, index) => {
-                        const legItem = document.createElement('div');
-                        legItem.className = 'legend-item';
-                        legItem.style.display = 'flex';
-                        legItem.style.alignItems = 'center';
-                        legItem.style.gap = '6px';
-                        legItem.style.justifyContent = 'flex-start';
+                    // Drug name label
+                    const nameSpan = document.createElement('span');
+                    nameSpan.style.fontWeight = '600';
+                    nameSpan.textContent = SecurityUtils.escapeHTML(drug);
+                    groupDiv.appendChild(nameSpan);
 
-                        if (index === 0) {
-                            legItem.innerHTML = `
-                                <span style="font-weight: 600; min-width: 85px; text-align: right;">${SecurityUtils.escapeHTML(item.drug)}</span>
-                                <span class="legend-dot" style="background-color: ${item.color}; box-shadow: 0 0 6px ${item.color}40; margin: 0;"></span>
-                                <span>${item.dose}mg</span>
-                            `;
-                        } else {
-                            legItem.innerHTML = `
-                                <span style="font-weight: 600; min-width: 85px; text-align: right; visibility: hidden;">${SecurityUtils.escapeHTML(item.drug)}</span>
-                                <span class="legend-dot" style="background-color: ${item.color}; box-shadow: 0 0 6px ${item.color}40; margin: 0;"></span>
-                                <span>${item.dose}mg</span>
-                            `;
-                        }
-                        groupDiv.appendChild(legItem);
+                    // Each dose as dot + label inline
+                    items.forEach(item => {
+                        const doseWrap = document.createElement('span');
+                        doseWrap.style.display = 'inline-flex';
+                        doseWrap.style.alignItems = 'center';
+                        doseWrap.style.gap = '4px';
+                        doseWrap.innerHTML = `
+                            <span class="legend-dot" style="background-color: ${item.color}; box-shadow: 0 0 6px ${item.color}40; margin: 0;"></span>
+                            <span>${item.dose}mg</span>
+                        `;
+                        groupDiv.appendChild(doseWrap);
                     });
 
                     legendContainer.appendChild(groupDiv);
