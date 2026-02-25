@@ -508,18 +508,55 @@ window.App = {
 
     resetAll() {
         UI.showModal(
-            'Apagar Tudo?',
+            'Apagar Todos os Dados',
             `<div style="text-align:center; padding: 20px 0;">
-                <div style="font-size: 3rem; margin-bottom: 20px;">⚠️</div>
-                <p style="color: var(--text-secondary); line-height: 1.5;">Esta ação irá apagar <strong>TODOS</strong> os seus dados locais (Peso, Refeições, Sintomas, Perfil). Esta ação é irreversível!</p>
+                <div style="font-size: 3rem; margin-bottom: 16px;">🗑️</div>
+                <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+                    Esta ação irá apagar <strong>PERMANENTEMENTE</strong> todos os seus dados:<br>
+                    peso, refeições, injeções, sintomas, jornada, perfil e configurações.
+                </p>
+                <p style="color: #ef4444; font-size: 0.85rem; margin-bottom: 16px;">
+                    ⚠️ Os dados também serão removidos da nuvem. Esta ação é <strong>irreversível</strong>.
+                </p>
+                <label style="display:flex; align-items:center; gap:10px; justify-content:center; cursor:pointer; font-size:0.9rem; color:var(--text-secondary);">
+                    <input type="checkbox" id="chk-confirm-reset" style="width:18px;height:18px;cursor:pointer;">
+                    Entendo que esta ação é irreversível
+                </label>
             </div>`,
             [
                 { text: 'Cancelar', class: 'btn-secondary', closeOnClick: true },
                 {
-                    text: 'Limpar Tudo',
+                    text: 'Apagar Tudo',
                     class: 'btn-danger',
-                    onClick: () => {
+                    onClick: async () => {
+                        const chk = document.getElementById('chk-confirm-reset');
+                        if (!chk?.checked) {
+                            UI.toast('Marque a caixa de confirmação para continuar.', 'warning');
+                            return;
+                        }
+                        UI.toast('Apagando dados...', 'info');
+                        try {
+                            const user = await SupabaseService.getUser();
+                            if (user) {
+                                const tables = [
+                                    'weights', 'nutrition', 'injections', 'symptoms',
+                                    'injection_schedule', 'custom_foods', 'journey_milestones',
+                                    'journey_measurements', 'journey_photos', 'push_subscriptions'
+                                ];
+                                for (const t of tables) {
+                                    await SupabaseService.delete(t, { user_id: user.id });
+                                }
+                                await SupabaseService.update('profiles', {
+                                    heightCm: null, startWeight: null, birthdate: null,
+                                    drug: null, notification_settings: null, onboardingComplete: false
+                                }, { id: user.id });
+                            }
+                        } catch (e) {
+                            console.warn('resetAll: erro ao apagar dados da nuvem:', e);
+                        }
                         StorageService.clearAll();
+                        localStorage.removeItem('monjaro_lgpd_consent');
+                        if (window.AuthService) await AuthService.signOut();
                         location.reload();
                     }
                 }
@@ -560,7 +597,47 @@ window.App = {
 //      depois puxa cloud em bg e atualiza a view
 //  3b. Sem sessão → mostra tela de login
 //  4. Marca _bootDone para que _onSignIn saiba que o boot terminou
+// ─── LGPD: verifica consentimento antes de qualquer ação ─────────────────────
+function _checkLgpdConsent() {
+    if (localStorage.getItem('monjaro_lgpd_consent')) return; // já aceitou
+
+    const overlay = document.getElementById('modal-lgpd');
+    if (!overlay) return;
+    overlay.hidden = false;
+
+    const chk      = document.getElementById('chk-lgpd-accept');
+    const btnAceitar  = document.getElementById('btn-lgpd-aceitar');
+    const btnRecusar  = document.getElementById('btn-lgpd-recusar');
+
+    if (chk && btnAceitar) {
+        chk.addEventListener('change', () => {
+            btnAceitar.disabled = !chk.checked;
+        });
+        btnAceitar.addEventListener('click', () => {
+            localStorage.setItem('monjaro_lgpd_consent', 'true');
+            overlay.hidden = true;
+        });
+    }
+
+    if (btnRecusar) {
+        btnRecusar.addEventListener('click', () => {
+            overlay.innerHTML = `
+                <div style="color:#fff; text-align:center; padding:40px 20px; max-width:400px;">
+                    <div style="font-size:3rem; margin-bottom:16px;">🔒</div>
+                    <h3 style="margin-bottom:12px;">Acesso não autorizado</h3>
+                    <p style="opacity:0.8; line-height:1.6;">
+                        Sem o consentimento para o uso dos dados de saúde, não é possível utilizar o Ascenda.<br><br>
+                        Se mudar de ideia, acesse o app novamente.
+                    </p>
+                </div>`;
+        });
+    }
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
+
+    // 0. Verifica consentimento LGPD antes de qualquer ação
+    _checkLgpdConsent();
 
     // 1. Inicializa o Supabase Client
     if (window.SupabaseService) SupabaseService.init();

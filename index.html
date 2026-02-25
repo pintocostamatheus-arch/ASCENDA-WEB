@@ -2105,6 +2105,46 @@
     <!-- Toast Container -->
     <div class="toast-container" id="toast-container"></div>
 
+    <!-- LGPD / Privacidade Modal -->
+    <div class="modal-overlay" id="modal-lgpd" style="z-index:9999; background:rgba(0,0,0,0.85);">
+        <div class="modal" style="max-width:480px; max-height:90vh; overflow-y:auto;">
+            <div class="modal-header" style="border-bottom:1px solid var(--border-color);">
+                <h3 class="modal-title">🔒 Privacidade e Dados</h3>
+            </div>
+            <div class="modal-body" style="padding:20px; line-height:1.6;">
+                <p style="color:var(--text-primary); font-weight:600; margin-bottom:12px;">
+                    Antes de continuar, precisamos do seu consentimento.
+                </p>
+                <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:12px;">
+                    O <strong>Ascenda</strong> coleta e armazena os seguintes dados pessoais sensíveis de saúde:
+                </p>
+                <ul style="color:var(--text-secondary); font-size:0.88rem; margin:0 0 12px 20px; line-height:1.8;">
+                    <li>Peso corporal e medidas</li>
+                    <li>Medicamentos utilizados e doses</li>
+                    <li>Sintomas e bem-estar</li>
+                    <li>Refeições e nutrição</li>
+                    <li>Fotos da jornada</li>
+                </ul>
+                <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:12px;">
+                    <strong>Finalidade:</strong> Acompanhamento pessoal do seu tratamento com GLP-1.<br>
+                    <strong>Armazenamento:</strong> Dados salvos localmente e na nuvem (Supabase).<br>
+                    <strong>Seus direitos (LGPD):</strong> Você pode exportar seus dados (backup JSON) ou apagá-los permanentemente a qualquer momento nas configurações do app.
+                </p>
+                <p style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:16px;">
+                    Ao continuar, você concorda com o uso dos seus dados conforme descrito acima, em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018)</strong>.
+                </p>
+                <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-size:0.9rem; color:var(--text-secondary);">
+                    <input type="checkbox" id="chk-lgpd-accept" style="width:18px; height:18px; margin-top:2px; cursor:pointer; flex-shrink:0;">
+                    <span>Li e concordo com a coleta e uso dos meus dados de saúde conforme descrito acima.</span>
+                </label>
+            </div>
+            <div class="modal-footer" style="justify-content:center; gap:12px; padding:16px 20px;">
+                <button class="btn btn-secondary" id="btn-lgpd-recusar" style="min-width:120px;">Não aceitar</button>
+                <button class="btn btn-primary" id="btn-lgpd-aceitar" disabled style="min-width:140px;">Continuar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Safety Alert Modal -->
     <div class="modal-overlay" id="safety-alert-overlay" hidden>
         <div class="modal modal-danger">

@@ -519,5 +519,22 @@ window.StorageService = {
 
     clearAll() {
         Object.values(this.KEYS).forEach(key => this.remove(key));
+    },
+
+    // Sincroniza todos os dados do localStorage com o Supabase.
+    // Usado após importação de JSON para garantir que a nuvem reflita o backup.
+    async syncAllToCloud() {
+        const skipKeys = [this.KEYS.LAST_GOOD, this.KEYS.META];
+        for (const key of Object.values(this.KEYS)) {
+            if (skipKeys.includes(key)) continue;
+            const value = this.getSafe(key);
+            if (value !== null && value !== undefined) {
+                try {
+                    await this._syncToCloud(key, value);
+                } catch (e) {
+                    console.warn(`StorageService.syncAllToCloud: erro ao sincronizar ${key}:`, e);
+                }
+            }
+        }
     }
 };

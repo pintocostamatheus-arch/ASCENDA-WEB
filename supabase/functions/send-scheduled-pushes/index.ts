@@ -91,6 +91,11 @@ serve(async (req) => {
       const userSubs = subs.filter((s) => s.user_id === userId);
       const toSend: Array<{ title: string; body: string; tag: string; data: Record<string, string> }> = [];
 
+      // ── DEBUG ─────────────────────────────────
+      console.log(`[DEBUG] userId=${userId} | UTC=${now.toISOString()} | localHour=${localHour} | localMinute=${localMinute} | localDow=${localDow} | tzOffset=${tzOffset}`);
+      console.log(`[DEBUG] master.enabled=${settings?.enabled} | water.enabled=${settings.water?.enabled} | startH=${settings.water?.startHour} | endH=${settings.water?.endHour} | interval=${settings.water?.intervalHours}`);
+      console.log(`[DEBUG] userSubs.length=${userSubs.length} | localNowMinutes=${localNowMinutes}`);
+
       // ── 1. Lembrete de Dose ──────────────────
       if (schedule && settings.dose?.enabled && schedule.day_of_week === localDow && schedule.time) {
         const [sh, sm] = schedule.time.split(":").map(Number);
@@ -126,6 +131,8 @@ serve(async (req) => {
           }
         }
       }
+
+      console.log(`[DEBUG] toSend após water=${toSend.length}`);
 
       // ── 3. Pesagem Semanal ───────────────────
       if (settings.weight?.enabled) {
