@@ -98,17 +98,9 @@ window.AuthService = {
             return { user: null, error: this._translateError(error.message) };
         }
 
-        // Força buscar o perfil garantindo o is_approved ATUALIZADO
-        if (data.user) {
-            const { data: profiles, error: profileError } = await client
-                .from('profiles')
-                .select('*')
-                .eq('id', data.user.id);
-
-            if (!profileError && profiles && profiles.length > 0) {
-                StorageService.set(StorageService.KEYS.PROFILE, profiles[0]);
-            }
-        }
+        // Não fazemos nada com o profile aqui.
+        // O loadFromCloud() chamado dentro do _onSignIn fará o mapeamento
+        // correto de snake_case → camelCase sem disparar _syncToCloud.
 
         return { user: data.user, error: null };
     },
@@ -373,28 +365,28 @@ window.AuthService = {
         // eventos POSTERIORES ao boot (novo login, refresh de token).
         if (!this._bootDone) return;
 
-        // ─── Novo login / token refresh pós-boot ──────────────────
+        // ─── 1. Carrega dados reais da nuvem PRIMEIRO ─────────────
+        // Isso garante que is_approved e todos os campos estejam
+        // corretos no localStorage ANTES de qualquer decisão de UI.
+        if (window.MigrationService) {
+            await MigrationService.migrateLocalDataToSupabase();
+        }
+        await StorageService.loadFromCloud();
+
+        // ─── 2. Agora avalia o gate com dados atualizados ──────────
         this.gate();
         const pendingScreen = document.getElementById('pending-screen');
         const isBlocked = pendingScreen && !pendingScreen.hidden;
 
-        if (window.MigrationService) {
-            await MigrationService.migrateLocalDataToSupabase();
-        }
-
-        // CARREGA OS DADOS! Se não carregar, o Refresh acha que é conta virgem e dispara onboarding.
-        await StorageService.loadFromCloud();
-
-        if (window.App && !isBlocked) { // APENAS INICIA/ROTEIA SE NÃO ESTIVER BARRADO
+        // ─── 3. Só inicializa o App se não estiver barrado ─────────
+        if (window.App && !isBlocked) {
             if (!App._initialized) {
                 App.init();
             } else {
-                // App já estava rodando, só atualiza a view
                 App.refreshTab(window.Router?.currentTab || 'hoje');
             }
 
-            // CHECK DO WIZARD - EXATAMENTE APÓS O LOGIN TERMINAR O CARREGAMENTO
-            console.log('App: Checking first run after cloud load...');
+            // Verifica primeiro acesso APÓS os dados da nuvem estarem carregados
             if (window.ProfileService && ProfileService.isFirstRun()) {
                 if (typeof App.showOnboardingModal === 'function') {
                     App.showOnboardingModal();
