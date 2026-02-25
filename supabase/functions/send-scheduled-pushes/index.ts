@@ -32,11 +32,15 @@ const WINDOW_MINUTES = 8;
 
 // ─── Handler principal ────────────────────────────────────────────────────────
 serve(async (req) => {
-  // Segurança: só aceita chamadas com a service role key
-  const authHeader = req.headers.get("Authorization") ?? "";
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  if (!authHeader.includes(serviceKey)) {
-    return new Response("Unauthorized", { status: 401 });
+  // Segurança: verifica header customizado enviado pelo pg_cron
+  // (JWT verification está desativada nesta função pois é chamada internamente)
+  const cronSecret = req.headers.get("x-cron-secret") ?? "";
+  const expectedSecret = Deno.env.get("CRON_SECRET") ?? "";
+  if (expectedSecret && cronSecret !== expectedSecret) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   const now = new Date();
