@@ -640,22 +640,23 @@ function _checkLgpdConsent() {
     }
 }
 
-// Abre o modal LGPD em modo leitura (já consentiu, só quer reler)
-App.openLgpdInfo = function () {
-    const overlay = document.getElementById('modal-lgpd');
-    if (!overlay) return;
-    // Pré-marca o checkbox e habilita botão para o usuário só fechar
-    const chk = document.getElementById('chk-lgpd-accept');
-    const btn = document.getElementById('btn-lgpd-aceitar');
-    if (chk) chk.checked = true;
-    if (btn) btn.disabled = false;
-    overlay.style.display = 'flex';
-};
-
 window.addEventListener("DOMContentLoaded", async () => {
 
     // 0. Verifica consentimento LGPD antes de qualquer ação
     _checkLgpdConsent();
+
+    // Botão "Política de Privacidade" nas configurações
+    const btnOpenLgpd = document.getElementById('btn-open-lgpd-info');
+    if (btnOpenLgpd) {
+        btnOpenLgpd.addEventListener('click', () => {
+            const overlay = document.getElementById('modal-lgpd');
+            const chk = document.getElementById('chk-lgpd-accept');
+            const btn = document.getElementById('btn-lgpd-aceitar');
+            if (chk) chk.checked = true;
+            if (btn) btn.disabled = false;
+            if (overlay) overlay.style.display = 'flex';
+        });
+    }
 
     // 1. Inicializa o Supabase Client
     if (window.SupabaseService) SupabaseService.init();

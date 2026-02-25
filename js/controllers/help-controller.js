@@ -131,7 +131,8 @@ const HelpController = {
             icon: '🚀',
             title: 'Primeiros Passos',
             steps: [
-                'Ao abrir o app pela primeira vez, preencha o <strong>Onboarding</strong> com seus dados pessoais.',
+                'Na <strong>primeira abertura</strong>, leia e aceite a Política de Privacidade (LGPD) para começar a usar o app.',
+                'Em seguida, preencha o <strong>Onboarding</strong> com seus dados pessoais (nome, peso, altura, medicamento).',
                 'Acesse <strong>+</strong> na barra inferior → <strong>Perfil</strong> para revisar suas informações a qualquer momento.',
                 'Quanto mais completo o perfil, mais precisas serão as metas de proteína, fibra e água calculadas para você.'
             ],
@@ -221,23 +222,27 @@ const HelpController = {
             icon: '🔔',
             title: 'Notificações & Lembretes',
             steps: [
-                'Acesse <strong>+ → Notificações</strong> (ou através da aba Perfil).',
-                'Ative <strong>Lembrete de Água</strong> para receber avisos de hora em hora (ou conforme o intervalo e horário configurados).',
-                'Ative <strong>Lembrete de Injeção</strong> para ser avisado 1 dia antes e no próprio dia da sua aplicação.',
-                'Importante: o seu navegador ou celular pedirá <strong>permissão</strong> para exibir notificações. Você deve clicar em <strong>Permitir</strong>.'
+                'Acesse <strong>+ → Notificações</strong> e ative o botão principal para habilitar os lembretes.',
+                '<strong>💉 Dose:</strong> avisa na hora (ou X minutos antes) do dia da sua injeção semanal.',
+                '<strong>💧 Hidratação:</strong> envia lembretes em intervalos regulares entre o horário de início e fim configurados.',
+                '<strong>⚖️ Pesagem:</strong> lembra de se pesar em um dia da semana e horário específicos.',
+                '<strong>😊 Sintomas Pós-dose:</strong> avisa para registrar sintomas algumas horas depois da aplicação.',
+                '<strong>🍽️ Refeições:</strong> lembretes de café, almoço e jantar nos horários definidos por você.',
+                'As notificações são enviadas pelo servidor mesmo com o app fechado. O navegador pedirá <strong>permissão</strong> — toque em <strong>Permitir</strong>.'
             ],
-            tip: '💡 No iPhone (iOS), notificações de sites (PWA) só funcionam se você adicionar o aplicativo à Tela de Início (opção Compartilhar → Adicionar à Tela de Início).'
+            tip: '💡 No iPhone (iOS), as notificações push só funcionam se você adicionar o app à Tela de Início: toque em <strong>Compartilhar → Adicionar à Tela de Início</strong>.'
         },
         {
             icon: '🔒',
             title: 'Seus Dados & Privacidade',
             steps: [
-                'Todos os dados ficam salvos <strong>somente no seu aparelho</strong>. Nada é enviado para a nuvem.',
-                'Para <strong>backup</strong>: <strong>+ → Perfil → Exportar Dados</strong> e salve o arquivo JSON.',
-                'Para <strong>restaurar</strong> em outro dispositivo, use <strong>Importar Dados</strong> com o arquivo salvo.',
-                '<strong>Atenção:</strong> limpar o cache do navegador ou desinstalar o app apaga todos os dados.'
+                'Seus dados são salvos <strong>localmente no aparelho</strong> e sincronizados de forma segura com a <strong>nuvem (Supabase)</strong>.',
+                'Para <strong>backup manual</strong>: acesse <strong>+ → Configurações → Exportar Backup (JSON)</strong> e salve o arquivo.',
+                'Para <strong>restaurar</strong> em outro dispositivo: use <strong>Importar JSON</strong> com o arquivo salvo — os dados são sincronizados automaticamente com a nuvem.',
+                'Para <strong>apagar tudo permanentemente</strong> (aparelho + nuvem): <strong>+ → Configurações → Apagar Tudo</strong>.',
+                'Para reler a <strong>Política de Privacidade (LGPD)</strong>: <strong>+ → Configurações → Política de Privacidade (LGPD)</strong>.'
             ],
-            tip: '⚠️ Não use <strong>modo aba anônima/privada</strong> — os dados não serão salvos entre sessões.'
+            tip: '⚠️ Não use <strong>modo aba anônima/privada</strong> — os dados locais não são mantidos entre sessões. Na nuvem, seus dados continuam seguros após login.'
         }
     ],
 
