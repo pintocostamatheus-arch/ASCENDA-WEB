@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ascenda-v17';
+const CACHE_NAME = 'ascenda-v18';
 const ASSETS = [
   '/',
   '/index.html',
@@ -93,7 +93,7 @@ self.addEventListener('push', (e) => {
     icon: '/assets/icons/favicon.svg',
     badge: '/assets/icons/favicon.svg',
     tag: payload.tag || 'ascenda',
-    renotify: false,
+    renotify: true,
     data: payload.data || {}
   };
 
