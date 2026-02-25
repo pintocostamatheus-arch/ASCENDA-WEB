@@ -82,13 +82,21 @@ window.StorageService = {
         if (!window.AuthService || !AuthService.isLoggedIn()) return;
         if (!window.SupabaseService) return;
 
-        // PROTEÇÃO CONTRA SOBRESCRITA (READ-ONLY PARA NÃO APROVADOS)
-        // Se o usuário não está aprovado, ele não pode alterar nada no DB, muito menos
-        // sobrescrever o próprio perfil com dados temporários do onboarding fantasma.
+        // PROTEÇÃO CONTRA SOBRESCRITA (READ-ONLY PARA NÃO APROVADOS E GHOSTS)
         const profile = this.getSafe(this.KEYS.PROFILE, {});
+
+        // Bloqueio 1: Usuários explicitamente não aprovados
         if (profile.is_approved === false) {
             console.warn('StorageSync Bloqueado: Usuário pendente (Read-Only). Alterações locais não subirão.');
             return;
+        }
+
+        // Bloqueio 2: Impede que perfis "fantasmas" (sem nome ou onboarding) apaguem a nuvem acidentalmente no boot
+        if (key === this.KEYS.PROFILE) {
+            if (!profile.onboardingComplete || !profile.name || profile.name.trim() === '') {
+                console.warn('StorageSync Abortado: Tentativa de sincronizar perfil nulo ou incompleto evitada. A nuvem está segura.');
+                return;
+            }
         }
 
         const mapping = this._cloudMap[key];
