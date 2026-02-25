@@ -139,57 +139,58 @@ window.StorageService = {
         }
     },
 
-    async _syncObjectByDate(mapping, value, userId) {
+    async _syncObjectByDate(mapping, value, userId, syncAll = false) {
         if (!value || typeof value !== 'object') return;
 
-        // Encontra a entrada mais recente (otimização: só sincroniza a última alteração)
         const entries = Object.entries(value);
         if (entries.length === 0) return;
 
-        // Pega a última entry modificada (heurística: última no objeto)
-        const lastEntry = entries[entries.length - 1];
-        if (!lastEntry) return;
+        // syncAll=true: sincroniza todas as entradas (usado na importação de backup)
+        // syncAll=false: sincroniza só a última (otimização para uso diário normal)
+        const entriesToSync = syncAll ? entries : [entries[entries.length - 1]];
 
-        const [dateKey, data] = lastEntry;
-        let row;
+        for (const [dateKey, data] of entriesToSync) {
+            if (!data) continue;
+            let row;
 
-        switch (mapping.table) {
-            case 'weights':
-                row = {
-                    date: dateKey,
-                    weight_kg: data.weightKg,
-                    fat_percent: data.fatPercent || null
-                };
-                break;
-            case 'nutrition':
-                row = {
-                    date: dateKey,
-                    protein_g: data.proteinConsumed || 0,
-                    water_ml: data.waterMl || 0,
-                    fiber_g: data.fiberG || 0,
-                    meals: data.meals || [],
-                    flags: data.flags || {}
-                };
-                break;
-            case 'symptoms':
-                row = {
-                    date: data.dateISO || dateKey,
-                    nausea: data.nausea || 0,
-                    constipation: data.constipation || 0,
-                    diarrhea: data.diarrhea || 0,
-                    heartburn: data.heartburn || 0,
-                    fatigue: data.fatigue || 0,
-                    headache: data.headache || 0,
-                    anxiety: data.anxiety || 0,
-                    custom: data.custom || [],
-                    notes: data.notes || null
-                };
-                break;
-            default:
-                return;
+            switch (mapping.table) {
+                case 'weights':
+                    row = {
+                        date: dateKey,
+                        weight_kg: data.weightKg,
+                        fat_percent: data.fatPercent || null
+                    };
+                    break;
+                case 'nutrition':
+                    row = {
+                        date: dateKey,
+                        protein_g: data.proteinConsumed || 0,
+                        water_ml: data.waterMl || 0,
+                        fiber_g: data.fiberG || 0,
+                        meals: data.meals || [],
+                        flags: data.flags || {}
+                    };
+                    break;
+                case 'symptoms':
+                    row = {
+                        date: data.dateISO || dateKey,
+                        nausea: data.nausea || 0,
+                        constipation: data.constipation || 0,
+                        diarrhea: data.diarrhea || 0,
+                        heartburn: data.heartburn || 0,
+                        fatigue: data.fatigue || 0,
+                        headache: data.headache || 0,
+                        anxiety: data.anxiety || 0,
+                        custom: data.custom || [],
+                        notes: data.notes || null
+                    };
+                    break;
+                default:
+                    return;
+            }
+
+            await SupabaseService.upsert(mapping.table, row, 'user_id,date');
         }
-
-        await SupabaseService.upsert(mapping.table, row, 'user_id,date');
     },
 
     _profileToRow(profile) {
@@ -532,13 +533,24 @@ window.StorageService = {
     // Sincroniza todos os dados do localStorage com o Supabase.
     // Usado após importação de JSON para garantir que a nuvem reflita o backup.
     async syncAllToCloud() {
+        if (!window.AuthService || !AuthService.isLoggedIn()) return;
+        if (!window.SupabaseService) return;
+        const user = await SupabaseService.getUser();
+        if (!user) return;
+
         const skipKeys = [this.KEYS.LAST_GOOD, this.KEYS.META];
         for (const key of Object.values(this.KEYS)) {
             if (skipKeys.includes(key)) continue;
             const value = this.getSafe(key);
             if (value !== null && value !== undefined) {
                 try {
-                    await this._syncToCloud(key, value);
+                    const mapping = this._cloudMap[key];
+                    // object_by_date (pesos, nutrição, sintomas): sincroniza TODAS as entradas
+                    if (mapping && mapping.format === 'object_by_date') {
+                        await this._syncObjectByDate(mapping, value, user.id, true);
+                    } else {
+                        await this._syncToCloud(key, value);
+                    }
                 } catch (e) {
                     console.warn(`StorageService.syncAllToCloud: erro ao sincronizar ${key}:`, e);
                 }
