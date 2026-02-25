@@ -366,7 +366,67 @@ window.ReportService = {
         }
 
         // ---------------------------------------------------------
-        // 7. JORNADA VISUAL (ANTES E DEPOIS)
+        // 6b. EFICÁCIA POR DOSE
+        // ---------------------------------------------------------
+        if (injections.length >= 2) {
+            if (y > 245) { doc.addPage(); y = 30; }
+            doc.setFontSize(10);
+            doc.setTextColor(...colBrand);
+            doc.setFont('helvetica', 'bold');
+            doc.text('EFICÁCIA POR DOSE', margin, y);
+            y += 8;
+
+            // Agrupa injeções em fases consecutivas de mesma dose
+            const dosePhases = [];
+            let activePhase = null;
+            [...injections].sort((a, b) => a.dateISO.localeCompare(b.dateISO)).forEach(inj => {
+                const key = `${(inj.drugName || 'tirzepatida').toLowerCase()}_${inj.doseMg}`;
+                if (!activePhase || activePhase.key !== key) {
+                    if (activePhase) dosePhases.push(activePhase);
+                    activePhase = { key, drugName: inj.drugName || 'Tirzepatida', doseMg: inj.doseMg, startDate: inj.dateISO, endDate: inj.dateISO, count: 1 };
+                } else { activePhase.endDate = inj.dateISO; activePhase.count++; }
+            });
+            if (activePhase) dosePhases.push(activePhase);
+
+            const maxPerRow = 3;
+            const dCardH = 28;
+            for (let row = 0; row < Math.ceil(dosePhases.length / maxPerRow); row++) {
+                if (y > 265) { doc.addPage(); y = 30; }
+                const rowPhases = dosePhases.slice(row * maxPerRow, (row + 1) * maxPerRow);
+                const dCardW = (contentWidth - (rowPhases.length - 1) * 5) / rowPhases.length;
+                rowPhases.forEach((phase, col) => {
+                    const cx = margin + col * (dCardW + 5);
+                    const wS = findNearestWeight(phase.startDate);
+                    const wE = findNearestWeight(phase.endDate);
+                    const lossKg = (wS && wE) ? wS - wE : null;
+                    const dDays = Math.floor((new Date(phase.endDate) - new Date(phase.startDate)) / 86400000);
+                    const dWeeks = Math.max(dDays / 7, 1);
+                    const lossStr = lossKg !== null ? `${lossKg >= 0 ? '-' : '+'}${Math.abs(lossKg).toFixed(1)} kg` : 'N/D';
+                    const rateStr = (lossKg !== null && lossKg > 0) ? `${(lossKg / dWeeks).toFixed(2)} kg/sem` : 'N/D';
+                    const drugLabel = window.MedicationLevelService ? MedicationLevelService.formatDrugName(phase.drugName) : phase.drugName;
+                    doc.setFillColor(248, 250, 252);
+                    doc.setDrawColor(226, 232, 240);
+                    doc.roundedRect(cx, y, dCardW, dCardH, 1, 1, 'FD');
+                    doc.setFontSize(6);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colTextLight);
+                    doc.text(`${drugLabel} ${phase.doseMg}mg (${phase.count}x)`.toUpperCase(), cx + 4, y + 7);
+                    const lossColor = (lossKg !== null && lossKg > 0) ? colGreen : colRed;
+                    doc.setFontSize(11);
+                    doc.setTextColor(...lossColor);
+                    doc.text(lossStr, cx + 4, y + 17);
+                    doc.setFontSize(7);
+                    doc.setTextColor(...colTextLight);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(rateStr, cx + 4, y + 24);
+                });
+                y += dCardH + 5;
+            }
+            y += 8;
+        }
+
+        // ---------------------------------------------------------
+        // 7. JORNADA VISUAL (3 FOTOS DE REFERÊNCIA)
         // ---------------------------------------------------------
         if (options.includePhotos && window.JourneyService) {
             const startDateStr = startDate ? startDate.toISOString().split('T')[0] : null;
@@ -379,134 +439,87 @@ window.ReportService = {
                 .filter(p => (!startDateStr || p.dateISO >= startDateStr) && (!endDateStr || p.dateISO <= endDateStr))
                 .sort((a, b) => a.dateISO.localeCompare(b.dateISO));
 
-            if (comparison && comparison.start && comparison.current) {
-                if (y > 200) { doc.addPage(); y = 30; }
+            // Seleciona até 3 fotos de referência (início, meio, atual)
+            let refPhotos = [];
+            if (allPhotos.length === 1) {
+                refPhotos = [{ photo: allPhotos[0], label: 'ÚNICO' }];
+            } else if (allPhotos.length === 2) {
+                refPhotos = [
+                    { photo: allPhotos[0], label: 'INÍCIO' },
+                    { photo: allPhotos[allPhotos.length - 1], label: 'ATUAL' }
+                ];
+            } else if (allPhotos.length >= 3) {
+                const midIdx = Math.floor((allPhotos.length - 1) / 2);
+                refPhotos = [
+                    { photo: allPhotos[0], label: 'INÍCIO' },
+                    { photo: allPhotos[midIdx], label: 'PROGRESSO' },
+                    { photo: allPhotos[allPhotos.length - 1], label: 'ATUAL' }
+                ];
+            }
 
+            if (refPhotos.length > 0) {
+                if (y > 200) { doc.addPage(); y = 30; }
                 doc.setFontSize(10);
                 doc.setTextColor(...colBrand);
                 doc.setFont('helvetica', 'bold');
-                doc.text('JORNADA VISUAL (DESTAQUE)', margin, y);
+                doc.text('JORNADA VISUAL', margin, y);
                 y += 8;
 
-                const photoW = (contentWidth - 10) / 2;
-                const photoH = 80;
+                const numPhotos = refPhotos.length;
+                const gutter = 8;
+                const photoW = (contentWidth - gutter * (numPhotos - 1)) / numPhotos;
+                const photoH = 78;
 
-                // Helper to add image
-                const drawPhotoWithLabel = async (imgData, x, y, w, h, labelDate, labelWeight) => {
+                const drawPhotoWithLabel = async (imgData, x, pY, w, h, labelDate, labelWeight) => {
                     if (!imgData) return;
                     try {
                         const img = new Image();
-                        // Cleanup base64: ensure it has header if missing or is just the string
                         let finalSrc = imgData;
                         if (typeof imgData === 'string' && !imgData.startsWith('data:')) {
                             finalSrc = `data:image/jpeg;base64,${imgData}`;
                         }
                         img.src = finalSrc;
                         await new Promise(r => img.onload = r);
-
-                        const imgW = img.width;
-                        const imgH = img.height;
-                        const scale = Math.min(w / imgW, h / imgH);
-                        const renderW = imgW * scale;
-                        const renderH = imgH * scale;
-                        const offsetX = (w - renderW) / 2;
-                        const offsetY = (h - renderH) / 2;
-
-                        doc.addImage(finalSrc, 'JPEG', x + offsetX, y + offsetY, renderW, renderH, undefined, 'FAST');
-
+                        const scale = Math.min(w / img.width, h / img.height);
+                        const renderW = img.width * scale;
+                        const renderH = img.height * scale;
+                        doc.addImage(finalSrc, 'JPEG', x + (w - renderW) / 2, pY + (h - renderH) / 2, renderW, renderH, undefined, 'FAST');
                         doc.setDrawColor(226, 232, 240);
                         doc.setLineWidth(0.5);
-                        doc.roundedRect(x, y, w, h, 2, 2, 'S');
-
-                        const labelH = 10;
-                        const labelY = y + h - labelH;
-
+                        doc.roundedRect(x, pY, w, h, 2, 2, 'S');
+                        const lbH = 10;
+                        const lbY = pY + h - lbH;
                         doc.setFillColor(30, 41, 59);
-                        doc.rect(x, labelY, w, labelH, 'F');
-
+                        doc.rect(x, lbY, w, lbH, 'F');
                         doc.setFontSize(7);
                         doc.setFont('helvetica', 'bold');
                         doc.setTextColor(255, 255, 255);
-                        doc.text(labelDate || 'N/D', x + 2, labelY + 6.5);
-
-                        if (labelWeight) {
-                            doc.text(`${labelWeight} kg`, x + w - 2, labelY + 6.5, { align: 'right' });
-                        }
+                        doc.text(labelDate || 'N/D', x + 2, lbY + 6.5);
+                        if (labelWeight) doc.text(`${labelWeight} kg`, x + w - 2, lbY + 6.5, { align: 'right' });
                         doc.setTextColor(...colTextMain);
-
                     } catch (e) { console.error('Error adding PDF image', e); }
                 };
 
-                doc.setFillColor(248, 250, 252);
-                doc.roundedRect(margin, y, photoW, photoH + 15, 2, 2, 'F');
-                doc.roundedRect(margin + photoW + 10, y, photoW, photoH + 15, 2, 2, 'F');
-
-                const imgY = y + 10;
-                const imgH = photoH - 10;
-                const imgW = photoW - 10;
-
-                const startWeight = comparison.start.weightKg || findNearestWeight(comparison.start.dateISO);
-                const currentWeight = comparison.current.weightKg || findNearestWeight(comparison.current.dateISO);
-
-                doc.setFontSize(8);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(...colTextLight);
-                doc.text('INÍCIO', margin + 5, y + 6);
-
-                const startImg = await PhotoStorageService.getPhotoAsDataUrl(comparison.start.id) || comparison.start.image || comparison.start.dataUrl;
-                if (startImg) {
-                    await drawPhotoWithLabel(startImg, margin + 5, imgY, imgW, imgH, DateService.format(comparison.start.dateISO), startWeight);
-                }
-
-                doc.setFontSize(8);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(...colTextLight);
-                doc.text('ATUAL', margin + photoW + 15, y + 6);
-
-                const currentImg = await PhotoStorageService.getPhotoAsDataUrl(comparison.current.id) || comparison.current.image || comparison.current.dataUrl;
-                if (currentImg) {
-                    await drawPhotoWithLabel(currentImg, margin + photoW + 15, imgY, imgW, imgH, DateService.format(comparison.current.dateISO), currentWeight);
-                }
-
-                y += 105;
-
-                // --- NEW GALLERY SECTION ---
-                const galleryPhotos = allPhotos.slice(0, 12); // Limit to 12
-                if (galleryPhotos.length > 0) {
-                    if (y > 220) { doc.addPage(); y = 30; }
-
-                    doc.setFontSize(9);
-                    doc.setTextColor(...colTextLight);
+                for (let i = 0; i < refPhotos.length; i++) {
+                    const { photo, label } = refPhotos[i];
+                    const photoX = margin + i * (photoW + gutter);
+                    const weight = photo.weightKg || findNearestWeight(photo.dateISO);
+                    doc.setFontSize(8);
                     doc.setFont('helvetica', 'bold');
-                    doc.text('GALERIA DO PERÍODO', margin, y);
-                    y += 6;
-
-                    const thumbW = (contentWidth - 10) / 3; // 3 columns
-                    const thumbH = 45;
-                    let col = 0;
-
-                    for (const p of galleryPhotos) {
-                        if (y > 240) { doc.addPage(); y = 30; }
-                        const thumbX = margin + col * (thumbW + 5);
-                        const weight = p.weightKg || findNearestWeight(p.dateISO);
-
-                        const photoDataUrl = await PhotoStorageService.getPhotoAsDataUrl(p.id) || p.image || p.dataUrl;
-                        await drawPhotoWithLabel(photoDataUrl, thumbX, y, thumbW, thumbH, DateService.format(p.dateISO), weight);
-
-                        col++;
-                        if (col > 2) {
-                            col = 0;
-                            y += thumbH + 8;
-                        }
-                    }
-                    if (col !== 0) y += thumbH + 10;
-                    else y += 5;
+                    doc.setTextColor(...colTextLight);
+                    doc.text(label, photoX + 2, y + 5);
+                    doc.setFillColor(248, 250, 252);
+                    doc.roundedRect(photoX, y, photoW, photoH + 12, 2, 2, 'F');
+                    const photoDataUrl = await PhotoStorageService.getPhotoAsDataUrl(photo.id) || photo.image || photo.dataUrl;
+                    await drawPhotoWithLabel(photoDataUrl, photoX + 2, y + 8, photoW - 4, photoH, DateService.format(photo.dateISO), weight);
                 }
+                y += photoH + 22;
             }
-            doc.setTextColor(...colTextMain);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(9);
         }
+        doc.setTextColor(...colTextMain);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+
 
         // 8. MEDIDAS - skipped for brevity as logic implies it depends on options.includeMeasurements
         //    Assuming standard behavior if needed, but user code block had it.
