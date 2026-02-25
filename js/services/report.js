@@ -373,7 +373,7 @@ window.ReportService = {
             doc.setFontSize(10);
             doc.setTextColor(...colBrand);
             doc.setFont('helvetica', 'bold');
-            doc.text('EFICÁCIA POR DOSE', margin, y);
+            doc.text('EFICÁCIA POR DOSE (RESUMO)', margin, y);
             y += 8;
 
             // Agrupa injeções em fases consecutivas de mesma dose
@@ -388,40 +388,58 @@ window.ReportService = {
             });
             if (activePhase) dosePhases.push(activePhase);
 
-            const maxPerRow = 3;
-            const dCardH = 28;
-            for (let row = 0; row < Math.ceil(dosePhases.length / maxPerRow); row++) {
-                if (y > 265) { doc.addPage(); y = 30; }
-                const rowPhases = dosePhases.slice(row * maxPerRow, (row + 1) * maxPerRow);
-                const dCardW = (contentWidth - (rowPhases.length - 1) * 5) / rowPhases.length;
-                rowPhases.forEach((phase, col) => {
-                    const cx = margin + col * (dCardW + 5);
-                    const wS = findNearestWeight(phase.startDate);
-                    const wE = findNearestWeight(phase.endDate);
-                    const lossKg = (wS && wE) ? wS - wE : null;
-                    const dDays = Math.floor((new Date(phase.endDate) - new Date(phase.startDate)) / 86400000);
-                    const dWeeks = Math.max(dDays / 7, 1);
-                    const lossStr = lossKg !== null ? `${lossKg >= 0 ? '-' : '+'}${Math.abs(lossKg).toFixed(1)} kg` : 'N/D';
-                    const rateStr = (lossKg !== null && lossKg > 0) ? `${(lossKg / dWeeks).toFixed(2)} kg/sem` : 'N/D';
-                    const drugLabel = window.MedicationLevelService ? MedicationLevelService.formatDrugName(phase.drugName) : phase.drugName;
+            const rowH = 8;
+            dosePhases.forEach((phase, i) => {
+                if (y > 270) { doc.addPage(); y = 30; }
+
+                // Background zebra
+                if (i % 2 === 0) {
                     doc.setFillColor(248, 250, 252);
-                    doc.setDrawColor(226, 232, 240);
-                    doc.roundedRect(cx, y, dCardW, dCardH, 1, 1, 'FD');
-                    doc.setFontSize(6);
-                    doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(...colTextLight);
-                    doc.text(`${drugLabel} ${phase.doseMg}mg (${phase.count}x)`.toUpperCase(), cx + 4, y + 7);
-                    const lossColor = (lossKg !== null && lossKg > 0) ? colGreen : colRed;
-                    doc.setFontSize(11);
-                    doc.setTextColor(...lossColor);
-                    doc.text(lossStr, cx + 4, y + 17);
-                    doc.setFontSize(7);
-                    doc.setTextColor(...colTextLight);
-                    doc.setFont('helvetica', 'normal');
-                    doc.text(rateStr, cx + 4, y + 24);
-                });
-                y += dCardH + 5;
-            }
+                    doc.rect(margin, y, contentWidth, rowH, 'F');
+                }
+
+                const wS = findNearestWeight(phase.startDate);
+                const wE = findNearestWeight(phase.endDate);
+                const lossKg = (wS && wE) ? wS - wE : null;
+                const dDays = Math.floor((new Date(phase.endDate) - new Date(phase.startDate)) / 86400000);
+                const dWeeks = Math.max(dDays / 7, 1);
+
+                const lossStr = lossKg !== null ? `${lossKg >= 0 ? '-' : '+'}${Math.abs(lossKg).toFixed(1)} kg` : '--';
+                const rateStr = (lossKg !== null && lossKg > 0) ? `${(lossKg / dWeeks).toFixed(2)} kg/sem` : '--';
+                const drugLabel = window.MedicationLevelService ? MedicationLevelService.formatDrugName(phase.drugName) : phase.drugName;
+
+                const c1 = margin + 2;       // Medicação
+                const c2 = margin + 50;      // Semanas
+                const c3 = margin + 90;      // Perda Total
+                const c4 = margin + 130;     // Taxa
+
+                // Drug Name & Dose (Premium bold)
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...colTextMain);
+                doc.text(`${drugLabel} ${phase.doseMg}mg`, c1, y + 5.5);
+
+                // Duration
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(...colTextLight);
+                doc.text(`${dWeeks.toFixed(1)} semanas (${phase.count} apps)`, c2, y + 5.5);
+
+                // Loss Total
+                const lossColor = (lossKg !== null && lossKg > 0) ? colGreen : colRed;
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...lossColor);
+                doc.text(lossStr, c3, y + 5.5);
+
+                // Rate
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(...colTextLight);
+                const tWidth = doc.getTextWidth(rateStr);
+                doc.setFillColor(226, 232, 240);
+                doc.roundedRect(c4 - 2, y + 2, tWidth + 4, 5, 1, 1, 'F');
+                doc.text(rateStr, c4, y + 5.5);
+
+                y += rowH;
+            });
             y += 8;
         }
 
@@ -521,19 +539,108 @@ window.ReportService = {
         doc.setFontSize(9);
 
 
-        // 8. MEDIDAS - skipped for brevity as logic implies it depends on options.includeMeasurements
-        //    Assuming standard behavior if needed, but user code block had it.
-        //    For safety, I'll allow the user's code structure to handle it if they pass the option.
-        //    (Code continues...)
+        // ---------------------------------------------------------
+        // 8. EVOLUÇÃO DE MEDIDAS CORPORAIS
+        // ---------------------------------------------------------
+        if (options.includeTable && measurements && measurements.length > 0) {
+            if (y > 230) { doc.addPage(); y = 30; }
 
+            // Title
+            doc.setFontSize(10);
+            doc.setTextColor(...colBrand);
+            doc.setFont('helvetica', 'bold');
+            doc.text('EVOLUÇÃO DE MEDIDAS CORPORAIS', margin, y);
+            y += 8;
+
+            // Table Header
+            doc.setFillColor(241, 245, 249);
+            doc.rect(margin, y, contentWidth, 6, 'F');
+            doc.setFontSize(7);
+            doc.setTextColor(...colTextLight);
+
+            // Columns (Date, Cintura, Quadril, Coxas, Peitoral)
+            const mCols = [margin + 2, margin + 40, margin + 70, margin + 100, margin + 130];
+            doc.text('DATA', mCols[0], y + 4);
+            doc.text('CINTURA', mCols[1], y + 4);
+            doc.text('QUADRIL', mCols[2], y + 4);
+            doc.text('COXAS', mCols[3], y + 4);
+            doc.text('PEITORAL', mCols[4], y + 4);
+            y += 6;
+
+            // Rows
+            doc.setFont('helvetica', 'normal');
+
+            // Sort measurements by date descending (newest first)
+            const sortedMeasurements = [...measurements].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
+            const oldestMeasurement = sortedMeasurements[sortedMeasurements.length - 1];
+
+            sortedMeasurements.forEach((m, i) => {
+                if (y > 270) {
+                    doc.addPage(); y = 30;
+                    doc.setFillColor(241, 245, 249);
+                    doc.rect(margin, y, contentWidth, 6, 'F');
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colTextLight);
+                    doc.text('DATA', mCols[0], y + 4);
+                    doc.text('CINTURA', mCols[1], y + 4);
+                    doc.text('QUADRIL', mCols[2], y + 4);
+                    doc.text('COXAS', mCols[3], y + 4);
+                    doc.text('PEITORAL', mCols[4], y + 4);
+                    doc.setFont('helvetica', 'normal');
+                    y += 6;
+                }
+
+                if (i % 2 !== 0) {
+                    doc.setFillColor(252, 252, 252);
+                    doc.rect(margin, y, contentWidth, 5.5, 'F');
+                }
+
+                doc.setTextColor(...colTextMain);
+                doc.text(DateService.format(m.dateISO), mCols[0], y + 4);
+
+                // Helper to format measurement with variation
+                const drawMeasure = (val, initialVal, xPos) => {
+                    if (!val) {
+                        doc.setTextColor(...colTextLight);
+                        doc.text('--', xPos, y + 4);
+                        return;
+                    }
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colTextMain);
+                    doc.text(`${val} cm`, xPos, y + 4);
+                    doc.setFont('helvetica', 'normal');
+
+                    if (initialVal && val !== initialVal) {
+                        const diff = val - initialVal;
+                        const tWidth = doc.getTextWidth(`${val} cm`);
+                        const dColor = diff > 0 ? colRed : colGreen; // For measurements, losing cm is green
+                        doc.setFontSize(6);
+                        doc.setTextColor(...dColor);
+                        doc.text(`${diff > 0 ? '+' : ''}${diff} cm`, xPos + tWidth + 2, y + 3.5);
+                        doc.setFontSize(7);
+                    }
+                };
+
+                drawMeasure(m.waist, oldestMeasurement?.waist, mCols[1]);
+                drawMeasure(m.hips, oldestMeasurement?.hips, mCols[2]);
+                drawMeasure(m.thighs, oldestMeasurement?.thighs, mCols[3]);
+                drawMeasure(m.chest, oldestMeasurement?.chest, mCols[4]);
+
+                y += 5.5;
+            });
+            y += 10;
+        }
+
+        // ---------------------------------------------------------
         // 9. MONITORAMENTO DE PESO (High Density)
+        // ---------------------------------------------------------
         if (options.includeTable) {
             if (y > 230) { doc.addPage(); y = 30; }
 
             doc.setFontSize(10);
             doc.setTextColor(...colBrand);
             doc.setFont('helvetica', 'bold');
-            doc.text('DADOS BIOMÉTRICOS DETALHADOS', margin, y);
+            doc.text('DADOS BIOMÉTRICOS DETALHADOS (PESO)', margin, y);
             y += 8;
 
             // Table Header
