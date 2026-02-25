@@ -218,6 +218,17 @@ const HelpController = {
             tip: '💡 Gere o relatório antes de cada consulta. Ele ajuda o profissional a ajustar sua dose ou protocolo com base em dados reais.'
         },
         {
+            icon: '🔔',
+            title: 'Notificações & Lembretes',
+            steps: [
+                'Acesse <strong>+ → Notificações</strong> (ou através da aba Perfil).',
+                'Ative <strong>Lembrete de Água</strong> para receber avisos de hora em hora (ou conforme o intervalo e horário configurados).',
+                'Ative <strong>Lembrete de Injeção</strong> para ser avisado 1 dia antes e no próprio dia da sua aplicação.',
+                'Importante: o seu navegador ou celular pedirá <strong>permissão</strong> para exibir notificações. Você deve clicar em <strong>Permitir</strong>.'
+            ],
+            tip: '💡 No iPhone (iOS), notificações de sites (PWA) só funcionam se você adicionar o aplicativo à Tela de Início (opção Compartilhar → Adicionar à Tela de Início).'
+        },
+        {
             icon: '🔒',
             title: 'Seus Dados & Privacidade',
             steps: [
