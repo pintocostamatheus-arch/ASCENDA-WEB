@@ -100,8 +100,12 @@ window.AuthService = {
 
         // Força buscar o perfil garantindo o is_approved ATUALIZADO
         if (data.user) {
-            const { data: profiles } = await SupabaseService.get('profiles', { id: data.user.id });
-            if (profiles && profiles.length > 0) {
+            const { data: profiles, error: profileError } = await client
+                .from('profiles')
+                .select('*')
+                .eq('id', data.user.id);
+
+            if (!profileError && profiles && profiles.length > 0) {
                 StorageService.set(StorageService.KEYS.PROFILE, profiles[0]);
             }
         }
