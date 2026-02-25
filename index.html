@@ -2857,9 +2857,26 @@
         }, 4000);
     </script>
 
-    <!-- Service Worker Registration -->
+    <!-- Service Worker Registration + Auto-Update -->
     <script>
         if ('serviceWorker' in navigator) {
+            // Captura ANTES do load: se já havia um SW ativo, esta é uma atualização
+            const hadController = !!navigator.serviceWorker.controller;
+
+            // Quando um novo SW assume o controle → recarrega automaticamente
+            let _swRefreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (_swRefreshing || !hadController) return; // ignora primeira instalação
+                _swRefreshing = true;
+                // Mostra toast se o UI já estiver carregado, senão recarrega direto
+                if (window.UI && typeof UI.toast === 'function') {
+                    UI.toast('✨ Nova versão disponível! Atualizando...', 'info', 2500);
+                    setTimeout(() => window.location.reload(), 2000);
+                } else {
+                    window.location.reload();
+                }
+            });
+
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
                     .then(reg => console.log('SW registrado:', reg.scope))
