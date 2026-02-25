@@ -317,6 +317,8 @@ window.App = {
             // Header
             const elGreeting = document.getElementById('header-user-name');
             if (elGreeting && profile.name) elGreeting.textContent = profile.name;
+            const elProfileName = document.getElementById('profile-name-display');
+            if (elProfileName && profile.name) elProfileName.textContent = profile.name;
 
             // Weight
             if (latest) {
