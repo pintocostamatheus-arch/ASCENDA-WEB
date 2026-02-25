@@ -242,6 +242,8 @@ window.ReportService = {
             doc.text('EVOLUÇÃO PONDERAL E DOSES', margin, y);
             y += 8;
 
+            // Reset ANTES do canvas — legenda vai reutilizar as cores já atribuídas aqui
+            if (window.DoseColorManager) DoseColorManager.reset();
             const chartImg = await this.renderChartCanvas(weights, injections);
             if (chartImg) {
                 // FIXED HEIGHT for consistency
@@ -268,9 +270,6 @@ window.ReportService = {
                 doc.setFontSize(8);
                 doc.setFont('helvetica', 'normal');
                 let legX = margin + 2;
-
-                // Reset garante ordem consistente entre legenda e canvas do PDF
-                if (window.DoseColorManager) DoseColorManager.reset();
 
                 doses.forEach(item => {
                     // 1. Text (Drug)
@@ -898,7 +897,10 @@ window.ReportService = {
 
                 let doseColor = null;
                 if (injection && window.DoseColorManager) {
-                    doseColor = DoseColorManager.getColor(injection.drugName, injection.doseMg);
+                    const normalizedDrug = window.MedicationLevelService
+                        ? MedicationLevelService.formatDrugName(injection.drugName)
+                        : injection.drugName;
+                    doseColor = DoseColorManager.getColor(normalizedDrug, injection.doseMg);
                 }
 
                 return {
