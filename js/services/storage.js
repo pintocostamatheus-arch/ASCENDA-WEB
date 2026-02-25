@@ -237,9 +237,16 @@ window.StorageService = {
             if (profiles.length > 0) {
                 const p = profiles[0];
                 const localProfile = this.getSafe(this.KEYS.PROFILE, {});
+
+                // Usa user_metadata como fallback seguro para o nome (nunca corrompido por bugs de sync)
+                const metaName = user.user_metadata?.name || user.user_metadata?.full_name || null;
+                // Prioridade: DB profile.name → auth user_metadata → cache local (ignorando 'Usuário' default)
+                const localNameSafe = (localProfile.name && localProfile.name !== 'Usuário') ? localProfile.name : null;
+                const resolvedName = p.name || metaName || localNameSafe || '';
+
                 const cloudProfile = {
                     ...localProfile,
-                    name: p.name || localProfile.name,
+                    name: resolvedName,
                     sex: p.sex || localProfile.sex,
                     birthdate: p.birthdate || localProfile.birthdate,
                     heightCm: p.height_cm || localProfile.heightCm,
