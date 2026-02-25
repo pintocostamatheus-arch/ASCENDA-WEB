@@ -1,7 +1,7 @@
 /* ============================================
    DYNAMIC DOSE COLOR SYSTEM
    ============================================ */
-const DoseColorManager = {
+window.DoseColorManager = {
     // Curated array of 12 visually distinct colors
     palette: [
         '#EC4899', // Pink

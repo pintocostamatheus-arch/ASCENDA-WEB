@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ascenda-v15';
+const CACHE_NAME = 'ascenda-v16';
 const ASSETS = [
   '/',
   '/index.html',
