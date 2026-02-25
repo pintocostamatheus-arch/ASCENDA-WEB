@@ -1,0 +1,2719 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#10B981">
+    <meta name="description"
+        content="Ascenda - Acompanhamento completo para seu tratamento com GLP-1 (Semaglutida, Tirzepatida, Retatrutida).">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Ascenda - Desperte sua melhor versão</title>
+
+    <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+    <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/components.css?v=102">
+    <link rel="stylesheet" href="css/custom-components.css?v=111">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/mobile.css?v=6">
+    <link rel="stylesheet" href="css/v12-updates.css">
+    <link rel="stylesheet" href="css/onboarding.css">
+    <link rel="stylesheet" href="css/auth.css?v=8">
+    <!-- Croppie CSS -->
+    <link rel="stylesheet" href="js/vendor/croppie.min.css" />
+    <!-- Supabase JS Client (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="js/vendor/chart.umd.min.js"></script>
+    <script src="js/vendor/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <!-- SVG Icon Definitions -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <defs>
+            <linearGradient id="grad-primary" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--color-primary)" />
+                <stop offset="100%" stop-color="var(--color-secondary, var(--color-primary))" />
+            </linearGradient>
+            <!-- Icons -->
+            <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+            </symbol>
+            <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+            </symbol>
+            <symbol id="icon-scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
+            </symbol>
+            <symbol id="icon-utensils" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+                <path d="M7 2v20" />
+                <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+            </symbol>
+            <symbol id="icon-syringe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m18 2 4 4" />
+                <path d="m17 7 3-3" />
+                <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5" />
+                <path d="m9 11 4 4" />
+                <path d="m5 19-3 3" />
+                <path d="m14 4 6 6" />
+            </symbol>
+            <symbol id="icon-heart-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19.5 12.572l-7.5 7.428l-7.5-7.428A5 5 0 1 1 12 6.006a5 5 0 1 1 7.5 6.572" />
+                <path d="M12 6L12 12" />
+                <polyline points="15 10 12 13 9 10" />
+            </symbol>
+            <symbol id="icon-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </symbol>
+            <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+            </symbol>
+            <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+            </symbol>
+            <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+            </symbol>
+            <symbol id="icon-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </symbol>
+            <symbol id="icon-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                <line x1="8" y1="2" x2="8" y2="18" />
+                <line x1="16" y1="6" x2="16" y2="22" />
+            </symbol>
+            <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+            </symbol>
+            <symbol id="icon-droplet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+            </symbol>
+            <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </symbol>
+            <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9" />
+            </symbol>
+            <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.60 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </symbol>
+            <symbol id="icon-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="5" rx="9" ry="3" />
+                <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+                <path d="M3 12A9 3 0 0 0 21 12" />
+            </symbol>
+            <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </symbol>
+            <symbol id="icon-brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.5 2A5 5 0 0 1 12 10a5 5 0 0 1 2.5-8" />
+                <path d="M4 10a5 5 0 0 1 8 0 5 5 0 0 1 8 0" />
+                <path d="M12 10v12" />
+            </symbol>
+            <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </symbol>
+            <symbol id="icon-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+            </symbol>
+            <symbol id="icon-refresh-cw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10" />
+                <polyline points="1 20 1 14 7 14" />
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </symbol>
+            <symbol id="icon-battery-low" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="6" width="18" height="12" rx="2" ry="2" />
+                <line x1="23" y1="11" x2="23" y2="13" />
+                <line x1="5" y1="10" x2="5" y2="14" />
+            </symbol>
+            <symbol id="logo-wordmark" viewBox="0 0 7619.98 2539.98">
+                <path fill="currentColor"
+                    d="M431.29 1714.49l400.05 -889 162.56 0 401.32 889 -172.72 0 -344.17 -801.37 66.04 0 -342.9 801.37 -170.18 0zm184.15 -205.74l44.45 -129.54 480.06 0 44.45 129.54 -568.96 0z" />
+                <path fill="currentColor"
+                    d="M1819.78 1727.19c-69.43,0 -135.89,-9.95 -199.39,-29.85 -63.5,-19.89 -113.88,-45.5 -151.13,-76.83l57.15 -128.27c35.56,27.94 79.59,51.22 132.08,69.85 52.49,18.63 106.26,27.94 161.29,27.94 46.57,0 84.24,-5.08 113.03,-15.24 28.79,-10.16 49.95,-23.92 63.5,-41.28 13.55,-17.35 20.32,-37.04 20.32,-59.05 0,-27.09 -9.74,-48.9 -29.21,-65.41 -19.47,-16.51 -44.66,-29.63 -75.56,-39.37 -30.91,-9.73 -65.2,-18.83 -102.87,-27.3 -37.68,-8.47 -75.36,-18.42 -113.03,-29.85 -37.68,-11.43 -71.97,-26.24 -102.87,-44.45 -30.91,-18.2 -56.1,-42.54 -75.57,-73.02 -19.47,-30.48 -29.21,-69.43 -29.21,-116.84 0,-48.26 12.91,-92.5 38.74,-132.72 25.82,-40.21 65.19,-72.39 118.11,-96.52 52.91,-24.13 120.01,-36.19 201.29,-36.19 53.34,0 106.26,6.77 158.75,20.32 52.49,13.55 98.21,33.02 137.16,58.42l-52.07 128.27c-39.79,-23.71 -80.86,-41.28 -123.19,-52.71 -42.33,-11.43 -82.97,-17.14 -121.92,-17.14 -45.72,0 -82.76,5.5 -111.12,16.51 -28.37,11.01 -49.11,25.4 -62.23,43.18 -13.13,17.78 -19.69,38.1 -19.69,60.96 0,27.09 9.53,48.89 28.58,65.4 19.05,16.51 44.02,29.43 74.93,38.74 30.9,9.31 65.4,18.41 103.5,27.3 38.1,8.89 75.99,18.84 113.67,29.85 37.67,11.01 71.96,25.4 102.87,43.18 30.9,17.78 55.88,41.91 74.93,72.39 19.05,30.48 28.57,69 28.57,115.57 0,47.41 -12.91,91.23 -38.73,131.44 -25.83,40.22 -65.41,72.39 -118.75,96.52 -53.34,24.14 -120.65,36.2 -201.93,36.2z" />
+                <path fill="currentColor"
+                    d="M2790.44 1727.19c-67.73,0 -130.6,-11.22 -188.59,-33.66 -58,-22.43 -108.38,-54.18 -151.13,-95.25 -42.76,-41.06 -75.99,-89.53 -99.7,-145.41 -23.71,-55.88 -35.56,-116.84 -35.56,-182.88 0,-66.04 11.85,-127 35.56,-182.88 23.71,-55.88 57.15,-104.35 100.33,-145.42 43.18,-41.06 93.56,-72.81 151.13,-95.25 57.57,-22.43 120.65,-33.65 189.23,-33.65 72.81,0 139.28,12.49 199.39,37.46 60.11,24.98 110.91,62.02 152.4,111.13l-106.68 100.33c-32.17,-34.71 -68.16,-60.75 -107.95,-78.11 -39.79,-17.35 -82.97,-26.03 -129.54,-26.03 -46.57,0 -89.11,7.62 -127.63,22.86 -38.53,15.24 -71.97,36.83 -100.33,64.77 -28.37,27.94 -50.38,60.96 -66.04,99.06 -15.67,38.1 -23.5,80.01 -23.5,125.73 0,45.72 7.83,87.63 23.5,125.73 15.66,38.1 37.67,71.12 66.04,99.06 28.36,27.94 61.8,49.53 100.33,64.77 38.52,15.24 81.06,22.86 127.63,22.86 46.57,0 89.75,-8.68 129.54,-26.04 39.79,-17.35 75.78,-43.81 107.95,-79.37l106.68 101.6c-41.49,48.26 -92.29,85.09 -152.4,110.49 -60.11,25.4 -127,38.1 -200.66,38.1z" />
+                <path fill="currentColor"
+                    d="M3329.3 1714.49l-2.54 -889 647.7 0 1.27 138.43 -485.14 -1.27 1.27 613.41 500.38 1.27 1.27 137.16 -664.21 0zm148.59 -386.08l1.27 -133.35 440.69 2.54 1.27 133.35 -443.23 -2.54z" />
+                <polygon fill="currentColor"
+                    points="4214.87,1714.49 4213.6,825.49 4349.49,825.49 4907.02,1510.02 4840.98,1511.29 4839.71,825.49 5002.27,825.49 5003.54,1714.49 4867.65,1714.49 4310.12,1029.96 4377.43,1028.69 4377.43,1714.49 " />
+                <path fill="currentColor"
+                    d="M5278.24 1714.49l0 -889 388.62 0c96.52,0 181.19,18.63 254,55.88 72.81,37.25 129.54,88.9 170.18,154.94 40.64,66.04 60.96,143.93 60.96,233.68 0,88.9 -20.32,166.58 -60.96,233.04 -40.64,66.47 -97.37,118.33 -170.18,155.58 -72.81,37.25 -157.48,55.88 -254,55.88l-388.62 0zm165.1 -139.7l215.9 0c66.04,0 123.61,-12.7 172.72,-38.1 49.11,-25.4 87,-60.96 113.67,-106.68 26.67,-45.72 40,-99.06 40,-160.02 0,-61.81 -13.33,-115.36 -40,-160.66 -26.67,-45.29 -64.56,-80.64 -113.67,-106.04 -49.11,-25.4 -106.68,-38.1 -172.72,-38.1l-215.9 0 0 609.6z" />
+                <path fill="currentColor"
+                    d="M6224.77 1714.49l400.05 -889 162.56 0 401.32 889 -172.72 0 -344.17 -801.37 66.04 0 -342.9 801.37 -170.18 0zm184.15 -205.74l44.45 -129.54 480.06 0 44.45 129.54 -568.96 0z" />
+            </symbol>
+        </defs>
+    </svg>
+
+    <!-- ═══════════════════════════════════════════
+         SPLASH SCREEN
+         ═══════════════════════════════════════════ -->
+    <div class="splash-screen" id="splash-screen">
+        <div class="splash-content">
+            <div class="splash-icon">
+                <img src="assets/img/logo.svg" alt="Ascenda" width="80" height="80">
+            </div>
+            <div class="splash-brand-logo"
+                style="width: 240px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                <svg class="splash-logo-svg" viewBox="0 0 7619.98 2539.98" style="width: 100%; height: auto;">
+                    <use href="#logo-wordmark"></use>
+                </svg>
+            </div>
+            <p>Desperte sua melhor versão</p>
+            <div class="splash-loader"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         AUTH SCREEN
+         ═══════════════════════════════════════════ -->
+    <div id="auth-screen" class="auth-screen" hidden>
+        <div class="auth-container">
+            <div class="auth-header">
+                <img src="assets/img/logo.svg" alt="Ascenda Icon" class="auth-logo-icon">
+                <div class="auth-wordmark-wrapper">
+                    <svg class="auth-logo-wordmark" viewBox="0 0 7619.98 2539.98">
+                        <use href="#logo-wordmark"></use>
+                    </svg>
+                </div>
+                <p class="auth-subtitle">Desperte sua melhor versão</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button id="auth-tab-login" class="auth-tab active">Entrar</button>
+                <button id="auth-tab-signup" class="auth-tab">Criar Conta</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="auth-form-login" class="auth-form" onsubmit="return false;">
+                <div class="auth-field">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email" required>
+                </div>
+                <div class="auth-field">
+                    <label for="login-password">Senha</label>
+                    <input type="password" id="login-password" placeholder="Sua senha" autocomplete="current-password"
+                        required>
+                </div>
+                <div id="auth-error-login" class="auth-message" hidden></div>
+                <button id="btn-auth-login" type="button" class="btn btn-primary auth-btn">Entrar</button>
+                <a href="#" id="auth-forgot-password" class="auth-link">Esqueci minha senha</a>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="auth-form-signup" class="auth-form" onsubmit="return false;" hidden>
+                <div class="auth-field">
+                    <label for="signup-name">Nome</label>
+                    <input type="text" id="signup-name" placeholder="Seu nome" autocomplete="name">
+                </div>
+                <div class="auth-field">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" placeholder="seu@email.com" autocomplete="email" required>
+                </div>
+                <div class="auth-field">
+                    <label for="signup-password">Senha</label>
+                    <input type="password" id="signup-password" placeholder="Mínimo 6 caracteres"
+                        autocomplete="new-password" required>
+                </div>
+                <div class="auth-field">
+                    <label for="signup-confirm">Confirmar Senha</label>
+                    <input type="password" id="signup-confirm" placeholder="Repita a senha" autocomplete="new-password"
+                        required>
+                </div>
+                <div id="auth-error-signup" class="auth-message" hidden></div>
+                <button id="btn-auth-signup" type="button" class="btn btn-primary auth-btn">Criar Conta</button>
+            </form>
+
+            <!-- Reset Password Form -->
+            <form id="auth-form-reset" class="auth-form" hidden onsubmit="return false;">
+                <p class="auth-reset-text">Informe seu email para receber um link de redefinição de senha.</p>
+                <div class="auth-field">
+                    <label for="reset-email">Email</label>
+                    <input type="email" id="reset-email" placeholder="seu@email.com" autocomplete="email" required>
+                </div>
+                <div id="auth-error-reset" class="auth-message" hidden></div>
+                <button id="btn-auth-reset" type="button" class="btn btn-primary auth-btn">Enviar Link</button>
+                <a href="#" id="auth-back-to-login" class="auth-link">Voltar ao login</a>
+            </form>
+
+            <!-- Divider -->
+            <div class="auth-divider">
+                <span>ou</span>
+            </div>
+
+            <!-- Google OAuth -->
+            <button id="btn-auth-google" class="btn auth-btn-google">
+                <svg width="18" height="18" viewBox="0 0 48 48">
+                    <path fill="#EA4335"
+                        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                    <path fill="#4285F4"
+                        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                    <path fill="#FBBC05"
+                        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                    <path fill="#34A853"
+                        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                </svg>
+                Continuar com Google
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         MAIN APP
+         ═══════════════════════════════════════════ -->
+    <div id="app" class="app-container hidden">
+        <!-- HEADER (Mobile) -->
+        <header class="app-header">
+            <div class="header-top">
+                <div class="header-brand">
+                    <img src="assets/img/logo.svg" alt="Icon" class="header-logo-icon">
+                    <svg class="header-logo-svg" viewBox="0 0 7619.98 2539.98">
+                        <use href="#logo-wordmark"></use>
+                    </svg>
+                </div>
+                <div class="header-actions">
+                    <div class="theme-selector" id="theme-selector">
+                        <button class="theme-toggle" id="theme-toggle-btn">
+                            <span class="theme-label">Tema</span>
+                            <svg width="14" height="14" class="chevron-icon">
+                                <use href="#icon-chevron-down"></use>
+                            </svg>
+                        </button>
+                        <div class="theme-dropdown" id="theme-dropdown">
+                            <button class="theme-option" data-theme="light">
+                                <span class="theme-preview"
+                                    style="background: linear-gradient(135deg, #F8FAFC, #10B981);"></span>
+                                <span>Claro</span>
+                            </button>
+                            <button class="theme-option" data-theme="dark">
+                                <span class="theme-preview"
+                                    style="background: linear-gradient(135deg, #050505, #34D399);"></span>
+                                <span>Escuro</span>
+                            </button>
+                            <button class="theme-option" data-theme="pastel">
+                                <span class="theme-preview"
+                                    style="background: linear-gradient(135deg, #FDFBF7, #6B9080);"></span>
+                                <span>Pastel</span>
+                            </button>
+                            <button class="theme-option" data-theme="indigo">
+                                <span class="theme-preview"
+                                    style="background: linear-gradient(135deg, #EEF2FF, #4338CA);"></span>
+                                <span>Índigo</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-date-display">
+                <span id="header-date"></span>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+
+            <!-- ═══════ TAB: HOJE (Dashboard) ═══════ -->
+            <section class="tab-section active" id="tab-hoje">
+                <!-- Weight Card -->
+                <div class="card card-weight card-weight-v11" id="card-weight-dashboard"
+                    onclick="Router.navigate('peso')" style="cursor: pointer;">
+                    <div class="card-header">
+                        <span class="card-label">PESO ATUAL</span>
+                        <svg class="card-icon" width="24" height="24">
+                            <use href="#icon-scale"></use>
+                        </svg>
+                    </div>
+                    <div class="card-value-group" style="display: flex; align-items: baseline; gap: 12px;">
+                        <div class="card-value" id="today-weight">-- kg</div>
+                        <button class="btn-weight-mini" id="btn-register-weight" aria-label="Registrar Peso">
+                            <svg width="14" height="14">
+                                <use href="#icon-plus"></use>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="card-sub" id="today-weight-change"
+                        style="color: #FFFFFF !important; opacity: 1 !important; font-weight: 600;">--</div>
+                    <hr class="card-divider">
+                    <div class="card-meta">Meta <span id="today-weight-goal">-- kg</span></div>
+                </div>
+
+                <!-- Injection Card (Hero) - PURPLE - COMPACT -->
+                <div class="card card-hero card-injection-v10" onclick="Router.navigate('injecoes')"
+                    style="cursor: pointer;">
+                    <div class="card-header-v10">
+                        <span class="card-title-v10">PRÓXIMA INJEÇÃO</span>
+                        <span class="status-badge-v10" id="injection-status-badge">NO PRAZO</span>
+                    </div>
+                    <div class="injection-main-v10">
+                        <span class="injection-days-v10" id="next-injection-days-v10">--</span>
+                    </div>
+                    <div class="injection-date-v10" id="next-injection-date-v10">--</div>
+                    <div class="injection-drug-v10">
+                        <svg width="14" height="14">
+                            <use href="#icon-syringe"></use>
+                        </svg>
+                        <span id="next-injection-drug-v10">Semaglutida</span>
+                        <span class="drug-dose-v10" id="next-injection-dose-v10">-- mg</span>
+                    </div>
+                </div>
+
+                <!-- Clinical Analysis Card (Dynamic) -->
+                <div class="card card-clinical-analysis" style="text-align: left !important;">
+                    <div class="card-header"
+                        style="display: flex !important; justify-content: space-between !important; align-items: center !important;">
+                        <div class="card-header-left"
+                            style="display: flex !important; align-items: center !important; gap: 8px !important;">
+                            <svg width="20" height="20" style="color: var(--text-muted);" id="clinical-icon">
+                                <use href="#icon-check"></use>
+                            </svg>
+                            <span class="card-label" id="clinical-label"
+                                style="color: var(--text-primary); text-align: left !important; margin: 0 !important;">Análise
+                                Clínica</span>
+                        </div>
+                        <span class="badge" id="efficacy-badge"
+                            style="background: var(--text-muted); color: white;">Aguardando</span>
+                    </div>
+                    <div class="card-sub" id="clinical-analysis-text" style="text-align: left !important;">
+                        Insira pelo menos 2 registros de peso em dias diferentes e sua primeira aplicação para iniciar a
+                        análise.
+                    </div>
+                </div>
+
+                <!-- Nutrition Row -->
+                <div class="card-row card-row-nutrition">
+                    <div class="card card-compact">
+                        <div class="progress-ring-container">
+                            <svg class="progress-ring" viewBox="0 0 36 36">
+                                <path class="ring-bg"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="ring-fill ring-protein" id="protein-ring" stroke-dasharray="0, 100"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <div class="ring-label">
+                                <span class="ring-value" id="protein-consumed">0</span>
+                                <span class="ring-unit">g</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; justify-content: center;">
+                            <span class="card-label">PROTEÍNA</span>
+                            <button class="btn-edit-goal" onclick="App.openGoalsModal()" title="Personalizar Meta">
+                                <svg width="10" height="10">
+                                    <use href="#icon-edit"></use>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="card-sub">Meta: <span id="protein-goal">70</span>g</span>
+                    </div>
+                    <div class="card card-compact">
+                        <div class="progress-ring-container">
+                            <svg class="progress-ring" viewBox="0 0 36 36">
+                                <path class="ring-bg"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="ring-fill ring-water" id="water-ring" stroke-dasharray="0, 100"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <div class="ring-label">
+                                <span class="ring-value" id="water-consumed">0</span>
+                                <span class="ring-unit">L</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; justify-content: center;">
+                            <span class="card-label">ÁGUA</span>
+                            <button class="btn-edit-goal" onclick="App.openGoalsModal()" title="Personalizar Meta">
+                                <svg width="10" height="10">
+                                    <use href="#icon-edit"></use>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="card-sub">Meta: <span id="water-goal">2.5</span>L</span>
+                    </div>
+                    <div class="card card-compact">
+                        <div class="progress-ring-container">
+                            <svg class="progress-ring" viewBox="0 0 36 36">
+                                <path class="ring-bg"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="ring-fill ring-fiber" id="fiber-ring" stroke-dasharray="0, 100"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <div class="ring-label">
+                                <span class="ring-value" id="fiber-consumed">0</span>
+                                <span class="ring-unit">g</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; justify-content: center;">
+                            <span class="card-label">FIBRA</span>
+                            <button class="btn-edit-goal" onclick="App.openGoalsModal()" title="Personalizar Meta">
+                                <svg width="10" height="10">
+                                    <use href="#icon-edit"></use>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="card-sub">Meta: <span id="fiber-goal">30</span>g</span>
+                    </div>
+                </div>
+
+                <!-- BMI Card Redesign (Premium) -->
+                <!-- BMI Card (Compact Row Style) -->
+                <div class="card card-bmi-premium">
+                    <div class="bmi-header-row">
+                        <div class="bmi-title">IMC</div>
+                        <div class="bmi-value-text" id="today-bmi">--</div>
+                    </div>
+
+                    <div class="bmi-gauge-premium">
+                        <div class="bmi-bar-premium">
+                            <div class="bmi-segment bmi-under"></div>
+                            <div class="bmi-segment bmi-normal"></div>
+                            <div class="bmi-segment bmi-over"></div>
+                            <div class="bmi-segment bmi-obese1"></div>
+                            <div class="bmi-segment bmi-obese2"></div>
+                            <div class="bmi-segment bmi-obese3"></div>
+                            <div class="bmi-indicator-premium" id="bmi-indicator">
+                                <svg width="10" height="8" viewBox="0 0 12 10" fill="currentColor">
+                                    <path d="M6 10L0 0H12L6 10Z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bmi-footer-row">
+                        <div class="bmi-stage-badge" id="bmi-stage-badge">--</div>
+                    </div>
+                </div>
+
+                <!-- Daily Insight Card -->
+                <div class="card card-insight" id="card-daily-insight">
+                    <div class="insight-header">
+                        <span class="insight-icon" id="insight-icon">💡</span>
+                        <span class="insight-title" id="insight-title">Dica do Dia</span>
+                    </div>
+                    <p class="insight-text" id="insight-text">Carregando insight...</p>
+                </div>
+
+
+
+
+            </section>
+
+            <!-- ═══════ TAB: INSTRUÇÕES ═══════ -->
+            <section class="tab-section" id="tab-instrucoes">
+                <h2 class="tab-title">Instruções</h2>
+                <div id="instructions-content"></div>
+            </section>
+
+            <!-- ═══════ TAB: INJEÇÕES ═══════ -->
+            <section class="tab-section" id="tab-injecoes">
+                <h2 class="tab-title">Injeções</h2>
+
+                <!-- Dose Hero -->
+                <div class="card card-dose-hero">
+                    <div class="dose-hero-grid">
+                        <div class="dose-hero-left">
+                            <span class="dose-hero-label">Próxima Dose</span>
+                            <div class="dose-hero-countdown" id="dose-hero-countdown">-- dias</div>
+                            <div class="dose-hero-date" id="dose-hero-date">--</div>
+                        </div>
+                        <div class="dose-hero-right">
+                            <span class="dose-hero-label">Local Sugerido</span>
+                            <div class="dose-hero-site" id="suggested-site-hero">--</div>
+                        </div>
+                    </div>
+                    <div class="dose-hero-actions">
+                        <button class="btn btn-primary" id="btn-hero-register">
+                            <svg width="18" height="18">
+                                <use href="#icon-syringe"></use>
+                            </svg>
+                            Registrar Aplicação
+                        </button>
+                        <button class="btn btn-secondary" id="btn-hero-setup">
+                            <svg width="18" height="18">
+                                <use href="#icon-calendar"></use>
+                            </svg>
+                            Cronograma
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Premium Medication Level Card -->
+                <div class="card premium-med-card" id="medication-level-card">
+                    <div class="card-header">
+                        <span class="card-label">Nível de Medicação</span>
+                        <span id="med-phase-badge" class="phase-badge">--</span>
+                    </div>
+
+                    <div class="med-level-content">
+                        <div class="med-level-main">
+                            <div class="med-level-value">
+                                <span id="med-level-percent">0</span><small>%</small>
+                            </div>
+                            <div class="med-level-status" id="med-level-status">Calculando...</div>
+                        </div>
+
+                        <div class="med-level-visual">
+                            <div class="med-gauge-container">
+                                <svg class="med-gauge-svg" viewBox="0 0 100 100">
+                                    <circle class="med-gauge-bg" cx="50" cy="50" r="45"></circle>
+                                    <circle class="med-gauge-fill" id="med-gauge-fill" cx="50" cy="50" r="45"></circle>
+                                </svg>
+                                <div class="med-gauge-pulse" id="med-gauge-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="med-level-footer">
+                        <div class="med-footer-item">
+                            <span class="med-footer-label">Tempo decorrido</span>
+                            <span class="med-footer-value" id="med-time-elapsed">--</span>
+                        </div>
+                        <div class="med-footer-item">
+                            <span class="med-footer-label">Meia vida</span>
+                            <span class="med-footer-value" id="med-trough-date">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Site Rotation -->
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Rotação de Local</span></div>
+                    <div class="rotation-grid-v12" id="rotation-grid-v12">
+                        <!-- Tiles will be dynamically populated by JS -->
+                        <div class="rotation-tile suggested" data-site="abdomen-e">
+                            <span class="tile-label">Abdomen E</span>
+                            <span class="tile-statusText">Sugerido</span>
+                        </div>
+                        <div class="rotation-tile" data-site="abdomen-d">
+                            <span class="tile-label">Abdomen D</span>
+                            <span class="tile-statusText">Pronto</span>
+                        </div>
+                        <div class="rotation-tile" data-site="coxa-e">
+                            <span class="tile-label">Coxa E</span>
+                            <span class="tile-statusText">Pronto</span>
+                        </div>
+                        <div class="rotation-tile" data-site="coxa-d">
+                            <span class="tile-label">Coxa D</span>
+                            <span class="tile-statusText">Pronto</span>
+                        </div>
+                        <div class="rotation-tile" data-site="braco-e">
+                            <span class="tile-label">Braço E</span>
+                            <span class="tile-statusText">Pronto</span>
+                        </div>
+                        <div class="rotation-tile" data-site="braco-d">
+                            <span class="tile-label">Braço D</span>
+                            <span class="tile-statusText">Pronto</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Injection History -->
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Histórico de Aplicações</span></div>
+                    <div class="injections-list" id="injections-list">
+                        <div class="empty-state">Nenhuma aplicação registrada</div>
+                    </div>
+                </div>
+
+                <!-- Weight x Injections Chart -->
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Peso × Injeções</span></div>
+                    <div class="chart-filters">
+                        <button class="filter-btn" data-period="7" data-chart="injection-weight">7d</button>
+                        <button class="filter-btn" data-period="30" data-chart="injection-weight">30d</button>
+                        <button class="filter-btn" data-period="60" data-chart="injection-weight">60d</button>
+                        <button class="filter-btn active" data-period="all" data-chart="injection-weight">Tudo</button>
+                    </div>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="injection-weight-chart"></canvas>
+                    </div>
+                    <div id="dose-legend-container" class="injection-legend"></div>
+                </div>
+
+                <!-- Schedule Settings (Collapsible) -->
+                <details class="card card-collapsible" id="schedule-settings-details">
+                    <summary class="collapsible-header">
+                        <svg width="18" height="18">
+                            <use href="#icon-settings"></use>
+                        </svg>
+                        Configurar Cronograma
+                    </summary>
+                    <div class="collapsible-content">
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="injection-day">Dia Padrão</label>
+                                <select id="injection-day" class="input-field">
+                                    <option value="0">Domingo</option>
+                                    <option value="1">Segunda</option>
+                                    <option value="2">Terça</option>
+                                    <option value="3">Quarta</option>
+                                    <option value="4">Quinta</option>
+                                    <option value="5">Sexta</option>
+                                    <option value="6">Sábado</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="injection-time">Horário</label>
+                                <input type="time" id="injection-time" class="input-field" value="08:00">
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" id="btn-save-schedule">Salvar Cronograma</button>
+                    </div>
+                </details>
+            </section>
+
+            <!-- ═══════ TAB: SINTOMAS ═══════ -->
+            <section class="tab-section" id="tab-sintomas">
+                <h2 class="tab-title">Sintomas</h2>
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Como você está se sentindo?</span></div>
+                    <textarea id="symptom-note" class="input-field" rows="3"
+                        placeholder="Ex: Me sinto um pouco indisposto após o almoço..."></textarea>
+                    <div class="card-header" style="margin-top: 20px;"><span class="card-label">Sintomas
+                            Clássicos</span></div>
+                    <div id="symptoms-checklist" class="symptoms-grid">
+                        <!-- Gerado via JS -->
+                    </div>
+                    <div class="card-header" style="margin-top: 20px;"><span class="card-label">Outros Sintomas</span>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="custom-symptom-name" class="input-field" placeholder="Ex: Tontura"
+                            style="flex: 1;">
+                        <button class="btn btn-secondary" onclick="App.addCustomSymptomRow()"
+                            style="padding: 10px 15px;">+</button>
+                    </div>
+                    <div id="custom-symptoms-tags" class="tags-container" style="margin-top: 10px;"></div>
+                    <button class="btn btn-primary btn-block" style="margin-top: 24px;"
+                        onclick="App.saveSymptoms()">Salvar Registro</button>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Últimos Registros</span></div>
+                    <div id="symptoms-recent-list" class="history-list">
+                        <!-- Gerado via JS -->
+                    </div>
+                    <button class="card-action-btn" onclick="App.openHistoryModal()">Ver Histórico Completo</button>
+                </div>
+            </section>
+
+            <!-- ═══════ TAB: PESO ═══════ -->
+            <section class="tab-section" id="tab-peso">
+                <h2 class="tab-title">Peso</h2>
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Registrar Peso</span></div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="weight-value">Peso (kg)</label>
+                            <input type="number" id="weight-value" class="input-field" step="0.1" min="30" max="300"
+                                placeholder="Ex: 85.5">
+                        </div>
+                        <div class="input-group">
+                            <label for="weight-date">Data</label>
+                            <input type="date" id="weight-date" class="input-field">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" id="btn-save-weight">Salvar Peso</button>
+                </div>
+
+                <!-- Insights Grid -->
+                <!-- Insights Grid -->
+                <div class="insights-grid" id="weight-insights-grid">
+                    <div class="insight-card">
+                        <div class="insight-value" id="insight-avg7">--</div>
+                        <div class="insight-label">Média 7d</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-value" id="insight-trend30">--</div>
+                        <div class="insight-label">Tendência 30d</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-value" id="insight-best">--</div>
+                        <div class="insight-label">Melhor Peso</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-value" id="insight-weekly-var">--</div>
+                        <div class="insight-label">Var. Semanal</div>
+                    </div>
+                </div>
+
+
+                <!-- Weight Chart -->
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Evolução</span></div>
+                    <div class="chart-filters">
+                        <button class="filter-btn" data-period="7" data-chart="weight">7d</button>
+                        <button class="filter-btn active" data-period="30" data-chart="weight">30d</button>
+                        <button class="filter-btn" data-period="60" data-chart="weight">60d</button>
+                        <button class="filter-btn" data-period="all" data-chart="weight">Tudo</button>
+                    </div>
+                    <div class="chart-container"><canvas id="weight-chart"></canvas></div>
+                    <div class="chart-toggles">
+                        <label class="toggle-label"><input type="checkbox" id="weight-show-trend" checked>
+                            Tendência</label>
+                        <label class="toggle-label"><input type="checkbox" id="weight-show-goal"> Meta</label>
+                    </div>
+                </div>
+
+                <!-- Dose Analysis -->
+                <div class="card" id="dose-analysis-card">
+                    <div class="card-header">
+                        <span class="card-label">ANÁLISE POR DOSE</span>
+                        <svg class="card-icon" width="24" height="24">
+                            <use href="#icon-chart"></use>
+                        </svg>
+                    </div>
+                    <div id="dose-analysis-content"></div>
+                </div>
+
+
+                <!-- Weight History -->
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Histórico</span></div>
+                    <div id="weight-history-list" class="history-list"></div>
+                </div>
+            </section>
+
+            <!-- ═══════ TAB: NUTRIÇÃO ═══════ -->
+            <section class="tab-section" id="tab-nutricao">
+                <h2 class="tab-title">Nutrição</h2>
+
+                <!-- 1. Meal Input (Moved to Top) -->
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Adicionar Refeição</span></div>
+                    <div class="input-group" style="position:relative;">
+                        <label for="meal-food">Alimento</label>
+                        <input type="text" id="meal-food" class="input-field" placeholder="Buscar alimento..."
+                            autocomplete="off">
+                        <div class="autocomplete-list" id="food-autocomplete"></div>
+                        <div style="text-align: right; margin-top: 6px;">
+                            <button class="btn-text-sm" onclick="App.showAddFoodModal()">
+                                + Criar Alimento
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="meal-quantity">Quantidade</label>
+                            <input type="number" id="meal-quantity" class="input-field" placeholder="150" value="100">
+                        </div>
+                        <div class="input-group">
+                            <label for="meal-unit">Unidade</label>
+                            <select id="meal-unit" class="input-field">
+                                <option value="g">gramas</option>
+                                <option value="ml">ml</option>
+                                <option value="unidade">unidade</option>
+                                <option value="scoop">scoop</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="meal-type">Refeição</label>
+                        <select id="meal-type" class="input-field">
+                            <option value="cafe">Café da Manhã</option>
+                            <option value="almoco">Almoço</option>
+                            <option value="jantar">Jantar</option>
+                            <option value="lanche">Lanche</option>
+                        </select>
+                    </div>
+                    <div class="protein-preview" id="protein-preview" hidden>≈ <span id="protein-estimate">0</span>g de
+                        proteína</div>
+                    <button class="btn btn-primary btn-block" id="btn-add-meal">Adicionar</button>
+                </div>
+
+                <!-- 2. Meus Alimentos -->
+                <div class="card">
+                    <div class="card-header"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="card-label">Meus Alimentos</span>
+                        <button class="btn-text-sm" onclick="App.showAddFoodModal()">+ Novo</button>
+                    </div>
+                    <div id="custom-foods-list" class="meals-list small">
+                        <div class="empty-state">Vazio</div>
+                    </div>
+                </div>
+
+                <!-- 2. Protein Daily -->
+                <div class="card">
+                    <div class="card-header"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="card-label">Proteína Hoje</span>
+                        <button class="btn-edit-goal" onclick="App.openGoalsModal()" title="Personalizar Meta">
+                            <svg width="12" height="12">
+                                <use href="#icon-edit"></use>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="progress-info"><span id="nutrition-protein-consumed">0</span>g / <span
+                            id="nutrition-protein-goal">70</span>g</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="protein-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-remaining" id="protein-remaining">Faltam 70g</div>
+
+                    <div id="clinical-nutrition-warnings" class="clinical-warnings-container mt-15">
+                        <!-- Dynamic content -->
+                    </div>
+
+                    <!-- Quick Add Protein -->
+                    <div class="quick-add-container">
+                        <button class="quick-add-btn" onclick="App.quickAddProtein(24, 'Whey Scoop')">
+                            <svg width="12" height="12">
+                                <use href="#icon-plus"></use>
+                            </svg> Whey (24g)
+                        </button>
+                        <button class="quick-add-btn" onclick="App.quickAddProtein(6, 'Ovo')">
+                            <svg width="12" height="12">
+                                <use href="#icon-plus"></use>
+                            </svg> Ovo (6g)
+                        </button>
+                        <button class="quick-add-btn" onclick="App.quickAddProtein(30, 'Frango 100g')">
+                            <svg width="12" height="12">
+                                <use href="#icon-plus"></use>
+                            </svg> Frango (30g)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Fiber Daily (NEW) -->
+                <div class="card">
+                    <div class="card-header"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="card-label">Fibras Hoje</span>
+                        <button class="btn-edit-goal" onclick="App.openGoalsModal()" title="Personalizar Meta">
+                            <svg width="12" height="12">
+                                <use href="#icon-edit"></use>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="progress-info"><span id="nutrition-fiber-consumed">0</span>g / <span
+                            id="nutrition-fiber-goal">28</span>g</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="fiber-bar" style="width: 0%; background: var(--color-fiber);">
+                        </div>
+                    </div>
+                    <div class="progress-remaining" id="fiber-remaining">Faltam 28g</div>
+
+                    <!-- Quick Add Fiber -->
+                    <div class="quick-add-container">
+                        <button class="quick-add-btn" onclick="App.quickAddFiber(5, 'Psyllium')">
+                            <svg width="12" height="12">
+                                <use href="#icon-plus"></use>
+                            </svg> Psyllium (5g)
+                        </button>
+                        <button class="quick-add-btn" onclick="App.quickAddFiber(3, 'Aveia')">
+                            <svg width="12" height="12">
+                                <use href="#icon-plus"></use>
+                            </svg> Aveia (3g)
+                        </button>
+                        <button class="quick-add-btn" onclick="App.quickAddFiber(4, 'Maçã')">
+                            <svg width="12" height="12">
+                                <use href="#icon-plus"></use>
+                            </svg> Maçã (4g)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4. Water -->
+                <div class="card">
+                    <div class="card-header"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="card-label">Água Hoje</span>
+                        <button class="btn-edit-goal" onclick="App.openGoalsModal()" title="Personalizar Meta">
+                            <svg width="12" height="12">
+                                <use href="#icon-edit"></use>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="progress-info"><span id="nutrition-water-consumed">0</span>ml / <span
+                            id="nutrition-water-goal">3000</span>ml</div>
+                    <div class="progress-bar progress-bar-water">
+                        <div class="progress-fill" id="water-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="water-buttons">
+                        <button class="btn-water" onclick="App.addWater(250)">+250ml</button>
+                        <button class="btn-water" onclick="App.addWater(500)">+500ml</button>
+                        <button class="btn-water" onclick="App.addWater(750)">+750ml</button>
+                        <button class="btn-water btn-water-undo" onclick="App.undoWater()">↩ Desfazer</button>
+                    </div>
+                </div>
+
+                <!-- 5. Meals Today -->
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Refeições de Hoje</span></div>
+                    <div id="meals-today-list" class="history-list">
+                        <div class="empty-state">Nenhuma refeição registrada</div>
+                    </div>
+                </div>
+
+                <!-- 6. My Foods (NEW) -->
+                <div class="card card-collapsible">
+                    <div class="card-header" onclick="this.parentElement.classList.toggle('active')"
+                        style="cursor: pointer;">
+                        <span class="card-label">Meus Alimentos</span>
+                        <svg width="16" height="16" class="chevron-icon">
+                            <use href="#icon-chevron-down"></use>
+                        </svg>
+                    </div>
+                    <div class="collapsible-content">
+                        <div id="custom-foods-list" class="history-list" style="margin-top: 12px;">
+                            <div class="empty-state">Nenhum alimento cadastrado</div>
+                        </div>
+                        <button class="card-action-btn" onclick="App.showAddFoodModal()">+ Novo Alimento</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════ TAB: JORNADA ═══════ -->
+            <section class="tab-section" id="tab-jornada">
+                <div class="tab-header-nav">
+                    <h2 class="tab-title">Minha Jornada</h2>
+                </div>
+
+                <div class="journey-v12">
+                    <!-- 1. Stats Cards -->
+                    <div class="journey-stats-v12" id="journey-stats-container">
+                        <div class="journey-stat-card">
+                            <span class="orb-val" id="journey-days">0</span>
+                            <span class="orb-label">Dias</span>
+                        </div>
+                        <div class="journey-stat-card stat-card-main">
+                            <span class="orb-val" id="journey-weight-loss">-0.0</span>
+                            <span class="orb-label">Kg Totais</span>
+                        </div>
+                        <div class="journey-stat-card">
+                            <span class="orb-val" id="journey-injections">0</span>
+                            <span class="orb-label">Doses</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Before vs After -->
+                    <div class="journey-section">
+                        <div class="journey-section-title">
+                            <h3>Antes vs Depois</h3>
+                            <button class="btn-text-sm" onclick="App.showFullGallery()">Ver Tudo</button>
+                        </div>
+                        <div class="journey-comparison-v12" id="journey-comparison-container"
+                            onclick="App.showComparisonModal()" style="position: relative;">
+                            <div class="comp-card">
+                                <span class="comp-badge badge-label">ANTES</span>
+                                <span class="comp-badge badge-date" id="comp-date-start">--/--</span>
+                                <img src="" id="comp-img-start" alt="Antes"
+                                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 fill=%22%23222%22/><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23444%22 font-family=%22sans-serif%22 font-size=%2212%22>Sem foto</text></svg>'">
+                            </div>
+                            <div class="comp-divider">⇄</div>
+                            <div class="comp-card">
+                                <span class="comp-badge badge-label">DEPOIS</span>
+                                <span class="comp-badge badge-date" id="comp-date-current">HOJE</span>
+                                <img src="" id="comp-img-current" alt="Depois"
+                                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 fill=%22%23222%22/><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23444%22 font-family=%22sans-serif%22 font-size=%2212%22>Sem foto</text></svg>'">
+                            </div>
+
+                            <!-- New Add Photo Bubble -->
+                            <button class="action-fab-mini add-photo-bubble"
+                                onclick="event.stopPropagation(); document.getElementById('journey-photo-input').click()"
+                                style="position: absolute; bottom: -12px; right: -5px; z-index: 15; width: 44px; height: 44px;">
+                                📸
+                            </button>
+                        </div>
+
+                        <input type="file" id="journey-photo-input" accept="image/*" style="display:none;"
+                            onchange="App.handleJourneyPhoto(this)">
+                    </div>
+
+                    <!-- 3. Milestones -->
+                    <div class="journey-section">
+                        <div class="journey-section-title">
+                            <h3>Marcos Alcançados</h3>
+                            <button class="btn-text-sm" onclick="App.showAllMilestones()">Ver Todos</button>
+                        </div>
+                        <div class="journey-milestones-v12" id="journey-milestones-scroller">
+                            <!-- Dynamic Content -->
+                        </div>
+                    </div>
+
+                    <!-- 4. Measurements -->
+                    <div class="journey-section">
+                        <div class="journey-section-title">
+                            <h3>Medidas Corporais</h3>
+                            <button class="btn-text-sm" onclick="App.showMeasurementsHistory()">Histórico</button>
+                        </div>
+                        <div class="measure-card-v12">
+                            <div class="measure-grid" id="journey-measures-summary">
+                                <div class="measure-item"><span class="m-label">Cintura</span><span class="m-val"
+                                        id="m-waist">--</span></div>
+                                <div class="measure-item"><span class="m-label">Abdomen</span><span class="m-val"
+                                        id="m-abdomen">--</span></div>
+                                <div class="measure-item"><span class="m-label">Quadril</span><span class="m-val"
+                                        id="m-hip">--</span></div>
+                                <div class="measure-item"><span class="m-label">Braço</span><span class="m-val"
+                                        id="m-arm">--</span></div>
+                            </div>
+                            <button class="btn-journey-add" onclick="App.showAddMeasurementModal()">
+                                <span>📏 Novo Registro de Medidas</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════ TAB: RELATÓRIOS ═══════ -->
+            <section class="tab-section" id="tab-relatorios">
+                <h2 class="tab-title">Relatórios</h2>
+
+                <!-- Mobile-First Report Card -->
+                <div class="card card-v12">
+                    <div class="card-header">
+                        <span class="card-label">Configuração</span>
+                    </div>
+
+                    <!-- Date Presets as Mobile Chips -->
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="section-label">Período</label>
+                        <div class="date-presets"
+                            style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
+                            <button class="preset-btn active" data-days="30" style="flex: 1; white-space: nowrap;">30
+                                dias</button>
+                            <button class="preset-btn" data-days="60" style="flex: 1; white-space: nowrap;">60
+                                dias</button>
+                            <button class="preset-btn" data-days="all"
+                                style="flex: 1; white-space: nowrap;">Tudo</button>
+                        </div>
+                    </div>
+
+                    <!-- Native Mobile Date Inputs -->
+                    <div class="input-row" style="margin-bottom: 24px;">
+                        <div class="input-group">
+                            <label>Início</label>
+                            <input type="date" id="report-start-date" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label>Fim</label>
+                            <input type="date" id="report-end-date" class="input-field">
+                        </div>
+                    </div>
+
+                    <!-- Mobile Toggle List (Checkboxes) -->
+                    <div class="form-group">
+                        <label class="section-label">Conteúdo</label>
+                        <div class="mobile-toggle-list" style="display: flex; flex-direction: column; gap: 12px;">
+                            <label class="checkbox-label"
+                                style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-subtle); border-radius: 12px;">
+                                <span>Gráfico Evolutivo</span>
+                                <input type="checkbox" id="report-chk-chart" checked style="width: 20px; height: 20px;">
+                            </label>
+                            <label class="checkbox-label"
+                                style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-subtle); border-radius: 12px;">
+                                <span>Tabela de Peso</span>
+                                <input type="checkbox" id="report-chk-table" checked style="width: 20px; height: 20px;">
+                            </label>
+                            <label class="checkbox-label"
+                                style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-subtle); border-radius: 12px;">
+                                <span>Análise Clínica</span>
+                                <input type="checkbox" id="report-chk-analysis" checked
+                                    style="width: 20px; height: 20px;">
+                            </label>
+                            <label class="checkbox-label"
+                                style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-subtle); border-radius: 12px;">
+                                <span>Medidas & Fotos</span>
+                                <input type="checkbox" id="report-chk-measure" checked
+                                    style="width: 20px; height: 20px;">
+                            </label>
+                            <label class="checkbox-label"
+                                style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-subtle); border-radius: 12px;">
+                                <span>Fotos da Jornada</span>
+                                <input type="checkbox" id="report-chk-photos" checked
+                                    style="width: 20px; height: 20px;">
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Primary Action -->
+                    <button id="btn-generate-report" class="btn btn-primary btn-block btn-lg"
+                        style="margin-top: 24px; height: 56px; font-size: 1rem;">
+                        <svg width="20" height="20" style="margin-right: 8px">
+                            <use href="#icon-file-text"></use>
+                        </svg>
+                        Gerar Relatório PDF
+                    </button>
+                </div>
+
+                <!-- Secondary Actions (Export) -->
+                <div class="card card-v12">
+                    <div class="card-header"><span class="card-label">Dados Brutos</span></div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <button class="btn btn-secondary btn-block" onclick="App.exportCSV()">
+                            <svg width="18" height="18" style="margin-right: 6px">
+                                <use href="#icon-download"></use>
+                            </svg> CSV
+                        </button>
+                        <button class="btn btn-secondary btn-block" onclick="App.exportJSON()">
+                            <svg width="18" height="18" style="margin-right: 6px">
+                                <use href="#icon-download"></use>
+                            </svg> JSON
+                        </button>
+                    </div>
+                </div>
+
+                <div id="injection-weight-chart-container">
+                    <canvas id="injection-weight-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- ═══════ TAB: AJUDA ═══════ -->
+            <section class="tab-section" id="tab-ajuda">
+                <h2 class="tab-title">Ajuda</h2>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="help-search-bar">
+                        <span class="help-search-icon">🔍</span>
+                        <input type="text" id="help-search-input" placeholder="Buscar nos tópicos..."
+                            oninput="App.filterHelp(this.value)" />
+                    </div>
+                </div>
+
+                <div id="help-accordion" class="help-accordion"></div>
+            </section>
+
+            <!-- ═══════ TAB: BOAS PRATICAS ═══════ -->
+            <section class="tab-section" id="tab-boaspraticas">
+                <h2 class="tab-title">Boas Práticas</h2>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="help-search-bar">
+                        <span class="help-search-icon">🔍</span>
+                        <input type="text" id="boaspraticas-search-input" placeholder="Buscar nas boas práticas..."
+                            oninput="App.filterBoasPraticas(this.value)" />
+                    </div>
+                </div>
+
+                <div id="boaspraticas-accordion" class="help-accordion"></div>
+            </section>
+
+            <!-- ═══════ TAB: PERFIL ═══════ -->
+            <section class="tab-section" id="tab-perfil">
+                <div class="profile-blobs">
+                    <div class="blob-1"></div>
+                    <div class="blob-2"></div>
+                </div>
+
+                <div class="profile-hero">
+                    <label class="avatar-container" for="profile-photo-input"
+                        onclick="return App.handleAvatarClick(event)">
+                        <div class="avatar-glass-ring"></div>
+                        <div class="avatar-inner" id="profile-avatar-display">
+                            <span id="avatar-initials">M</span>
+                            <img id="profile-photo-img" style="display:none;">
+                        </div>
+                        <div class="avatar-plus-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </div>
+                        <div class="avatar-edit-overlay">Alterar</div>
+                        <div class="avatar-status"></div>
+                        <input type="file" id="profile-photo-input" accept="image/*" style="display:none;"
+                            onchange="App.uploadProfilePhoto(this)">
+                    </label>
+                    <h2 class="profile-name" id="profile-name-display">Usuário</h2>
+                    <div class="membership-tag">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        Membro Ascenda Pro
+                    </div>
+                </div>
+
+                <div class="settings-list">
+                    <button type="button" class="glass-item" onclick="UI.openModal('modal-dados-pessoais')">
+                        <div class="item-info">
+                            <div class="icon-box">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="item-title">Dados Pessoais</span>
+                                <span class="item-sub">Nome, nascimento e medidas</span>
+                            </div>
+                        </div>
+                        <svg class="chevron-right" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+
+                    <button type="button" class="glass-item" onclick="UI.openModal('modal-saude-estilo')">
+                        <div class="item-info">
+                            <div class="icon-box">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="item-title">Saúde & Metas</span>
+                                <span class="item-sub">Medicação, atividade e metas manuais</span>
+                            </div>
+                        </div>
+                        <svg class="chevron-right" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+
+                    <button type="button" id="btn-open-notificacoes" class="glass-item">
+                        <div class="item-info">
+                            <div class="icon-box">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="item-title">Notificações</span>
+                                <span class="item-sub">Lembretes e alertas</span>
+                            </div>
+                        </div>
+                        <svg class="chevron-right" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+
+                    <button type="button" class="glass-item" onclick="UI.openModal('modal-configuracoes')"
+                        style="width: 100%; text-align: left;">
+                        <div class="item-info">
+                            <div class="icon-box">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z">
+                                    </path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="item-title">Configurações</span>
+                                <span class="item-sub">Backup e dados</span>
+                            </div>
+                        </div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" style="opacity: 0.5;">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+
+                <button type="button" id="btn-logout" class="btn-logout">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Sair da Conta
+                </button>
+            </section>
+
+            <!-- MODAIS DO PERFIL (Para não poluir a aba principal) -->
+            <div id="modal-dados-pessoais" class="glass-modal">
+                <div class="glass-modal-content">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:24px;">
+                        <h3 style="font-size:1.25rem;">Dados Pessoais</h3>
+                        <button onclick="UI.closeModal('modal-dados-pessoais')"
+                            style="color:var(--text-muted); background:none; border:none;"><svg width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg></button>
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-name">Nome (opcional)</label>
+                        <input type="text" id="profile-name" class="input-field" placeholder="Como quer ser chamado?">
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="profile-sex">Sexo</label>
+                            <select id="profile-sex" class="input-field">
+                                <option value="male">Masculino</option>
+                                <option value="female">Feminino</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="profile-birthdate">Nascimento *</label>
+                            <input type="date" id="profile-birthdate" class="input-field">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="profile-height">Altura (cm) *</label>
+                            <input type="number" id="profile-height" class="input-field" placeholder="ex: 170">
+                        </div>
+                        <div class="input-group">
+                            <label for="profile-weight-goal">Peso-meta (kg)</label>
+                            <input type="number" id="profile-weight-goal" class="input-field" step="0.1"
+                                placeholder="ex: 75">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" style="margin-top:20px;"
+                        onclick="App.saveProfile(); UI.closeModal('modal-dados-pessoais')">Salvar Dados</button>
+                </div>
+            </div>
+
+            <div id="modal-saude-estilo" class="glass-modal">
+                <div class="glass-modal-content">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:24px;">
+                        <h3 style="font-size:1.25rem;">Saúde & Metas</h3>
+                        <button onclick="UI.closeModal('modal-saude-estilo')"
+                            style="color:var(--text-muted); background:none; border:none;"><svg width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg></button>
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-drug">Uso de GLP-1/GIP? *</label>
+                        <select id="profile-drug" class="input-field">
+                            <option value="semaglutida">Sim (Semaglutida)</option>
+                            <option value="tirzepatida">Sim (Tirzepatida)</option>
+                            <option value="retatrutida">Sim (Retatrutida)</option>
+                            <option value="none">Não</option>
+                        </select>
+                        <p class="helper-text" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 6px;">
+                            Ajusta
+                            a proteção
+                            de massa magra.</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="profile-activity">Nível de Atividade *</label>
+                        <select id="profile-activity" class="input-field">
+                            <option value="sedentary">Sedentário</option>
+                            <option value="light">Leve (1-3x)</option>
+                            <option value="moderate">Moderado (3-4x)</option>
+                            <option value="intense">Intenso (5x+)</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="profile-renal">Saúde Renal *</label>
+                            <select id="profile-renal" class="input-field">
+                                <option value="normal">Normal</option>
+                                <option value="chronic">Crônica</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="profile-objective">Objetivo</label>
+                            <select id="profile-objective" class="input-field">
+                                <option value="loss">Perda de Pesos</option>
+                                <option value="maintain">Manutenção</option>
+                                <option value="gain">Ganho de Massa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Manually Adjusted Goals -->
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1);">
+                        <span class="card-label" style="display: block; margin-bottom: 12px; font-size: 0.75rem;">Metas
+                            Manuais
+                            (Opcional)</span>
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="profile-manual-protein">Proteína (g)</label>
+                                <input type="number" id="profile-manual-protein" class="input-field" placeholder="Auto">
+                            </div>
+                            <div class="input-group">
+                                <label for="profile-manual-fiber">Fibra (g)</label>
+                                <input type="number" id="profile-manual-fiber" class="input-field" placeholder="Auto">
+                            </div>
+                            <div class="input-group">
+                                <label for="profile-manual-water">Água (ml)</label>
+                                <input type="number" id="profile-manual-water" class="input-field" placeholder="Auto">
+                            </div>
+                        </div>
+                        <p class="helper-text" style="font-size: 0.65rem; color: var(--text-muted); margin-top: 6px;">
+                            Deixe em branco para usar o cálculo automático.
+                        </p>
+                    </div>
+                    <button class="btn btn-primary btn-block" style="margin-top:20px;"
+                        onclick="App.saveProfile(); UI.closeModal('modal-saude-estilo')">Salvar Saúde</button>
+                </div>
+            </div>
+
+            <!-- ═══════ MODAL: NOTIFICAÇÕES ═══════ -->
+            <div id="modal-notificacoes" class="glass-modal">
+                <div class="glass-modal-content">
+
+                    <!-- Header -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                        <h3 style="font-size:1.125rem; font-weight:600; color:var(--text-primary);">Notificações</h3>
+                        <button onclick="UI.closeModal('modal-notificacoes')" style="background:none; border:none; color:var(--text-muted); padding:4px; cursor:pointer; display:flex;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Master toggle card -->
+                    <div style="background:var(--bg-input,#F1F5F9); border-radius:14px; padding:14px 16px; margin-bottom:24px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between;">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <div style="width:40px; height:40px; border-radius:10px; background:rgba(16,185,129,0.12); display:flex; align-items:center; justify-content:center; color:#10B981; flex-shrink:0;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div style="font-size:0.9rem; font-weight:600; color:var(--text-primary);">Push Notifications</div>
+                                    <div style="font-size:0.72rem; margin-top:2px;">
+                                        <span id="notif-permission-status" style="color:var(--text-muted);">—</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="toggle-switch" style="margin:0;">
+                                <input type="checkbox" id="notif-master-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Section label -->
+                    <div style="font-size:0.7rem; font-weight:600; letter-spacing:0.08em; color:var(--text-muted); text-transform:uppercase; padding:0 4px; margin-bottom:8px;">Lembretes</div>
+
+                    <!-- Grouped list -->
+                    <div id="notif-settings-body" style="border:1px solid var(--border-color); border-radius:14px; overflow:hidden;">
+
+                        <!-- Dose -->
+                        <div style="background:var(--bg-surface); padding:14px 16px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:36px; height:36px; border-radius:9px; background:rgba(16,185,129,0.1); display:flex; align-items:center; justify-content:center; color:#10B981; flex-shrink:0;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                            <path d="M9 11l3 3L22 4"/>
+                                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">Lembrete de Dose</div>
+                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">No dia da injeção</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch" style="margin:0;">
+                                    <input type="checkbox" id="notif-dose-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div style="margin-top:12px; padding-left:48px;">
+                                <div class="input-group" style="margin-bottom:0;">
+                                    <label>Avisar com antecedência</label>
+                                    <select id="notif-dose-minutes" class="input-field">
+                                        <option value="0">No horário exato</option>
+                                        <option value="15">15 minutos antes</option>
+                                        <option value="30">30 minutos antes</option>
+                                        <option value="60">1 hora antes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="height:1px; background:var(--border-color); margin:0 16px;"></div>
+
+                        <!-- Hidratação -->
+                        <div style="background:var(--bg-surface); padding:14px 16px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:36px; height:36px; border-radius:9px; background:rgba(59,130,246,0.1); display:flex; align-items:center; justify-content:center; color:#3B82F6; flex-shrink:0;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">Hidratação</div>
+                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">Lembretes ao longo do dia</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch" style="margin:0;">
+                                    <input type="checkbox" id="notif-water-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div style="margin-top:12px; padding-left:48px;">
+                                <div class="input-row" style="gap:10px;">
+                                    <div class="input-group" style="margin-bottom:0;">
+                                        <label>Intervalo</label>
+                                        <select id="notif-water-interval" class="input-field">
+                                            <option value="1">A cada 1h</option>
+                                            <option value="2">A cada 2h</option>
+                                            <option value="3">A cada 3h</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group" style="margin-bottom:0;">
+                                        <label>Das / Às</label>
+                                        <div style="display:flex; gap:6px; align-items:center;">
+                                            <select id="notif-water-start" class="input-field" style="flex:1;">
+                                                <option value="6">06h</option>
+                                                <option value="7">07h</option>
+                                                <option value="8">08h</option>
+                                                <option value="9">09h</option>
+                                            </select>
+                                            <span style="color:var(--text-muted); font-size:0.8rem;">—</span>
+                                            <select id="notif-water-end" class="input-field" style="flex:1;">
+                                                <option value="18">18h</option>
+                                                <option value="19">19h</option>
+                                                <option value="20">20h</option>
+                                                <option value="21">21h</option>
+                                                <option value="22">22h</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="height:1px; background:var(--border-color); margin:0 16px;"></div>
+
+                        <!-- Pesagem -->
+                        <div style="background:var(--bg-surface); padding:14px 16px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:36px; height:36px; border-radius:9px; background:rgba(245,158,11,0.1); display:flex; align-items:center; justify-content:center; color:#F59E0B; flex-shrink:0;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">Pesagem Semanal</div>
+                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">Acompanhe seu progresso</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch" style="margin:0;">
+                                    <input type="checkbox" id="notif-weight-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div style="margin-top:12px; padding-left:48px;">
+                                <div class="input-row" style="gap:10px;">
+                                    <div class="input-group" style="margin-bottom:0;">
+                                        <label>Dia da semana</label>
+                                        <select id="notif-weight-day" class="input-field">
+                                            <option value="0">Domingo</option>
+                                            <option value="1">Segunda</option>
+                                            <option value="2">Terça</option>
+                                            <option value="3">Quarta</option>
+                                            <option value="4">Quinta</option>
+                                            <option value="5">Sexta</option>
+                                            <option value="6">Sábado</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group" style="margin-bottom:0;">
+                                        <label>Horário</label>
+                                        <input type="time" id="notif-weight-time" class="input-field" value="08:00">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="height:1px; background:var(--border-color); margin:0 16px;"></div>
+
+                        <!-- Sintomas -->
+                        <div style="background:var(--bg-surface); padding:14px 16px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:36px; height:36px; border-radius:9px; background:rgba(236,72,153,0.1); display:flex; align-items:center; justify-content:center; color:#EC4899; flex-shrink:0;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">Sintomas Pós-dose</div>
+                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">Como você está se sentindo?</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch" style="margin:0;">
+                                    <input type="checkbox" id="notif-symptoms-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div style="margin-top:12px; padding-left:48px;">
+                                <div class="input-group" style="margin-bottom:0;">
+                                    <label>Registrar após a aplicação</label>
+                                    <select id="notif-symptoms-hours" class="input-field">
+                                        <option value="2">2 horas depois</option>
+                                        <option value="4">4 horas depois</option>
+                                        <option value="6">6 horas depois</option>
+                                        <option value="8">8 horas depois</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="height:1px; background:var(--border-color); margin:0 16px;"></div>
+
+                        <!-- Refeições -->
+                        <div style="background:var(--bg-surface); padding:14px 16px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:36px; height:36px; border-radius:9px; background:rgba(139,92,246,0.1); display:flex; align-items:center; justify-content:center; color:#8B5CF6; flex-shrink:0;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <polyline points="12 6 12 12 16 14"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:0.875rem; font-weight:500; color:var(--text-primary);">Refeições</div>
+                                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:1px;">Registre o que você come</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch" style="margin:0;">
+                                    <input type="checkbox" id="notif-meals-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div style="margin-top:12px; padding-left:48px;">
+                                <div class="input-row" style="gap:10px;">
+                                    <div class="input-group" style="margin-bottom:0;">
+                                        <label>Manhã</label>
+                                        <input type="time" id="notif-meals-breakfast" class="input-field" value="08:00">
+                                    </div>
+                                    <div class="input-group" style="margin-bottom:0;">
+                                        <label>Almoço</label>
+                                        <input type="time" id="notif-meals-lunch" class="input-field" value="12:00">
+                                    </div>
+                                </div>
+                                <div class="input-group" style="margin-bottom:0; margin-top:10px; max-width:calc(50% - 5px);">
+                                    <label>Jantar</label>
+                                    <input type="time" id="notif-meals-dinner" class="input-field" value="19:00">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /notif-settings-body -->
+
+                    <button id="btn-notif-save" class="btn-primary" style="width:100%; margin-top:20px; padding:14px; border-radius:12px; font-size:0.9rem; font-weight:600;">
+                        Salvar Preferências
+                    </button>
+
+                </div>
+            </div>
+
+            <div id="modal-configuracoes" class="glass-modal">
+                <div class="glass-modal-content">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:24px;">
+                        <h3 style="font-size:1.25rem;">Configurações</h3>
+                        <button onclick="UI.closeModal('modal-configuracoes')"
+                            style="color:var(--text-muted); background:none; border:none;"><svg width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg></button>
+                    </div>
+
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+                        Gerencie seus dados locais.
+                    </p>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Hidden input for JSON import in settings -->
+                        <input type="file" id="import-file-config" accept=".json" style="display:none"
+                            onchange="App.handleImportFile(event, 'config')">
+
+                        <button class="btn btn-secondary btn-block" onclick="App.triggerConfigImport()">
+                            <svg width="18" height="18" style="margin-right: 8px;">
+                                <use href="#icon-upload"></use>
+                            </svg>
+                            Importar JSON
+                        </button>
+
+                        <button class="btn btn-secondary btn-block" onclick="App.exportJSON()">
+                            <svg width="18" height="18" style="margin-right: 8px;">
+                                <use href="#icon-download"></use>
+                            </svg>
+                            Exportar Backup (JSON)
+                        </button>
+
+                        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 8px 0;"></div>
+
+                        <button class="btn btn-danger btn-block" onclick="App.resetAll()"
+                            style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">
+                            <svg width="18" height="18" style="margin-right: 8px;" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path
+                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                </path>
+                            </svg>
+                            Apagar Tudo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════ TAB: BACKUP ═══════ -->
+            <section class="tab-section" id="tab-backup">
+                <h2 class="tab-title">Backup & Dados</h2>
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Exportar</span></div>
+                    <div class="backup-actions">
+                        <button class="btn btn-secondary btn-block" id="btn-export-json">
+                            <svg width="18" height="18">
+                                <use href="#icon-download"></use>
+                            </svg>
+                            Exportar JSON
+                        </button>
+                        <button class="btn btn-secondary btn-block" id="btn-export-csv">
+                            <svg width="18" height="18">
+                                <use href="#icon-download"></use>
+                            </svg>
+                            Exportar CSV
+                        </button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-label">Importar</span></div>
+                    <input type="file" id="import-file" accept=".json" class="input-field"
+                        style="margin-bottom: var(--space-4);">
+                    <button class="btn btn-primary btn-block" id="btn-import-data">Importar Dados</button>
+                    <div id="import-preview" hidden class="import-preview"></div>
+                </div>
+                <div class="card card-danger">
+                    <div class="card-header"><span class="card-label">Zona de Perigo</span></div>
+                    <p class="text-muted">Limpar todos os dados salvos localmente.</p>
+                    <button class="btn btn-danger btn-block" id="btn-clear-data">Limpar Tudo</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- BOTTOM NAVIGATION (Mobile Primary) -->
+        <div class="bottom-nav-container">
+            <nav class="bottom-nav">
+                <div class="bottom-nav-inner">
+                    <button class="nav-item active" data-tab="hoje">
+                        <svg width="22" height="22">
+                            <use href="#icon-home"></use>
+                        </svg>
+                        <span>Hoje</span>
+                    </button>
+                    <button class="nav-item" data-tab="peso">
+                        <svg width="22" height="22">
+                            <use href="#icon-scale"></use>
+                        </svg>
+                        <span>Peso</span>
+                    </button>
+
+                    <button class="nav-item nav-fab" id="btn-open-more-modal" aria-label="Adicionar registro">
+                        <svg width="24" height="24">
+                            <use href="#icon-plus"></use>
+                        </svg>
+                    </button>
+
+                    <button class="nav-item" data-tab="nutricao">
+                        <svg width="22" height="22">
+                            <use href="#icon-utensils"></use>
+                        </svg>
+                        <span>Nutrição</span>
+                    </button>
+                    <button class="nav-item" data-tab="injecoes">
+                        <svg width="22" height="22">
+                            <use href="#icon-syringe"></use>
+                        </svg>
+                        <span>Injeções</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p class="legal-text">Ferramenta de acompanhamento pessoal. Não substitui orientação médica.</p>
+        </footer>
+    </div>
+
+    <!-- ═══════ "MAIS" BOTTOM SHEET MODAL ═══════ -->
+    <div class="modal-overlay-more" id="more-modal" hidden>
+        <div class="bottom-sheet">
+            <div class="bottom-sheet-handle"></div>
+            <h3 class="bottom-sheet-title">Mais opções</h3>
+            <div class="more-grid">
+                <button class="more-card" data-navigate="perfil">
+                    <svg width="32" height="32">
+                        <use href="#icon-user"></use>
+                    </svg>
+                    <span>Perfil</span>
+                </button>
+                <button class="more-card" data-navigate="relatorios">
+                    <svg width="32" height="32">
+                        <use href="#icon-chart"></use>
+                    </svg>
+                    <span>Relatórios</span>
+                </button>
+                <button class="more-card" data-navigate="jornada">
+                    <svg width="32" height="32">
+                        <use href="#icon-map"></use>
+                    </svg>
+                    <span>Jornada</span>
+                </button>
+                <button class="more-card" data-navigate="sintomas">
+                    <svg width="32" height="32">
+                        <use href="#icon-heart-pulse"></use>
+                    </svg>
+                    <span>Sintomas</span>
+                </button>
+                <button class="more-card" data-navigate="ajuda">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <span>Ajuda</span>
+                </button>
+                <button class="more-card" data-navigate="boaspraticas">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <path d="M12 8v4"></path>
+                        <path d="M12 16h.01"></path>
+                    </svg>
+                    <span>Boas Práticas</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ MODALS ═══════ -->
+
+    <!-- Register Injection Modal -->
+    <div class="modal-overlay" id="modal-register-injection" hidden>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registrar Aplicação</h3>
+                <button class="btn-modal-close" id="btn-close-register-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="injection-date">Data</label>
+                        <input type="date" id="injection-date" class="input-field">
+                    </div>
+                    <div class="input-group">
+                        <label for="injection-time-reg">Hora</label>
+                        <input type="time" id="injection-time-reg" class="input-field">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="injection-drug">Medicamento</label>
+                        <select id="injection-drug" class="input-field">
+                            <option value="">Selecione...</option>
+                            <option value="tirzepatida">Tirzepatida</option>
+                            <option value="semaglutida">Semaglutida</option>
+                            <option value="retatrutida">Retatrutida</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="injection-dose">Dose (mg)</label>
+                        <input type="number" id="injection-dose" class="input-field" step="0.5" min="0.5"
+                            placeholder="ex: 2.5">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="injection-site">Local</label>
+                        <select id="injection-site" class="input-field">
+                            <option value="abdomen">Abdômen</option>
+                            <option value="coxa">Coxa</option>
+                            <option value="braco">Braço</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="injection-side">Lado</label>
+                        <select id="injection-side" class="input-field">
+                            <option value="E">Esquerdo</option>
+                            <option value="D">Direito</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="injection-notes">Observações</label>
+                    <textarea id="injection-notes" class="input-field" rows="2" placeholder="Opcional..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-block" id="btn-confirm-injection">Confirmar Aplicação</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Modal -->
+    <div class="modal-overlay" id="modal-overlay" hidden>
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Modal</h3>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+            <div class="modal-footer" id="modal-footer"></div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Safety Alert Modal -->
+    <div class="modal-overlay" id="safety-alert-overlay" hidden>
+        <div class="modal modal-danger">
+            <div class="modal-header modal-header-danger">
+                <div class="danger-icon-large">⚠️</div>
+                <h3 class="modal-title" id="safety-alert-title">Alerta de Segurança</h3>
+            </div>
+            <div class="modal-body" id="safety-alert-body">
+                <div class="safety-alerts-list" id="safety-alerts-list"></div>
+            </div>
+            <div class="modal-footer modal-footer-danger">
+                <button class="btn btn-primary" id="safety-cancel">Cancelar / Revisar</button>
+                <button class="btn btn-secondary" id="safety-confirm">Confirmar Mesmo Assim</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onboarding Modal -->
+    <div class="modal-overlay" id="onboarding-overlay" hidden>
+        <div class="modal-content modal-onboarding">
+            <div class="modal-header">
+                <h3>Bem-vindo ao Ascenda</h3>
+                <button class="btn-modal-close" id="btn-close-onboarding">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center text-muted">Vamos configurar seu perfil para personalizar sua experiência.</p>
+                <div class="input-group">
+                    <label for="onboarding-name">Como quer ser chamado?</label>
+                    <input type="text" id="onboarding-name" class="input-field" placeholder="Seu nome">
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="onboarding-sex">Sexo</label>
+                        <select id="onboarding-sex" class="input-field">
+                            <option value="">Selecione</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Feminino</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="onboarding-birth">Nascimento</label>
+                        <input type="date" id="onboarding-birth" class="input-field">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="onboarding-height">Altura (cm)</label>
+                        <input type="number" id="onboarding-height" class="input-field" placeholder="170">
+                    </div>
+                    <div class="input-group">
+                        <label for="onboarding-weight">Peso Atual (kg)</label>
+                        <input type="number" id="onboarding-weight" class="input-field" step="0.1" placeholder="85">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-block" id="btn-complete-onboarding">Concluir Configuração</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Seleção de Intensidade -->
+    <div id="modal-sintoma-intensidade" class="glass-modal">
+        <div class="glass-modal-content" style="text-align: center;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <h3 id="symptom-modal-title" style="font-size:1.25rem;">Intensidade</h3>
+                <button onclick="UI.closeModal('modal-sintoma-intensidade')"
+                    style="color:var(--text-muted); background:none; border:none;"><svg width="24" height="24"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg></button>
+            </div>
+            <p id="symptom-modal-desc" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:30px;">
+                Selecione o nível de 0 a 10</p>
+            <div class="intensity-slider-container">
+                <input type="range" id="symptom-intensity-range" min="0" max="10" step="1" value="0"
+                    style="width:100%; height:8px; margin-bottom:20px;">
+                <div style="font-size:3.5rem; font-weight:700; color:var(--color-primary); margin-bottom:30px;"
+                    id="symptom-intensity-val">0</div>
+            </div>
+            <button class="btn btn-primary btn-block" onclick="App.confirmSymptomIntensity()">Confirmar</button>
+        </div>
+    </div>
+    <!-- Modal Histórico de Sintomas -->
+    <div id="modal-sintomas-completo" class="glass-modal">
+        <div class="glass-modal-content"
+            style="max-height: 85vh; display: flex; flex-direction: column; width: 90%; max-width: 500px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items: center; margin-bottom:20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);">
+                <h3 style="font-size:1.15rem; font-weight: 700;">Histórico Completo</h3>
+                <button onclick="UI.closeModal('modal-sintomas-completo')"
+                    style="color:var(--text-muted); background:none; border:none; padding: 4px; font-size: 1.25rem;">✕</button>
+            </div>
+            <div id="symptoms-full-list" class="history-list" style="flex: 1; overflow-y: auto;">
+                <!-- Lista completa via JS -->
+            </div>
+            <div style="margin-top: 20px; padding-top: 12px;">
+                <button class="btn btn-primary" style="width: 100%; border-radius: 30px;"
+                    onclick="UI.closeModal('modal-sintomas-completo')">Voltar</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- ═══════ JOURNEY MODALS ═══════ -->
+
+    <!-- Modal: Adicionar Foto (Confirmar Meta) -->
+    <div id="modal-add-journey-photo" class="glass-modal">
+        <div class="glass-modal-content">
+            <div class="modal-header">
+                <h3>Confirmar Registro</h3>
+                <button onclick="UI.closeModal('modal-add-journey-photo')" class="btn-close-v12">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="photo-preview-container" class="preview-box" style="text-align:center; margin-bottom:15px;">
+                    <img id="journey-photo-preview" src="" alt="Preview"
+                        style="max-width:100%; border-radius:12px; max-height:200px; object-fit:cover;">
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="modal-photo-date">Data</label>
+                        <input type="date" id="modal-photo-date" class="input-field">
+                    </div>
+                    <div class="input-group">
+                        <label for="modal-photo-weight">Peso (kg)</label>
+                        <input type="number" id="modal-photo-weight" class="input-field" step="0.1">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="modal-photo-notes">Nota (Opcional)</label>
+                    <textarea id="modal-photo-notes" class="input-field" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-block" onclick="App.saveJourneyPhoto()">Salvar na Jornada</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Galeria Completa -->
+    <div id="modal-journey-gallery" class="glass-modal">
+        <div class="glass-modal-content" style="max-height: 90vh; width: 95%;">
+            <div class="modal-header">
+                <h3>Galeria de Fotos</h3>
+                <button onclick="UI.closeModal('modal-journey-gallery')" class="btn-close-v12">&times;</button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto; padding: 10px;">
+                <div id="journey-gallery-grid" class="gallery-grid-v12">
+                    <!-- Fotos via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Todos os Marcos -->
+    <div id="modal-milestones-all" class="glass-modal">
+        <div class="glass-modal-content">
+            <div class="modal-header">
+                <h3>Meus Marcos</h3>
+                <button onclick="UI.closeModal('modal-milestones-all')" class="btn-close-v12">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="milestones-full-list" class="milestones-list-v12">
+                    <!-- Marcos via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Histórico de Medidas -->
+    <div id="modal-measurements-history" class="glass-modal">
+        <div class="glass-modal-content">
+            <div class="modal-header">
+                <h3>Histórico de Medidas</h3>
+                <button onclick="UI.closeModal('modal-measurements-history')" class="btn-close-v12">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="measurements-history-list" class="history-list">
+                    <!-- Medidas via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar Medida -->
+    <div id="modal-add-measurement" class="glass-modal">
+        <div class="glass-modal-content">
+            <div class="modal-header">
+                <h3>Novo Registro de Medidas</h3>
+                <button onclick="UI.closeModal('modal-add-measurement')" class="btn-close-v12">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="measure-date">Data</label>
+                    <input type="date" id="measure-date" class="input-field">
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Cintura (cm)</label>
+                        <input type="number" id="measure-waist" class="input-field" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Abdomen (cm)</label>
+                        <input type="number" id="measure-abdomen" class="input-field" step="0.1">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Quadril (cm)</label>
+                        <input type="number" id="measure-hip" class="input-field" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Braço (cm)</label>
+                        <input type="number" id="measure-arm" class="input-field" step="0.1">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-block" onclick="App.saveMeasurement()">Salvar Medidas</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ═══════════════════════════════════════════ 
+         MODAL: ONBOARDING WIZARD 
+         ═══════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════
+         MODAL: ONBOARDING WIZARD (MEDICAL DARK)
+         ═══════════════════════════════════════════ -->
+    <link rel="stylesheet" href="css/help-tab.css">
+    <link rel="stylesheet" href="css/medical-dark.css?v=5">
+    <div class="modal-overlay hidden" id="modal-onboarding">
+        <!-- Background Blobs -->
+        <div class="md-blob md-blob-emerald"></div>
+        <div class="md-blob md-blob-slate"></div>
+
+        <div class="md-glass-card" style="position: relative;">
+            <button class="btn-skip-onboarding" onclick="App.skipOnboarding()" title="Pular por agora">×</button>
+            <!-- Progress Bar -->
+            <div class="md-progress-container">
+                <div class="md-progress-bar" id="onboard-progress" style="width: 14%"></div>
+            </div>
+
+            <div id="wizard-steps-container" class="md-wizard-steps">
+
+                <!-- Step 0: Medical Disclaimer -->
+                <div class="md-step active" data-step="0">
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+
+                        <!-- Premium Icon Badge -->
+                        <div style="
+                            width: 64px; height: 64px; 
+                            background: rgba(239, 68, 68, 0.1); 
+                            border-radius: 50%; 
+                            display: flex; align-items: center; justify-content: center; 
+                            margin-bottom: 24px;
+                            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+                        ">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EF4444"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                <line x1="12" y1="9" x2="12" y2="13" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                        </div>
+
+                        <h2 class="md-title" style="margin-bottom: 8px;">Aviso Importante</h2>
+                        <p class="md-desc"
+                            style="margin-bottom: 32px; max-width: 280px; margin-left: auto; margin-right: auto;">
+                            Para sua segurança, leia com atenção antes de continuar.
+                        </p>
+
+                        <!-- Glass Card for Text -->
+                        <div style="
+                            background: rgba(255, 255, 255, 0.03); 
+                            border: 1px solid rgba(255, 255, 255, 0.1); 
+                            border-radius: 16px; 
+                            padding: 24px; 
+                            text-align: left; 
+                            width: 100%;
+                            margin-bottom: 10px;
+                        ">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
+                                <span style="color: var(--md-primary); margin-right: 12px; font-size: 1.2rem;">•</span>
+                                <p
+                                    style="font-size: 0.95rem; color: var(--md-text-secondary); line-height: 1.5; margin: 0;">
+                                    Este app é para <strong>registro de dados</strong>, não para diagnóstico.
+                                </p>
+                            </div>
+
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
+                                <span style="color: var(--md-primary); margin-right: 12px; font-size: 1.2rem;">•</span>
+                                <p
+                                    style="font-size: 0.95rem; color: var(--md-text-secondary); line-height: 1.5; margin: 0;">
+                                    Siga sempre a orientação do seu <strong>médico e nutricionista</strong>.
+                                </p>
+                            </div>
+
+                            <div style="display: flex; align-items: flex-start;">
+                                <span style="color: var(--md-primary); margin-right: 12px; font-size: 1.2rem;">•</span>
+                                <p
+                                    style="font-size: 0.95rem; color: var(--md-text-secondary); line-height: 1.5; margin: 0;">
+                                    Em caso de dúvida ou mal-estar, busque ajuda profissional
+                                    <strong>imediatamente</strong>.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Step 1: Identity -->
+                <div class="md-step" data-step="1">
+                    <h2 class="md-title">Identidade</h2>
+                    <p class="md-desc">Vamos iniciar seu perfil clínico.</p>
+
+                    <div class="md-input-group">
+                        <label class="md-label">Nome</label>
+                        <input type="text" id="onboard-name" class="md-input" placeholder="Seu nome">
+                    </div>
+                </div>
+
+                <!-- Step 2: Biometrics -->
+                <div class="md-step" data-step="2">
+                    <h2 class="md-title">Biometria</h2>
+                    <p class="md-desc">Dados essenciais para cálculo basal.</p>
+
+                    <div class="md-input-group">
+                        <label class="md-label">Sexo</label>
+                        <div class="md-grid-2">
+                            <div class="md-select-card" onclick="App.selectWizardOption('sex', 'male', this)">
+                                <div class="md-select-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="10" cy="14" r="5" />
+                                        <line x1="21" y1="3" x2="13.5" y2="10.5" />
+                                        <path d="M16 3h5v5" />
+                                    </svg>
+                                </div>
+                                <span class="md-select-label">Masculino</span>
+                            </div>
+                            <div class="md-select-card" onclick="App.selectWizardOption('sex', 'female', this)">
+                                <div class="md-select-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="10" r="5" />
+                                        <line x1="12" y1="15" x2="12" y2="21" />
+                                        <line x1="9" y1="18" x2="15" y2="18" />
+                                    </svg>
+                                </div>
+                                <span class="md-select-label">Feminino</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="onboard-sex">
+                    </div>
+
+                    <div class="md-input-group">
+                        <label class="md-label">Data de Nascimento</label>
+                        <div style="position: relative;"
+                            onclick="this.querySelector('input').showPicker ? this.querySelector('input').showPicker() : this.querySelector('input').focus()">
+                            <input type="date" id="onboard-birth" class="md-input"
+                                style="color-scheme: dark; position: relative; z-index: 2; background: transparent; -webkit-appearance: none; max-height: 50px; box-sizing: border-box;"
+                                onchange="App.checkAgeForSarcopenia(this); var ph = this.parentElement.querySelector('.date-placeholder'); if(this.value) { ph.style.display='none'; this.style.background='var(--md-input-bg)'; } else { ph.style.display='flex'; this.style.background='transparent'; }">
+                            <div class="date-placeholder"
+                                style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; pointer-events: none; z-index: 1; background: var(--md-input-bg); border: 1px solid var(--md-border); border-radius: var(--md-radius-input);">
+                                <span
+                                    style="color: var(--md-text-secondary); font-size: 1rem; font-family: 'Inter', sans-serif;">dd/mm/aaaa</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="var(--md-text-secondary)" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Stats -->
+                <div class="md-step" data-step="3">
+                    <h2 class="md-title">Medidas</h2>
+                    <p class="md-desc">Calibração corporal atual.</p>
+
+                    <div class="md-grid-2">
+                        <div class="md-input-group">
+                            <label class="md-label">Altura (cm)</label>
+                            <input type="number" id="onboard-height" class="md-input" placeholder="170"
+                                inputmode="numeric">
+                        </div>
+                        <div class="md-input-group">
+                            <label class="md-label">Peso (kg)</label>
+                            <input type="number" id="onboard-weight" class="md-input" placeholder="80.5"
+                                inputmode="decimal" step="0.1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Activity -->
+                <div class="md-step" data-step="4">
+                    <h2 class="md-title">Atividade</h2>
+                    <p class="md-desc">Seu nível de gasto energético.</p>
+
+                    <div class="md-input-group">
+                        <select id="onboard-activity" class="md-input" style="height: auto; padding: 16px;">
+                            <option value="sedentary">Sedentário (Pouco ou nenhum exercício)</option>
+                            <option value="light">Leve (Exercício 1-3 dias/sem)</option>
+                            <option value="moderate">Moderado (Exercício 3-5 dias/sem)</option>
+                            <option value="active">Ativo (Exercício 6-7 dias/sem)</option>
+                            <option value="very_active">Muito Ativo (Atleta/Trabalho físico)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Step 5: Clinical -->
+                <div class="md-step" data-step="5">
+                    <h2 class="md-title">Clínico</h2>
+                    <p class="md-desc">Contexto médico e segurança.</p>
+
+                    <div class="md-input-group">
+                        <label class="md-label">Uso de medicamento GLP-1</label>
+                        <div class="md-grid-2">
+                            <div class="md-select-card" onclick="App.selectWizardOption('meds', 'yes', this)">
+                                <div class="md-select-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M10.5 20.5l10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z" />
+                                        <path d="m8.5 8.5 7 7" />
+                                    </svg>
+                                </div>
+                                <span class="md-select-label">Sim</span>
+                            </div>
+                            <div class="md-select-card" onclick="App.selectWizardOption('meds', 'no', this)">
+                                <div class="md-select-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="15" y1="9" x2="9" y2="15" />
+                                        <line x1="9" y1="9" x2="15" y2="15" />
+                                    </svg>
+                                </div>
+                                <span class="md-select-label">Não</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="onboard-meds">
+                    </div>
+
+                    <div id="onboard-med-details" class="hidden md-input-group">
+                        <select id="onboard-drug-name" class="md-input">
+                            <option value="semaglutida">Semaglutida</option>
+                            <option value="tirzepatida">Tirzepatida</option>
+                            <option value="retatrutida">Retatrutida</option>
+                        </select>
+                    </div>
+
+                    <div class="md-input-group">
+                        <label class="md-label">Saúde Renal</label>
+                        <select id="onboard-kidney" class="md-input" style="height: auto; padding: 16px;"
+                            onchange="App.checkKidneyHealth(this)">
+                            <option value="normal">Normal (Sem doença renal)</option>
+                            <option value="ckd_1_2">DRC Estágio 1 ou 2 (Dano leve)</option>
+                            <option value="ckd_3">DRC Estágio 3 (Moderado)</option>
+                            <option value="ckd_4_5">DRC Estágio 4 ou 5 (Avançado - Não Dialítico)</option>
+                            <option value="dialysis">Em Diálise</option>
+                        </select>
+                        <div id="kidney-warning" class="md-warning-box hidden">
+                            ⚠️ Atenção: Para saúde renal comprometida, a ingestão de proteína deve ser controlada.
+                            Ajustaremos sua meta automaticamente.
+                        </div>
+                    </div>
+
+                    <div id="onboard-sarcopenia-group" class="md-input-group hidden">
+                        <label class="md-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="onboard-sarcopenia" style="width: 20px; height: 20px;">
+                            <span>Possui Sarcopenia ou Fragilidade?</span>
+                        </label>
+                        <p class="md-desc" style="margin-top: 5px; font-size: 0.75rem;">
+                            Marque se houver perda de força muscular ou risco de quedas.
+                        </p>
+                    </div>
+
+                    <div id="onboard-diabetes-group" class="md-input-group hidden">
+                        <label class="md-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="onboard-diabetes" style="width: 20px; height: 20px;">
+                            <span>Possui Diabetes Mellitus?</span>
+                        </label>
+                        <p class="md-desc" style="margin-top: 5px; font-size: 0.75rem;">
+                            Afeta o cálculo de proteína para pacientes com doença renal.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 6: Goals -->
+                <div class="md-step" data-step="6">
+                    <h2 class="md-title">Objetivo</h2>
+                    <p class="md-desc">Onde queremos chegar?</p>
+
+                    <div class="md-input-group">
+                        <label class="md-label">Foco Principal</label>
+                        <div class="md-grid-2" style="grid-template-columns: 1fr;">
+                            <div class="md-select-card" onclick="App.selectWizardOption('goal', 'lose_weight', this)">
+                                <div class="md-select-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+                                        <polyline points="17 6 23 6 23 12" />
+                                    </svg>
+                                </div>
+                                <span class="md-select-label">Perder Peso</span>
+                            </div>
+                            <div class="md-select-card" onclick="App.selectWizardOption('goal', 'gain_muscle', this)">
+                                <div class="md-select-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path
+                                            d="M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+                                        <path d="M6 12h12" />
+                                        <path d="M12 6v12" />
+                                    </svg>
+                                </div>
+                                <span class="md-select-label">Ganhar Massa</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="onboard-goal-type">
+                    </div>
+
+                    <div class="md-input-group">
+                        <label class="md-label">Peso Alvo (kg)</label>
+                        <input type="number" id="onboard-goal-weight" class="md-input" inputmode="decimal" step="0.1">
+                    </div>
+                </div>
+
+                <!-- Step 7: Success -->
+                <div class="md-step" data-step="7">
+                    <div
+                        style="font-size: 4rem; margin-bottom: 20px; color: var(--md-primary); display: flex; justify-content: center;">
+                        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                    </div>
+                    <h2 class="md-title">Pronto!</h2>
+                    <p class="md-desc">Seu protocolo foi gerado.</p>
+
+                    <div class="md-summary-grid">
+                        <div class="md-summary-item">
+                            <span class="md-sum-lbl">IMC Basal</span>
+                            <span class="md-sum-val" id="summary-bmi">--</span>
+                        </div>
+                        <div class="md-summary-item">
+                            <span class="md-sum-lbl">Água Diária</span>
+                            <span class="md-sum-val" id="summary-water">-- L</span>
+                        </div>
+                        <div class="md-summary-item">
+                            <span class="md-sum-lbl">Proteína</span>
+                            <span class="md-sum-val" id="summary-protein">-- g</span>
+                        </div>
+                        <div class="md-summary-item">
+                            <span class="md-sum-lbl">Fibras</span>
+                            <span class="md-sum-val" id="summary-fiber">-- g</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Navigation -->
+            <div
+                style="width: 100%; display: flex; justify-content: space-between; margin-top: auto; padding-top: 32px; gap: 16px;">
+                <button class="md-btn-ghost" id="btn-wizard-back">Voltar</button>
+                <button class="md-btn-primary" id="btn-wizard-next">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crop Modal -->
+    <div class="modal-overlay" id="modal-crop-photo" hidden>
+        <div class="modal"
+            style="padding: 0; background: var(--bg-card); overflow: hidden; display: flex; flex-direction: column; height: 90vh; max-height: 90vh; max-width: 95vw; border-radius: var(--radius-xl);">
+            <div class="modal-header" style="padding: 16px; border-bottom: 1px solid var(--border-light); z-index: 10;">
+                <h3 style="margin: 0; font-size: 1.1rem;">Ajustar Foto</h3>
+                <button class="icon-btn" onclick="UI.closeModal('modal-crop-photo')" style="margin-left: auto;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body"
+                style="flex: 1; padding: 0; overflow: hidden; display: flex; flex-direction: column; position: relative; background: #000;">
+                <div id="croppie-container" style="width: 100%; height: 100%; min-height: 300px;"></div>
+            </div>
+            <div class="modal-footer"
+                style="padding: 16px; border-top: 1px solid var(--border-light); background: var(--bg-card); z-index: 10;">
+                <button class="md-btn-primary" id="btn-crop-save" style="width: 100%;">Salvar Foto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avatar Action Sheet (appears when clicking avatar with existing photo) -->
+    <div class="modal-overlay" id="modal-avatar-actions" hidden
+        onclick="if(event.target===this)UI.closeModal('modal-avatar-actions')">
+        <div
+            style="position:fixed; bottom:0; left:0; right:0; background:var(--bg-card); border-radius:20px 20px 0 0; padding:8px 0 calc(env(safe-area-inset-bottom) + 12px); box-shadow: 0 -4px 24px rgba(0,0,0,0.2);">
+            <div style="width:40px;height:4px;background:var(--border-light);border-radius:2px;margin:8px auto 16px;">
+            </div>
+            <p
+                style="text-align:center;font-size:0.75rem;color:var(--text-tertiary);margin:0 0 12px;text-transform:uppercase;letter-spacing:0.08em;">
+                Foto de Perfil</p>
+            <button
+                onclick="UI.closeModal('modal-avatar-actions'); document.getElementById('profile-photo-input').click();"
+                style="display:flex;align-items:center;gap:14px;width:100%;padding:16px 24px;background:none;border:none;font-size:1rem;color:var(--text-primary);cursor:pointer;transition:background 0.15s;"
+                onmouseenter="this.style.background='var(--bg-surface)'" onmouseleave="this.style.background='none'">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                Alterar foto
+            </button>
+            <button onclick="UI.closeModal('modal-avatar-actions'); App.removeProfilePhoto();"
+                style="display:flex;align-items:center;gap:14px;width:100%;padding:16px 24px;background:none;border:none;font-size:1rem;color:var(--danger,#ef4444);cursor:pointer;transition:background 0.15s;"
+                onmouseenter="this.style.background='var(--bg-surface)'" onmouseleave="this.style.background='none'">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Excluir foto
+            </button>
+            <button onclick="UI.closeModal('modal-avatar-actions')"
+                style="display:flex;align-items:center;justify-content:center;width:calc(100% - 48px);margin:8px 24px 0;padding:14px;background:var(--bg-surface);border:none;border-radius:12px;font-size:1rem;font-weight:600;color:var(--text-secondary);cursor:pointer;">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Scripts (Engine from VERSAO WEB) -->
+    <script src="js/config.js"></script>
+    <script src="js/utils/date-service.js"></script>
+    <script src="js/services/storage.js?v=2"></script>
+    <script src="js/services/supabase.js?v=2"></script>
+    <script src="js/services/auth.js?v=2"></script>
+    <script src="js/services/migration.js?v=2"></script>
+    <script src="js/services/security.js"></script>
+    <script src="js/services/profile.js"></script>
+    <script src="js/services/weight.js"></script>
+    <script src="js/services/nutrition.js"></script>
+    <script src="js/services/dose-service.js?v=2"></script>
+    <script src="js/services/clinical.js?v=2"></script>
+    <script src="js/services/symptoms.js?v=2"></script>
+    <script src="js/services/instructions.js?v=2"></script>
+    <script src="js/services/safety-guard.js?v=2"></script>
+    <script src="js/services/insights.js?v=1"></script>
+    <script src="js/services/photo-storage.js?v=1"></script>
+    <script src="js/services/journey.js?v=3"></script>
+    <script src="js/services/dose-analysis.js?v=2"></script>
+    <script src="js/services/medication-level.js?v=2"></script>
+    <script src="js/services/report.js?v=2"></script>
+    <script src="js/services/ui.js?v=2"></script>
+    <script src="js/services/charts.js?v=2"></script>
+    <script src="js/services/router.js?v=2"></script>
+    <!-- Croppie JS -->
+    <script src="js/vendor/croppie.min.js"></script>
+    <script src="js/app.js?v=1001"></script>
+    <script src="js/controllers/help-controller.js?v=1"></script>
+    <script src="js/controllers/profile-controller.js?v=1"></script>
+    <script src="js/controllers/nutrition-controller.js?v=1"></script>
+    <script src="js/controllers/weight-controller.js?v=1"></script>
+    <script src="js/controllers/injections-controller.js?v=1"></script>
+    <script src="js/controllers/symptoms-controller.js?v=1"></script>
+    <script src="js/controllers/journey-controller.js?v=1"></script>
+    <script src="js/controllers/onboarding-controller.js?v=1"></script>
+    <script src="js/controllers/report-controller.js?v=1"></script>
+    <script src="js/services/notifications.js?v=1"></script>
+    <script src="js/controllers/notifications-controller.js?v=1"></script>
+    <script>
+        // Failsafe: ensure splash always dismisses even if scripts error
+        setTimeout(function () {
+            var splash = document.getElementById('splash-screen');
+            var auth = document.getElementById('auth-screen');
+            var app = document.getElementById('app');
+            if (splash && !splash.classList.contains('hidden')) {
+                splash.classList.add('hidden');
+                // Se nenhuma tela está visível, mostra o auth como fallback
+                if (app && app.classList.contains('hidden') && auth && auth.hidden) {
+                    auth.hidden = false;
+                }
+            }
+        }, 4000);
+    </script>
+</body>
+
+</html>

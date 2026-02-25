@@ -1,0 +1,155 @@
+/* ============================================
+   LAYOUT (App, Header, Sections)
+   ============================================ */
+
+/* APP CONTAINER */
+.app-container {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--bg-base);
+    padding-bottom: calc(var(--nav-height) + var(--safe-area-bottom));
+}
+
+.app-container.hidden {
+    display: none;
+}
+
+/* TAB SECTIONS */
+.tab-section {
+    display: none;
+    animation: fadeSlideIn 0.4s var(--ease-smooth);
+}
+
+.tab-section.active {
+    display: block;
+}
+
+/*
+   TAB ALIGNMENT FIX:
+   All cards should align vertically with the sidebar menu items (Hoje).
+   Removed excessive top padding and margins.
+*/
+.tab-section {
+    padding-top: 6px !important;
+    /* Prevent margin collapse */
+}
+
+.tab-section> :first-child {
+    margin-top: 4px !important;
+}
+
+/* Ensure all tab content elements align to top */
+.tab-section>* {
+    margin-top: 0 !important;
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* HEADER GLOBAL (Mobile First) - CLEANED FOR STANDARDIZATION */
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: auto !important;
+    /* Allow expansion for larger logo */
+    min-height: 84px !important;
+    /* Premium height */
+    background: var(--bg-surface);
+    /* Standard solid background */
+    border-bottom: 1px solid var(--border-light) !important;
+    z-index: 1000;
+    /* Match mobile.css */
+    padding: 12px var(--space-6) 8px;
+    /* Tighter vertical padding */
+    box-sizing: border-box !important;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+#header-date {
+    font-size: 11px !important;
+    font-weight: 600;
+    color: var(--text-secondary);
+    opacity: 0.9;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+}
+
+/* MAIN CONTENT */
+.main-content {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    margin-top: 0 !important;
+    padding-top: 90px !important;
+    /* Increased to prevent overlap with the 84px min-height header */
+    padding-left: var(--space-8);
+    padding-right: var(--space-8);
+    padding-bottom: var(--space-2);
+}
+
+/* DESKTOP SIDEBAR ADJUSTMENTS */
+@media (min-width: 1024px) {
+    .app-header {
+        /* Shift header content to the right of the sidebar (250px) */
+        padding-left: calc(250px + var(--space-6)) !important;
+    }
+
+    /* CRITICAL SIDEBAR ALIGNMENT */
+    .app-header {
+        height: 72px !important;
+        min-height: 72px !important;
+        max-height: 72px !important;
+        /* Padding-left is already set at line 156 to handle clearance */
+        padding-right: var(--space-6) !important;
+        /* V16-ALIGN-TO-CARDS */
+        padding-top: 0 !important;
+        /* Force true centering */
+        padding-bottom: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .desktop-sidebar .sidebar-header {
+        height: 72px !important;
+        min-height: 72px !important;
+        max-height: 72px !important;
+        padding-left: 32px !important;
+        padding-right: 32px !important;
+        padding-top: 0 !important;
+        /* Force true centering */
+        padding-bottom: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .sidebar-nav {
+        padding-left: 32px !important;
+        padding-right: 32px !important;
+    }
+
+    .desktop-sidebar .nav-item {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+    }
+}

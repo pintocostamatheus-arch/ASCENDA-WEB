@@ -1,0 +1,11 @@
+<svg width="64" height="64" viewBox="0 0 6773.32 6773.32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="ascenda-grad-favicon" gradientUnits="userSpaceOnUse" x1="4912.2" y1="1611.3" x2="230.13" y2="5802.3">
+            <stop offset="0" stop-color="#3B82F6" />
+            <stop offset="0.203922" stop-color="#2A95C1" />
+            <stop offset="0.509804" stop-color="#19A98B" />
+            <stop offset="1" stop-color="#9EDC4A" />
+        </linearGradient>
+    </defs>
+    <path fill="url(#ascenda-grad-favicon)" d="M799.57 5871.62l2587.09 -4969.93 2587.09 4969.93 -703.52 0 -1883.57 -3653.68 -1906.27 3653.68 -680.82 0zm1225.47 0l1384.32 -2700.55 1316.22 2700.55 -590.03 0 -726.19 -1429.71 -748.89 1429.71 -635.43 0z" />
+</svg>

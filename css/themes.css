@@ -1,0 +1,261 @@
+/* ============================================
+   DESIGN TOKENS (Themes)
+   ============================================ */
+:root {
+    /* 1. REFINED LIGHT (Default) */
+    --bg-page: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-sidebar: #FFFFFF;
+    --text-main: #0F172A;
+    --text-muted: #64748B;
+    --color-primary: #10B981;
+    --color-primary-rgb: 16, 185, 129;
+    --color-secondary: #3B82F6;
+    --color-accent: #10B981;
+    --border-color: #E2E8F0;
+    --border-light: #F1F5F9;
+    --bg-input: #F1F5F9;
+
+    /* Aliases for compatibility */
+    --primary: var(--color-primary);
+    --primary-light: var(--color-accent);
+    --primary-subtle: rgba(var(--color-primary-rgb), 0.1);
+    --text-primary: var(--text-main);
+    --text-secondary: var(--text-muted);
+    --text-tertiary: var(--text-muted);
+    --bg-base: var(--bg-page);
+    --bg-secondary: var(--bg-input);
+    --bg-elevated: var(--bg-surface);
+    --bg-card: var(--bg-surface);
+
+    /* Semantic Helpers */
+    --success: #059669;
+    --warning: #D97706;
+    --danger: #DC2626;
+    --info: #3B82F6;
+
+    --success-subtle: rgba(5, 150, 105, 0.1);
+    --warning-subtle: rgba(217, 119, 6, 0.1);
+    --danger-subtle: rgba(220, 38, 38, 0.1);
+    --info-subtle: rgba(59, 130, 246, 0.1);
+    --secondary-subtle: rgba(59, 130, 246, 0.1);
+
+    /* Nutrition Colors */
+    --color-protein: #F97316;
+    --color-water: #3B82F6;
+    --color-fiber: #10B981;
+
+    --gradient-primary: linear-gradient(135deg, #10B981 0%, #059669 100%);
+
+    /* Hero Card Gradients */
+    --card-weight-gradient: linear-gradient(135deg, #059669 0%, #10B981 100%);
+    --card-weight-shadow: rgba(5, 150, 105, 0.25);
+    --card-injection-gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+    --card-injection-shadow: rgba(99, 102, 241, 0.25);
+    --card-dose-hero-gradient: linear-gradient(135deg, #064E3B 0%, #059669 100%);
+    --card-dose-hero-shadow: rgba(5, 150, 105, 0.4);
+    --card-clinical-gradient: linear-gradient(135deg, #059669 0%, #10B981 100%);
+
+    /* Elevation */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06);
+    --shadow-card: var(--shadow-sm);
+
+    /* Spacing & Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-8: 3rem;
+
+    --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --transition-base: 300ms var(--ease-premium);
+    --transition-fast: 150ms var(--ease-premium);
+    --transition-slow: 500ms var(--ease-premium);
+
+    /* Typography */
+    --font-family: 'Inter', 'Outfit', system-ui, -apple-system, sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 2rem;
+    --font-size-4xl: 2.5rem;
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --letter-spacing-tight: -0.02em;
+    --letter-spacing-normal: 0;
+
+    /* Layout Components */
+    --header-height: 64px;
+    --sidebar-width: 280px;
+    --nav-height: 88px;
+    --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+
+    --bg-header-blur: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] {
+    --bg-page: #050505;
+    --bg-surface: #121212;
+    --bg-sidebar: #0A0A0A;
+    --text-main: #F1F5F9;
+    --text-muted: #94A3B8;
+    --color-primary: #34D399;
+    --color-primary-rgb: 52, 211, 153;
+    --color-secondary: #60A5FA;
+    --color-accent: #34D399;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-light: rgba(255, 255, 255, 0.05);
+    --bg-input: #1E1E1E;
+
+    --success-subtle: rgba(52, 211, 153, 0.15);
+    --warning-subtle: rgba(251, 191, 36, 0.15);
+    --danger-subtle: rgba(248, 113, 113, 0.15);
+    --info-subtle: rgba(96, 165, 250, 0.15);
+    --secondary-subtle: rgba(96, 165, 250, 0.15);
+
+    /* Fixed: Green Gradient for Buttons even in Dark Mode */
+    --gradient-primary: linear-gradient(135deg, #065F46 0%, #047857 100%);
+
+    --card-weight-gradient: linear-gradient(135deg, #047857 0%, #059669 100%);
+    --card-weight-shadow: rgba(4, 120, 87, 0.4);
+    --card-injection-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    --card-injection-shadow: rgba(79, 70, 229, 0.4);
+    --card-dose-hero-gradient: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+    --card-dose-hero-shadow: rgba(6, 78, 59, 0.5);
+    --card-clinical-gradient: linear-gradient(135deg, #047857 0%, #059669 100%);
+
+    --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.05);
+
+    /* Semantic Redefinitions for Dark Mode */
+    --success: #34D399;
+    --warning: #FBBF24;
+    --danger: #F87171;
+    --info: #60A5FA;
+
+    --bg-header-blur: rgba(18, 18, 18, 0.8);
+}
+
+/* Weight Card Register Button (Compact) */
+.card-value-group {
+    margin-bottom: var(--space-1);
+}
+
+.btn-weight-mini {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-weight-mini:active {
+    transform: scale(0.9);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="pastel"] {
+    --bg-page: #FDFBF7;
+    --bg-surface: #FFFFFF;
+    --bg-sidebar: #F7F5F0;
+    --text-main: #4A4A4A;
+    --text-muted: #9CA3AF;
+    --color-primary: #6B9080;
+    --color-primary-rgb: 107, 144, 128;
+    --color-secondary: #E6B8A2;
+    --color-accent: #A4C3B2;
+    --border-color: #E6E2DA;
+    --border-light: #F2F0EB;
+    --bg-input: #F2EFE9;
+
+    --success-subtle: rgba(107, 144, 128, 0.15);
+    --warning-subtle: rgba(230, 184, 162, 0.15);
+    --danger-subtle: rgba(212, 165, 165, 0.15);
+    --info-subtle: rgba(164, 195, 178, 0.15);
+    --secondary-subtle: rgba(230, 184, 162, 0.15);
+
+    --gradient-primary: linear-gradient(135deg, #6B9080 0%, #A4C3B2 100%);
+
+    --card-weight-gradient: linear-gradient(135deg, #6B9080 0%, #A4C3B2 100%);
+    --card-weight-shadow: rgba(107, 144, 128, 0.25);
+    --card-injection-gradient: linear-gradient(135deg, #D4A5A5 0%, #E6B8A2 100%);
+    --card-injection-shadow: rgba(212, 165, 165, 0.25);
+    --card-dose-hero-gradient: linear-gradient(135deg, #5A7D6F 0%, #6B9080 100%);
+    --card-dose-hero-shadow: rgba(90, 125, 111, 0.3);
+    --card-clinical-gradient: linear-gradient(135deg, #6B9080 0%, #A4C3B2 100%);
+
+    --shadow-card: 0 2px 4px rgba(140, 172, 153, 0.1);
+
+    /* Semantic Redefinitions for Pastel Mode (Muted/Earthy) */
+    --success: #6B9080;
+    --warning: #E6B8A2;
+    --danger: #D4A5A5;
+    --info: #A4C3B2;
+
+    --bg-header-blur: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="indigo"] {
+    --bg-page: #EEF2FF;
+    --bg-surface: #FFFFFF;
+    --bg-sidebar: #FFFFFF;
+    --text-main: #1E1B4B;
+    --text-muted: #6366F1;
+    --color-primary: #4338CA;
+    --color-primary-rgb: 67, 56, 202;
+    --color-secondary: #818CF8;
+    --color-accent: #4F46E5;
+    --border-color: #C7D2FE;
+    --border-light: #E0E7FF;
+    --bg-input: #E0E7FF;
+
+    --success-subtle: rgba(16, 185, 129, 0.15);
+    --warning-subtle: rgba(245, 158, 11, 0.15);
+    --danger-subtle: rgba(239, 68, 68, 0.15);
+    --info-subtle: rgba(99, 102, 241, 0.15);
+    --secondary-subtle: rgba(129, 140, 248, 0.15);
+
+    --gradient-primary: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%);
+
+    --card-weight-gradient: linear-gradient(135deg, #4338CA 0%, #6366F1 100%);
+    --card-weight-shadow: rgba(67, 56, 202, 0.25);
+    --card-injection-gradient: linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%);
+    --card-injection-shadow: rgba(124, 58, 237, 0.25);
+    --card-dose-hero-gradient: linear-gradient(135deg, #3730A3 0%, #4338CA 100%);
+    --card-dose-hero-shadow: rgba(55, 48, 163, 0.4);
+    --card-clinical-gradient: linear-gradient(135deg, #4338CA 0%, #6366F1 100%);
+
+    --shadow-card: 0 1px 3px rgba(67, 56, 202, 0.1);
+
+    /* Semantic Redefinitions for Indigo Mode (Vibrant) */
+    --success: #34D399;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --info: #6366F1;
+
+    --bg-header-blur: rgba(255, 255, 255, 0.8);
+}
