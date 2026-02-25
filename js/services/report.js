@@ -947,8 +947,8 @@ window.ReportService = {
                         tension: 0.4,
                         borderWidth: 6,
                         pointRadius: chartData.map(d => d.injection ? 15 : (d.isRealWeight ? 7 : 0)),
-                        pointBackgroundColor: chartData.map(d => d.injection ? '#EC4899' : themeColors.pointDefault),
-                        pointBorderColor: chartData.map(d => d.injection ? '#EC4899' : themeColors.pointDefault),
+                        pointBackgroundColor: pointColors,
+                        pointBorderColor: pointBorderColors,
                         pointBorderWidth: chartData.map(d => d.injection ? 5 : 3)
                     }]
                 },
