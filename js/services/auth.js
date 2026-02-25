@@ -399,7 +399,19 @@ window.AuthService = {
         // Limpa TODOS os rastros da sessão (evita que um usuário barrado
         // relogue e seu CACHE engane o app achando que é o primeiro acesso)
         console.log('AuthService: Executando wipedown do cache...');
+
+        // Preserva chaves críticas que NÃO devem ser apagadas no logout
+        const preserveKeys = ['monjaro_lgpd_consent', 'monjaro_theme'];
+        const preserved = {};
+        preserveKeys.forEach(k => {
+            const v = localStorage.getItem(k);
+            if (v !== null) preserved[k] = v;
+        });
+
         localStorage.clear();
+
+        // Restaura chaves preservadas
+        Object.entries(preserved).forEach(([k, v]) => localStorage.setItem(k, v));
 
         // Gate: mostra tela de login
         this.gate();
