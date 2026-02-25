@@ -404,9 +404,15 @@ window.AuthService = {
     },
 
     _onSignOut() {
+        // Limpa TODOS os rastros da sessão (evita que um usuário barrado
+        // relogue e seu CACHE engane o app achando que é o primeiro acesso)
+        console.log('AuthService: Executando wipedown do cache...');
+        localStorage.clear();
+
         // Gate: mostra tela de login
         this.gate();
-        // Recarrega para limpar estado
+
+        // Recarrega para limpar estado da memória RAM do navegador
         window.location.reload();
     },
 
