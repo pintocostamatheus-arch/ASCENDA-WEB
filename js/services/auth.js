@@ -66,10 +66,16 @@ window.AuthService = {
 
         // Atualiza perfil com nome e status inicial
         if (data.user && name) {
-            await SupabaseService.update('profiles', {
+            const { data: profileData } = await SupabaseService.update('profiles', {
                 name,
                 is_approved: false // Por padrão, entra pendente
             }, { id: data.user.id });
+
+            if (profileData && profileData[0]) {
+                StorageService.set(StorageService.KEYS.PROFILE, profileData[0]);
+            } else {
+                StorageService.set(StorageService.KEYS.PROFILE, { name, is_approved: false });
+            }
         }
 
         return { user: data.user, error: null };
@@ -90,6 +96,14 @@ window.AuthService = {
 
         if (error) {
             return { user: null, error: this._translateError(error.message) };
+        }
+
+        // Força buscar o perfil garantindo o is_approved ATUALIZADO
+        if (data.user) {
+            const { data: profiles } = await SupabaseService.get('profiles', { id: data.user.id });
+            if (profiles && profiles.length > 0) {
+                StorageService.set(StorageService.KEYS.PROFILE, profiles[0]);
+            }
         }
 
         return { user: data.user, error: null };
@@ -162,8 +176,9 @@ window.AuthService = {
         }
 
         // 2. Se ESTÁ logado, mas NÃO aprovado (Whitelist Beta)
-        // Buscamos o status guardado no perfil local
+        // Precisamos garantir que leia o false explicitamente
         const profile = StorageService.getSafe(StorageService.KEYS.PROFILE, {});
+        // Se profile.is_approved não existir (antigos) ou for true, passa. Se for estritamente false, bloqueia.
         if (profile.is_approved === false) {
             if (authScreen) authScreen.hidden = true;
             if (appContainer) appContainer.classList.add('hidden');
