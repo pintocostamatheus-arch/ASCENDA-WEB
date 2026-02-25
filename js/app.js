@@ -608,7 +608,18 @@ function _checkLgpdConsent() {
         return;
     }
 
-    // Mostra o modal bloqueante
+    // Novos usuários (sem onboarding completo) verão o consentimento durante o onboarding
+    try {
+        const profile = window.StorageService
+            ? StorageService.getSafe(StorageService.KEYS.PROFILE, null)
+            : JSON.parse(localStorage.getItem('ascenda_profile') || 'null');
+        if (!profile || !profile.onboardingComplete) {
+            overlay.style.display = 'none';
+            return;
+        }
+    } catch (e) { /* fallback: mostra modal se algo der errado */ }
+
+    // Usuário existente que completou onboarding mas ainda não consentiu
     overlay.style.display = 'flex';
 
     const chk = document.getElementById('chk-lgpd-accept');
