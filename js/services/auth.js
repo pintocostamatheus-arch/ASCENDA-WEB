@@ -374,21 +374,18 @@ window.AuthService = {
         if (!this._bootDone) return;
 
         // ─── Novo login / token refresh pós-boot ──────────────────
-        // O gate retorna TRUE se logado (independente de estar bloqueado ou não)
-        // Precisamos verificar se a tela pendente está ativa para abortar fluxos
         this.gate();
         const pendingScreen = document.getElementById('pending-screen');
-        if (pendingScreen && !pendingScreen.hidden) {
-            return; // USUÁRIO BARRADO, PARA TUDO!
-        }
+        const isBlocked = pendingScreen && !pendingScreen.hidden;
 
         if (window.MigrationService) {
             await MigrationService.migrateLocalDataToSupabase();
         }
 
+        // CARREGA OS DADOS! Se não carregar, o Refresh acha que é conta virgem e dispara onboarding.
         await StorageService.loadFromCloud();
 
-        if (window.App) {
+        if (window.App && !isBlocked) { // APENAS INICIA/ROTEIA SE NÃO ESTIVER BARRADO
             if (!App._initialized) {
                 App.init();
             } else {
