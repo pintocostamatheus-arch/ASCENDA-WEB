@@ -245,6 +245,7 @@ window.StorageService = {
                     dailyProtein: p.daily_protein_g || localProfile.dailyProtein,
                     dailyFiber: p.daily_fiber_g || localProfile.dailyFiber,
                     onboardingComplete: p.onboarding_complete ?? localProfile.onboardingComplete,
+                    is_approved: p.is_approved ?? localProfile.is_approved,
                     createdAt: p.created_at || localProfile.createdAt
                 };
                 localStorage.setItem(this.KEYS.PROFILE, JSON.stringify(cloudProfile));

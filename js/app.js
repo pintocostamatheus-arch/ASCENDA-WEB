@@ -89,8 +89,8 @@ window.App = {
                 PhotoStorageService.open().then(() => JourneyService.migratePhotos());
             }
 
-            // Ensure dashboard is refreshed after a tiny delay to allow DOM/Data to settle
-            setTimeout(() => this.refreshTab('hoje'), 100);
+            // O refreshTab oficial foi delegado para AuthService._onSignIn para evitar
+            // renderizações prematuras ou pisões por cima da tela de segurança.
         } catch (e) {
             console.error('Error loading initial data:', e);
             UI.toast('Erro ao carregar dados iniciais', 'error');
@@ -99,16 +99,10 @@ window.App = {
         // Hide splash after load
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
-            const pendingScreen = document.getElementById('pending-screen');
-            const app = document.getElementById('app');
-
             if (splash) splash.classList.add('hidden');
 
-            // SOMENTE LIBERA O APP SE NÃO ESTIVER BARRADO NA PORTARIA
-            if (!pendingScreen || pendingScreen.hidden) {
-                if (app) app.classList.remove('hidden');
-                this.refreshTab('hoje');
-            }
+            // SOMENTE LIBERA O APP QUANDO O LOGIN CONFIRMAR VIA _onSignIn (AuthService)
+            // Remover as chamadas precoces a app.classList.remove() e refreshTab() daqui.
         }, 800);
 
         // More Modal Logic
