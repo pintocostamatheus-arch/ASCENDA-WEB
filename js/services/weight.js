@@ -28,6 +28,14 @@ window.WeightService = {
             delete all[dateISO];
             StorageService.set(StorageService.KEYS.WEIGHTS, all);
             StorageService.snapshot();
+
+            // Remove também do Supabase para não voltar no próximo pull
+            if (window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
+                SupabaseService.getUser().then(user => {
+                    if (user) SupabaseService.delete('weights', { user_id: user.id, date: dateISO });
+                });
+            }
+
             return true;
         }
         return false;

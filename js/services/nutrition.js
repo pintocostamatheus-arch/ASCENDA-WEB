@@ -266,6 +266,14 @@ window.NutritionService = {
         let custom = StorageService.getSafe(StorageService.KEYS.CUSTOM_FOODS, []);
         custom = custom.filter(f => f.id !== id);
         StorageService.set(StorageService.KEYS.CUSTOM_FOODS, custom);
+
+        // Remove também do Supabase para não voltar no próximo pull
+        if (window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
+            SupabaseService.getUser().then(user => {
+                if (user) SupabaseService.delete('custom_foods', { user_id: user.id, id: id });
+            });
+        }
+
         return custom;
     },
 

@@ -24,6 +24,14 @@ window.DoseService = {
 
     delete(idOrKey) {
         const all = this.getAll();
+
+        // Encontra o item antes de remover (para sincronizar com Supabase)
+        const toDelete = all.find(i => {
+            if (i.id && i.id === idOrKey) return true;
+            if (!i.id && (i.dateISO === idOrKey || i.date === idOrKey)) return true;
+            return false;
+        });
+
         const filtered = all.filter(i => {
             if (i.id && i.id === idOrKey) return false;
             // Fallback for legacy items without ID
@@ -32,6 +40,20 @@ window.DoseService = {
         });
         StorageService.set(StorageService.KEYS.INJECTIONS, filtered);
         StorageService.snapshot();
+
+        // Remove também do Supabase para não voltar no próximo pull
+        if (toDelete && window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
+            SupabaseService.getUser().then(user => {
+                if (!user) return;
+                if (toDelete.id) {
+                    SupabaseService.delete('injections', { user_id: user.id, id: toDelete.id });
+                } else {
+                    const dateKey = toDelete.dateISO || toDelete.date;
+                    if (dateKey) SupabaseService.delete('injections', { user_id: user.id, date: dateKey });
+                }
+            });
+        }
+
         return true;
     },
 

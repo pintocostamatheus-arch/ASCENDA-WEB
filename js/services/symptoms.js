@@ -53,6 +53,14 @@ window.SymptomsService = {
                 StorageService.set(StorageService.KEYS.SYMPTOMS, all);
                 StorageService.snapshot();
                 console.log('Service: Sucesso na persistência');
+
+                // Remove também do Supabase para não voltar no próximo pull
+                if (window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
+                    SupabaseService.getUser().then(user => {
+                        if (user) SupabaseService.delete('symptoms', { user_id: user.id, date: dateKey });
+                    });
+                }
+
                 return true;
             }
 
