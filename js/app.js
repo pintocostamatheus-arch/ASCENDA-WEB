@@ -599,15 +599,21 @@ window.App = {
 //  4. Marca _bootDone para que _onSignIn saiba que o boot terminou
 // ─── LGPD: verifica consentimento antes de qualquer ação ─────────────────────
 function _checkLgpdConsent() {
-    if (localStorage.getItem('monjaro_lgpd_consent')) return; // já aceitou
-
     const overlay = document.getElementById('modal-lgpd');
     if (!overlay) return;
-    overlay.hidden = false;
 
-    const chk      = document.getElementById('chk-lgpd-accept');
-    const btnAceitar  = document.getElementById('btn-lgpd-aceitar');
-    const btnRecusar  = document.getElementById('btn-lgpd-recusar');
+    // Se já aceitou → garante que o modal está oculto e sai
+    if (localStorage.getItem('monjaro_lgpd_consent')) {
+        overlay.style.display = 'none';
+        return;
+    }
+
+    // Mostra o modal bloqueante
+    overlay.style.display = 'flex';
+
+    const chk        = document.getElementById('chk-lgpd-accept');
+    const btnAceitar = document.getElementById('btn-lgpd-aceitar');
+    const btnRecusar = document.getElementById('btn-lgpd-recusar');
 
     if (chk && btnAceitar) {
         chk.addEventListener('change', () => {
@@ -615,7 +621,7 @@ function _checkLgpdConsent() {
         });
         btnAceitar.addEventListener('click', () => {
             localStorage.setItem('monjaro_lgpd_consent', 'true');
-            overlay.hidden = true;
+            overlay.style.display = 'none';
         });
     }
 
@@ -633,6 +639,18 @@ function _checkLgpdConsent() {
         });
     }
 }
+
+// Abre o modal LGPD em modo leitura (já consentiu, só quer reler)
+App.openLgpdInfo = function () {
+    const overlay = document.getElementById('modal-lgpd');
+    if (!overlay) return;
+    // Pré-marca o checkbox e habilita botão para o usuário só fechar
+    const chk = document.getElementById('chk-lgpd-accept');
+    const btn = document.getElementById('btn-lgpd-aceitar');
+    if (chk) chk.checked = true;
+    if (btn) btn.disabled = false;
+    overlay.style.display = 'flex';
+};
 
 window.addEventListener("DOMContentLoaded", async () => {
 
