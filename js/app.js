@@ -99,11 +99,16 @@ window.App = {
         // Hide splash after load
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
+            const pendingScreen = document.getElementById('pending-screen');
             const app = document.getElementById('app');
+
             if (splash) splash.classList.add('hidden');
-            if (app) app.classList.remove('hidden');
-            // Refresh dashboard AFTER splash is hidden to ensure DOM is fully rendered
-            this.refreshTab('hoje');
+
+            // SOMENTE LIBERA O APP SE NÃO ESTIVER BARRADO NA PORTARIA
+            if (!pendingScreen || pendingScreen.hidden) {
+                if (app) app.classList.remove('hidden');
+                this.refreshTab('hoje');
+            }
         }, 800);
 
         // More Modal Logic

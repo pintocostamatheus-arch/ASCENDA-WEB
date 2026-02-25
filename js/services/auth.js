@@ -374,7 +374,13 @@ window.AuthService = {
         if (!this._bootDone) return;
 
         // ─── Novo login / token refresh pós-boot ──────────────────
+        // O gate retorna TRUE se logado (independente de estar bloqueado ou não)
+        // Precisamos verificar se a tela pendente está ativa para abortar fluxos
         this.gate();
+        const pendingScreen = document.getElementById('pending-screen');
+        if (pendingScreen && !pendingScreen.hidden) {
+            return; // USUÁRIO BARRADO, PARA TUDO!
+        }
 
         if (window.MigrationService) {
             await MigrationService.migrateLocalDataToSupabase();
