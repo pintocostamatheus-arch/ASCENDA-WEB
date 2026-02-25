@@ -48,8 +48,28 @@ App.initNotifications = function () {
 
     const btnSave          = document.getElementById('btn-notif-save');
 
+    // ─── Helper: verifica se uma <option value> existe no select ──
+    function selectHasOption(sel, val) {
+        if (!sel) return false;
+        return Array.from(sel.options).some(o => o.value === String(val));
+    }
+
     // ─── Popula a UI com os settings salvos ────────────────────
     function loadUI() {
+        // Limpa localStorage antigo/inválido se startHour ou endHour forem inválidos
+        const raw = localStorage.getItem('monjaro_notification_settings');
+        if (raw) {
+            try {
+                const parsed = JSON.parse(raw);
+                const sh = parsed?.water?.startHour;
+                const eh = parsed?.water?.endHour;
+                // Valores inválidos (ex: 0, 2 de implementação anterior)
+                if (sh < 5 || sh > 14 || eh < 13 || eh > 23) {
+                    localStorage.removeItem('monjaro_notification_settings');
+                }
+            } catch { localStorage.removeItem('monjaro_notification_settings'); }
+        }
+
         const s = NotificationService.getSettings();
         const perm = NotificationService.getPermissionLabel();
 
@@ -67,10 +87,12 @@ App.initNotifications = function () {
         if (doseToggle)  doseToggle.checked           = s.dose?.enabled ?? true;
         if (doseMinSel)  doseMinSel.value             = String(s.dose?.minutesBefore ?? 0);
 
-        // Água
+        // Água — garante que o valor existe nas options, senão usa default
+        const startHour = s.water?.startHour ?? 8;
+        const endHour   = s.water?.endHour   ?? 20;
         if (waterToggle)      waterToggle.checked     = s.water?.enabled ?? true;
-        if (waterStartSel)    waterStartSel.value     = String(s.water?.startHour ?? 8);
-        if (waterEndSel)      waterEndSel.value       = String(s.water?.endHour ?? 20);
+        if (waterStartSel)    waterStartSel.value     = selectHasOption(waterStartSel, startHour) ? String(startHour) : '8';
+        if (waterEndSel)      waterEndSel.value       = selectHasOption(waterEndSel, endHour)     ? String(endHour)   : '20';
         if (waterIntervalSel) waterIntervalSel.value  = String(s.water?.intervalHours ?? 2);
 
         // Peso
