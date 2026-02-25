@@ -146,6 +146,7 @@ App.initNotifications = function () {
         btnSave.addEventListener('click', async () => {
             const settings = {
                 enabled: masterToggle?.checked ?? false,
+                timezone_offset: NotificationService.DEFAULT_SETTINGS.timezone_offset,
                 dose: {
                     enabled: doseToggle?.checked ?? true,
                     minutesBefore: parseInt(doseMinSel?.value ?? '0', 10)

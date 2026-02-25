@@ -92,19 +92,17 @@ serve(async (req) => {
       const toSend: Array<{ title: string; body: string; tag: string; data: Record<string, string> }> = [];
 
       // ── 1. Lembrete de Dose ──────────────────
-      if (settings.dose?.enabled && schedule?.day_of_week !== undefined && schedule?.time) {
-        if (schedule.day_of_week === localDow) {
-          const [sh, sm] = schedule.time.split(":").map(Number);
-          const targetMinutes = sh * 60 + sm - (settings.dose.minutesBefore ?? 0);
-          if (Math.abs(localNowMinutes - targetMinutes) <= WINDOW_MINUTES) {
-            const drugName = formatDrugName(profile?.drug);
-            toSend.push({
-              title: "💉 Lembrete de Dose",
-              body: `Hoje é dia da sua injeção de ${drugName}!`,
-              tag: "dose",
-              data: { tab: "injecoes" },
-            });
-          }
+      if (schedule && settings.dose?.enabled && schedule.day_of_week === localDow && schedule.time) {
+        const [sh, sm] = schedule.time.split(":").map(Number);
+        const targetMinutes = sh * 60 + sm - (settings.dose.minutesBefore ?? 0);
+        if (Math.abs(localNowMinutes - targetMinutes) <= WINDOW_MINUTES) {
+          const drugName = formatDrugName(profile?.drug);
+          toSend.push({
+            title: "💉 Lembrete de Dose",
+            body: `Hoje é dia da sua injeção de ${drugName}!`,
+            tag: "dose",
+            data: { tab: "injecoes" },
+          });
         }
       }
 
@@ -146,19 +144,22 @@ serve(async (req) => {
       }
 
       // ── 4. Sintomas Pós-dose ─────────────────
-      if (settings.symptoms?.enabled && schedule?.day_of_week !== undefined && schedule?.time) {
-        if (schedule.day_of_week === localDow) {
-          const [dh, dm] = schedule.time.split(":").map(Number);
-          const hoursAfter = settings.symptoms.hoursAfter ?? 4;
-          const targetMinutes = dh * 60 + dm + hoursAfter * 60;
-          if (Math.abs(localNowMinutes - targetMinutes) <= WINDOW_MINUTES) {
-            toSend.push({
-              title: "😊 Como está se sentindo?",
-              body: "Registre seus sintomas após a aplicação de hoje.",
-              tag: "symptoms",
-              data: { tab: "sintomas" },
-            });
-          }
+      if (schedule && settings.symptoms?.enabled && schedule.time) {
+        const [dh, dm] = schedule.time.split(":").map(Number);
+        const hoursAfter = settings.symptoms.hoursAfter ?? 4;
+        const rawTarget = dh * 60 + dm + hoursAfter * 60;
+        // Suporte a horários que ultrapassam meia-noite (ex: injeção às 22h + 4h = 02h do dia seguinte)
+        const targetMinutes = rawTarget % (24 * 60);
+        const targetDow = rawTarget >= 24 * 60
+          ? (schedule.day_of_week + 1) % 7
+          : schedule.day_of_week;
+        if (targetDow === localDow && Math.abs(localNowMinutes - targetMinutes) <= WINDOW_MINUTES) {
+          toSend.push({
+            title: "😊 Como está se sentindo?",
+            body: "Registre seus sintomas após a aplicação de hoje.",
+            tag: "symptoms",
+            data: { tab: "sintomas" },
+          });
         }
       }
 
