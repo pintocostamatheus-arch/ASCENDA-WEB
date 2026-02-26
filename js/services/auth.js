@@ -295,15 +295,19 @@ window.AuthService = {
                 btnSignup.disabled = true;
                 btnSignup.textContent = 'Criando conta...';
 
-                const { user, error } = await this.signUp(email, password, name);
+                try {
+                    const { user, error } = await this.signUp(email, password, name);
 
-                btnSignup.disabled = false;
-                btnSignup.textContent = 'Criar Conta';
-
-                if (error) {
-                    this._showError('signup', error);
-                } else if (user && !user.confirmed_at) {
-                    this._showError('signup', 'Conta criada! Verifique seu email para confirmar.', 'success');
+                    if (error) {
+                        this._showError('signup', error);
+                    } else if (user && !user.confirmed_at) {
+                        this._showError('signup', 'Conta criada! Verifique seu email para confirmar.', 'success');
+                    }
+                } catch (e) {
+                    this._showError('signup', 'Erro inesperado. Tente novamente.');
+                } finally {
+                    btnSignup.disabled = false;
+                    btnSignup.textContent = 'Criar Conta';
                 }
             };
         }
