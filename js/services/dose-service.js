@@ -29,10 +29,11 @@ window.DoseService = {
                     user_id: user.id,
                     date: injection.dateISO || injection.date,
                     time: injection.time || null,
+                    drug_name: injection.drugName || injection.drug || 'Desconhecido',
+                    dose_mg: parseFloat(injection.doseMg || injection.dose || 0),
                     site: injection.site || null,
                     side: injection.side || null,
-                    dose: injection.dose ? parseFloat(injection.dose) : null,
-                    symptoms: injection.symptoms || null
+                    notes: injection.notes || injection.symptoms || null
                 };
                 SupabaseService.upsert('injections', row, 'id');
             });
