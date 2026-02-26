@@ -392,60 +392,61 @@ window.AuthService = {
                     App.showOnboardingModal();
                 }
             }
-        },
-
-        _onSignOut() {
-            // Limpa TODOS os rastros da sessão (evita que um usuário barrado
-            // relogue e seu CACHE engane o app achando que é o primeiro acesso)
-            console.log('AuthService: Executando wipedown do cache...');
-
-            // Preserva chaves críticas que NÃO devem ser apagadas no logout
-            const preserveKeys = ['monjaro_lgpd_consent', 'monjaro_theme'];
-            const preserved = {};
-            preserveKeys.forEach(k => {
-                const v = localStorage.getItem(k);
-                if (v !== null) preserved[k] = v;
-            });
-
-            localStorage.clear();
-
-            // Restaura chaves preservadas
-            Object.entries(preserved).forEach(([k, v]) => localStorage.setItem(k, v));
-
-            // Gate: mostra tela de login
-            this.gate();
-
-            // Recarrega para limpar estado da memória RAM do navegador
-            window.location.reload();
-        },
-
-        // ─── HELPERS ────────────────────────────────
-
-        _showError(formType, message, type = 'error') {
-            const el = document.getElementById(`auth-error-${formType}`);
-            if (!el) return;
-            el.textContent = message;
-            el.className = `auth-message auth-message-${type}`;
-            el.hidden = false;
-        },
-
-        _clearErrors() {
-            document.querySelectorAll('.auth-message').forEach(el => {
-                el.hidden = true;
-                el.textContent = '';
-            });
-        },
-
-        _translateError(msg) {
-            const map = {
-                'Invalid login credentials': 'Email ou senha incorretos.',
-                'Email not confirmed': 'Email ainda não confirmado. Verifique sua caixa de entrada.',
-                'User already registered': 'Este email já está cadastrado.',
-                'Password should be at least 6 characters': 'A senha deve ter pelo menos 6 caracteres.',
-                'Signup requires a valid password': 'Informe uma senha válida.',
-                'Email rate limit exceeded': 'Muitas tentativas. Aguarde alguns minutos.',
-                'For security purposes, you can only request this once every 60 seconds': 'Aguarde 60 segundos antes de tentar novamente.'
-            };
-            return map[msg] || msg;
         }
-    };
+    },
+
+    _onSignOut() {
+        // Limpa TODOS os rastros da sessão (evita que um usuário barrado
+        // relogue e seu CACHE engane o app achando que é o primeiro acesso)
+        console.log('AuthService: Executando wipedown do cache...');
+
+        // Preserva chaves críticas que NÃO devem ser apagadas no logout
+        const preserveKeys = ['monjaro_lgpd_consent', 'monjaro_theme'];
+        const preserved = {};
+        preserveKeys.forEach(k => {
+            const v = localStorage.getItem(k);
+            if (v !== null) preserved[k] = v;
+        });
+
+        localStorage.clear();
+
+        // Restaura chaves preservadas
+        Object.entries(preserved).forEach(([k, v]) => localStorage.setItem(k, v));
+
+        // Gate: mostra tela de login
+        this.gate();
+
+        // Recarrega para limpar estado da memória RAM do navegador
+        window.location.reload();
+    },
+
+    // ─── HELPERS ────────────────────────────────
+
+    _showError(formType, message, type = 'error') {
+        const el = document.getElementById(`auth-error-${formType}`);
+        if (!el) return;
+        el.textContent = message;
+        el.className = `auth-message auth-message-${type}`;
+        el.hidden = false;
+    },
+
+    _clearErrors() {
+        document.querySelectorAll('.auth-message').forEach(el => {
+            el.hidden = true;
+            el.textContent = '';
+        });
+    },
+
+    _translateError(msg) {
+        const map = {
+            'Invalid login credentials': 'Email ou senha incorretos.',
+            'Email not confirmed': 'Email ainda não confirmado. Verifique sua caixa de entrada.',
+            'User already registered': 'Este email já está cadastrado.',
+            'Password should be at least 6 characters': 'A senha deve ter pelo menos 6 caracteres.',
+            'Signup requires a valid password': 'Informe uma senha válida.',
+            'Email rate limit exceeded': 'Muitas tentativas. Aguarde alguns minutos.',
+            'For security purposes, you can only request this once every 60 seconds': 'Aguarde 60 segundos antes de tentar novamente.'
+        };
+        return map[msg] || msg;
+    }
+};

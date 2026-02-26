@@ -19,6 +19,25 @@ window.DoseService = {
         all.push(injection);
         StorageService.set(StorageService.KEYS.INJECTIONS, all);
         StorageService.snapshot();
+
+        // 🔄 Sync imediato com Supabase (resolve o sumiço dos dados ao recarregar a tela)
+        if (window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
+            SupabaseService.getUser().then(user => {
+                if (!user) return;
+                const row = {
+                    id: injection.id,
+                    user_id: user.id,
+                    date: injection.dateISO || injection.date,
+                    time: injection.time || null,
+                    site: injection.site || null,
+                    side: injection.side || null,
+                    dose: injection.dose ? parseFloat(injection.dose) : null,
+                    symptoms: injection.symptoms || null
+                };
+                SupabaseService.upsert('injections', row, 'id');
+            });
+        }
+
         return injection;
     },
 
