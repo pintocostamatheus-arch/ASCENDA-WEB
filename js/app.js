@@ -103,7 +103,7 @@ window.App = {
 
             // SOMENTE LIBERA O APP QUANDO O LOGIN CONFIRMAR VIA _onSignIn (AuthService)
             // Remover as chamadas precoces a app.classList.remove() e refreshTab() daqui.
-        }, 800);
+        }, 200);
 
         // More Modal Logic
         const btnOpenMore = document.getElementById('btn-open-more-modal');
@@ -182,7 +182,7 @@ window.App = {
 
     bindEvents() {
         // Weight (with loading state)
-        UI.setClick('btn-save-weight', () => UI.withLoading(document.getElementById('btn-save-weight'), async () => { this.saveWeight(); await new Promise(r => setTimeout(r, 300)); }));
+        UI.setClick('btn-save-weight', () => UI.withLoading(document.getElementById('btn-save-weight'), async () => { this.saveWeight(); await new Promise(r => setTimeout(r, 100)); }));
         UI.setClick('btn-register-weight', () => Router.navigate('peso'));
 
         // Chart filters
@@ -201,7 +201,7 @@ window.App = {
         }
         UI.setEvent('meal-quantity', 'input', () => this.updateProteinPreview());
         UI.setEvent('meal-unit', 'change', () => this.updateProteinPreview());
-        UI.setClick('btn-add-meal', () => UI.withLoading(document.getElementById('btn-add-meal'), async () => { this.addMeal(); await new Promise(r => setTimeout(r, 300)); }));
+        UI.setClick('btn-add-meal', () => UI.withLoading(document.getElementById('btn-add-meal'), async () => { this.addMeal(); await new Promise(r => setTimeout(r, 100)); }));
 
         // Water
         document.querySelectorAll('.btn-water[data-amount]').forEach(btn => {
@@ -220,7 +220,7 @@ window.App = {
         UI.setClick('btn-add-custom-food', () => this.showAddFoodModal());
 
         // Symptoms
-        UI.setClick('btn-save-symptoms', () => UI.withLoading(document.getElementById('btn-save-symptoms'), async () => { this.saveSymptoms(); await new Promise(r => setTimeout(r, 300)); }));
+        UI.setClick('btn-save-symptoms', () => UI.withLoading(document.getElementById('btn-save-symptoms'), async () => { this.saveSymptoms(); await new Promise(r => setTimeout(r, 100)); }));
         UI.setClick('btn-add-custom-symptom', () => this.addCustomSymptomRow());
 
         // Injections
@@ -240,7 +240,7 @@ window.App = {
             const modal = document.getElementById('modal-register-injection');
             if (modal) modal.hidden = true;
         });
-        UI.setClick('btn-confirm-injection', () => UI.withLoading(document.getElementById('btn-confirm-injection'), async () => { this.registerInjection(); await new Promise(r => setTimeout(r, 300)); }));
+        UI.setClick('btn-confirm-injection', () => UI.withLoading(document.getElementById('btn-confirm-injection'), async () => { this.registerInjection(); await new Promise(r => setTimeout(r, 100)); }));
 
         // Journey
         const photoInput = document.getElementById('photo-input');
