@@ -11,10 +11,10 @@ window.SupabaseService = {
     // onde secrets.js não existe. A anon key é pública por design do Supabase;
     // a segurança real vem das RLS policies no banco de dados.
     get SUPABASE_URL() {
-        return window.ENV?.SUPABASE_URL || 'https://etchujacrmflnkaglrdt.supabase.co';
+        return (window.ENV && window.ENV.SUPABASE_URL) ? window.ENV.SUPABASE_URL : 'https://etchujacrmflnkaglrdt.supabase.co';
     },
     get SUPABASE_ANON_KEY() {
-        return window.ENV?.SUPABASE_ANON_KEY || 'sb_publishable_xpmC-6LBQw_n322yGlu-1A_Dj0K-0SA';
+        return (window.ENV && window.ENV.SUPABASE_ANON_KEY) ? window.ENV.SUPABASE_ANON_KEY : 'sb_publishable_xpmC-6LBQw_n322yGlu-1A_Dj0K-0SA';
     },
 
     // ─── INIT ──────────────────────────────────

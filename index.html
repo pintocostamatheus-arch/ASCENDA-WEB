@@ -751,7 +751,8 @@
                         <div class="input-row" style="margin-top: 15px;">
                             <div class="input-group">
                                 <label for="injection-interval">Intervalo das Doses</label>
-                                <select id="injection-interval" class="input-field" style="height: auto; padding: 12px 16px;">
+                                <select id="injection-interval" class="input-field"
+                                    style="height: auto; padding: 12px 16px;">
                                     <option value="7">7 dias (Padrão)</option>
                                     <option value="10">10 dias</option>
                                     <option value="14">14 dias</option>
@@ -760,7 +761,8 @@
                                 </select>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-primary" id="btn-save-schedule" style="width:100%; margin-top:12px;">Salvar Cronograma</button>
+                        <button type="button" class="btn btn-primary" id="btn-save-schedule"
+                            style="width:100%; margin-top:12px;">Salvar Cronograma</button>
                     </div>
                 </details>
             </section>
@@ -2887,67 +2889,50 @@
     </div>
 
 
-    <!-- Scripts de terceiros (carregados no body para não bloquear renderização) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="js/vendor/chart.umd.min.js"></script>
-    <script src="js/vendor/jspdf.umd.min.js"></script>
-
-    <!-- Scripts (Engine from VERSAO WEB) -->
-    <script src="js/version.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/secrets.js"></script>
-    <script>
-        // Inicializa Sentry assim que o DSN estiver disponível (via secrets.js)
-        if (window.Sentry && window.ENV && window.ENV.SENTRY_DSN) {
-            Sentry.init({
-                dsn: window.ENV.SENTRY_DSN,
-                environment: 'production',
-                ignoreErrors: [
-                    // Erros de rede esperados (offline, timeout)
-                    'NetworkError', 'Failed to fetch', 'Network request failed',
-                    // Erros de extensões de browser
-                    /^chrome-extension:\/\//
-                ]
-            });
-        }
-    </script>
-    <script src="js/utils/date-service.js"></script>
-    <script src="js/services/storage.js?v=13"></script>
-    <script src="js/services/supabase.js?v=9"></script>
-    <script src="js/services/auth.js?v=15"></script>
-    <script src="js/services/migration.js?v=9"></script>
-    <script src="js/services/security.js"></script>
-    <script src="js/services/profile.js?v=2"></script>
-    <script src="js/services/weight.js"></script>
-    <script src="js/services/nutrition.js"></script>
-    <script src="js/services/dose-service.js?v=2"></script>
-    <script src="js/services/clinical.js?v=2"></script>
-    <script src="js/services/symptoms.js?v=2"></script>
-    <script src="js/services/instructions.js?v=2"></script>
-    <script src="js/services/safety-guard.js?v=2"></script>
-    <script src="js/services/insights.js?v=1"></script>
-    <script src="js/services/photo-storage.js?v=1"></script>
-    <script src="js/services/journey.js?v=3"></script>
-    <script src="js/services/dose-analysis.js?v=2"></script>
-    <script src="js/services/medication-level.js?v=2"></script>
-    <script src="js/services/report.js?v=4"></script>
-    <script src="js/services/ui.js?v=2"></script>
-    <script src="js/services/charts.js?v=2"></script>
-    <script src="js/services/router.js?v=2"></script>
-    <!-- Croppie JS -->
-    <script src="js/vendor/croppie.min.js"></script>
-    <script src="js/app.js?v=1004"></script>
-    <script src="js/controllers/help-controller.js?v=2"></script>
-    <script src="js/controllers/profile-controller.js?v=1"></script>
-    <script src="js/controllers/nutrition-controller.js?v=1"></script>
-    <script src="js/controllers/weight-controller.js?v=1"></script>
-    <script src="js/controllers/injections-controller.js?v=1"></script>
-    <script src="js/controllers/symptoms-controller.js?v=1"></script>
-    <script src="js/controllers/journey-controller.js?v=1"></script>
-    <script src="js/controllers/onboarding-controller.js?v=1"></script>
-    <script src="js/controllers/report-controller.js?v=1"></script>
-    <script src="js/services/notifications.js?v=9"></script>
-    <script src="js/controllers/notifications-controller.js?v=1"></script>
+    <!-- Scripts: defer = download em paralelo, execução em ordem garantida -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script defer src="js/vendor/chart.umd.min.js"></script>
+    <script defer src="js/vendor/jspdf.umd.min.js"></script>
+    <script defer src="js/version.js"></script>
+    <script defer src="js/config.js"></script>
+    <script defer src="js/secrets.js"></script>
+    <script defer src="js/sentry-init.js"></script>
+    <script defer src="js/utils/date-service.js"></script>
+    <script defer src="js/services/storage.js?v=13"></script>
+    <script defer src="js/services/supabase.js?v=9"></script>
+    <script defer src="js/services/auth.js?v=15"></script>
+    <script defer src="js/services/migration.js?v=9"></script>
+    <script defer src="js/services/security.js"></script>
+    <script defer src="js/services/profile.js?v=2"></script>
+    <script defer src="js/services/weight.js"></script>
+    <script defer src="js/services/nutrition.js"></script>
+    <script defer src="js/services/dose-service.js?v=2"></script>
+    <script defer src="js/services/clinical.js?v=2"></script>
+    <script defer src="js/services/symptoms.js?v=2"></script>
+    <script defer src="js/services/instructions.js?v=2"></script>
+    <script defer src="js/services/safety-guard.js?v=2"></script>
+    <script defer src="js/services/insights.js?v=1"></script>
+    <script defer src="js/services/photo-storage.js?v=1"></script>
+    <script defer src="js/services/journey.js?v=3"></script>
+    <script defer src="js/services/dose-analysis.js?v=2"></script>
+    <script defer src="js/services/medication-level.js?v=2"></script>
+    <script defer src="js/services/report.js?v=4"></script>
+    <script defer src="js/services/ui.js?v=2"></script>
+    <script defer src="js/services/charts.js?v=2"></script>
+    <script defer src="js/services/router.js?v=2"></script>
+    <script defer src="js/vendor/croppie.min.js"></script>
+    <script defer src="js/app.js?v=1004"></script>
+    <script defer src="js/controllers/help-controller.js?v=2"></script>
+    <script defer src="js/controllers/profile-controller.js?v=1"></script>
+    <script defer src="js/controllers/nutrition-controller.js?v=1"></script>
+    <script defer src="js/controllers/weight-controller.js?v=1"></script>
+    <script defer src="js/controllers/injections-controller.js?v=1"></script>
+    <script defer src="js/controllers/symptoms-controller.js?v=1"></script>
+    <script defer src="js/controllers/journey-controller.js?v=1"></script>
+    <script defer src="js/controllers/onboarding-controller.js?v=1"></script>
+    <script defer src="js/controllers/report-controller.js?v=1"></script>
+    <script defer src="js/services/notifications.js?v=9"></script>
+    <script defer src="js/controllers/notifications-controller.js?v=1"></script>
     <script>
         // Failsafe: ensure splash always dismisses even if scripts error
         setTimeout(function () {

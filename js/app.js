@@ -680,11 +680,12 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     if (window.AuthService) {
 
-        // 2. Verifica sessão e registra onAuthStateChange
-        const hasSession = await AuthService.init();
-
-        // 3. Bind da UI de autenticação
+        // 2. Bind da UI de autenticação PRIMEIRO — handlers disponíveis imediatamente,
+        // mesmo que a verificação de sessão do Supabase demore (rede lenta).
         AuthService.bindAuthUI();
+
+        // 3. Verifica sessão e registra onAuthStateChange
+        const hasSession = await AuthService.init();
 
         if (hasSession) {
             // 4. Mostra o app imediatamente com dados locais (rápido)
