@@ -6,9 +6,10 @@ window.SupabaseService = {
     _client: null,
 
     // ─── CONFIGURAÇÃO ──────────────────────────
-    // ⚠️ ATENÇÃO: COLOQUE AQUI OS DADOS DO SEU SUPABASE ⚠️
-    SUPABASE_URL: 'https://etchujacrmflnkaglrdt.supabase.co',
-    SUPABASE_ANON_KEY: 'sb_publishable_xpmC-6LBQw_n322yGlu-1A_Dj0K-0SA',
+    // As credenciais são carregadas de js/secrets.js (gitignored).
+    // Para configurar, copie secrets.example.js → secrets.js e preencha.
+    get SUPABASE_URL() { return window.ENV?.SUPABASE_URL || ''; },
+    get SUPABASE_ANON_KEY() { return window.ENV?.SUPABASE_ANON_KEY || ''; },
 
     // ─── INIT ──────────────────────────────────
     init() {

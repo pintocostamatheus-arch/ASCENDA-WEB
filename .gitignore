@@ -4,3 +4,4 @@ node_modules/
 .DS_Store
 anti-gravity-quota
 /.agent
+js/secrets.js
