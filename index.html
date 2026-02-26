@@ -2469,77 +2469,8 @@
                     </div>
                 </div>
 
-                <!-- Step 1: Privacidade (LGPD) -->
+                <!-- Step 1: Identity -->
                 <div class="md-step" data-step="1">
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
-
-                        <!-- Lock Icon Badge -->
-                        <div style="
-                            width: 64px; height: 64px;
-                            background: rgba(16, 185, 129, 0.1);
-                            border-radius: 50%;
-                            display: flex; align-items: center; justify-content: center;
-                            margin-bottom: 24px;
-                            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
-                        ">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10B981"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
-                        </div>
-
-                        <h2 class="md-title" style="margin-bottom: 8px;">Privacidade e Dados</h2>
-                        <p class="md-desc" style="margin-bottom: 24px; max-width: 280px; margin-left: auto; margin-right: auto;">
-                            Antes de continuar, precisamos do seu consentimento conforme a LGPD.
-                        </p>
-
-                        <!-- Glass Card with Privacy Info -->
-                        <div style="
-                            background: rgba(255, 255, 255, 0.03);
-                            border: 1px solid rgba(255, 255, 255, 0.1);
-                            border-radius: 16px;
-                            padding: 20px;
-                            text-align: left;
-                            width: 100%;
-                            margin-bottom: 20px;
-                            max-height: 200px;
-                            overflow-y: auto;
-                        ">
-                            <p style="font-size: 0.88rem; color: var(--md-text-secondary); margin-bottom: 12px; line-height: 1.6;">
-                                O <strong style="color: var(--md-text-primary);">Ascenda</strong> coleta e armazena os seguintes dados pessoais de saúde:
-                            </p>
-                            <ul style="font-size: 0.85rem; color: var(--md-text-secondary); margin: 0 0 12px 16px; line-height: 1.9;">
-                                <li>Peso corporal e medidas</li>
-                                <li>Medicamentos e doses</li>
-                                <li>Sintomas e bem-estar</li>
-                                <li>Refeições e nutrição</li>
-                                <li>Fotos da jornada</li>
-                            </ul>
-                            <p style="font-size: 0.82rem; color: var(--md-text-secondary); line-height: 1.6; margin-bottom: 8px;">
-                                <strong style="color: var(--md-text-primary);">Finalidade:</strong> Acompanhamento pessoal do tratamento com GLP-1.<br>
-                                <strong style="color: var(--md-text-primary);">Armazenamento:</strong> Local e na nuvem (Supabase).<br>
-                                <strong style="color: var(--md-text-primary);">Seus direitos (LGPD):</strong> Exporte ou apague seus dados a qualquer momento nas configurações.
-                            </p>
-                            <p style="font-size: 0.80rem; color: var(--md-text-secondary); line-height: 1.5;">
-                                Em conformidade com a <strong style="color: var(--md-text-primary);">Lei 13.709/2018 (LGPD)</strong>.
-                            </p>
-                        </div>
-
-                        <!-- Consent Checkbox -->
-                        <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; width: 100%; text-align: left;">
-                            <input type="checkbox" id="chk-lgpd-onboard"
-                                style="width: 20px; height: 20px; margin-top: 2px; cursor: pointer; flex-shrink: 0; accent-color: #10B981;">
-                            <span style="font-size: 0.88rem; color: var(--md-text-secondary); line-height: 1.5;">
-                                Li e concordo com a coleta e uso dos meus dados de saúde conforme descrito acima.
-                            </span>
-                        </label>
-
-                    </div>
-                </div>
-
-                <!-- Step 2: Identity -->
-                <div class="md-step" data-step="2">
                     <h2 class="md-title">Identidade</h2>
                     <p class="md-desc">Vamos iniciar seu perfil clínico.</p>
 
@@ -2549,8 +2480,8 @@
                     </div>
                 </div>
 
-                <!-- Step 3: Biometrics -->
-                <div class="md-step" data-step="3">
+                <!-- Step 2: Biometrics -->
+                <div class="md-step" data-step="2">
                     <h2 class="md-title">Biometria</h2>
                     <p class="md-desc">Dados essenciais para cálculo basal.</p>
 
@@ -2607,8 +2538,8 @@
                     </div>
                 </div>
 
-                <!-- Step 4: Stats -->
-                <div class="md-step" data-step="4">
+                <!-- Step 3: Stats -->
+                <div class="md-step" data-step="3">
                     <h2 class="md-title">Medidas</h2>
                     <p class="md-desc">Calibração corporal atual.</p>
 
@@ -2626,8 +2557,8 @@
                     </div>
                 </div>
 
-                <!-- Step 5: Activity -->
-                <div class="md-step" data-step="5">
+                <!-- Step 4: Activity -->
+                <div class="md-step" data-step="4">
                     <h2 class="md-title">Atividade</h2>
                     <p class="md-desc">Seu nível de gasto energético.</p>
 
@@ -2642,8 +2573,8 @@
                     </div>
                 </div>
 
-                <!-- Step 6: Clinical -->
-                <div class="md-step" data-step="6">
+                <!-- Step 5: Clinical -->
+                <div class="md-step" data-step="5">
                     <h2 class="md-title">Clínico</h2>
                     <p class="md-desc">Contexto médico e segurança.</p>
 
@@ -2720,8 +2651,8 @@
                     </div>
                 </div>
 
-                <!-- Step 7: Goals -->
-                <div class="md-step" data-step="7">
+                <!-- Step 6: Goals -->
+                <div class="md-step" data-step="6">
                     <h2 class="md-title">Objetivo</h2>
                     <p class="md-desc">Onde queremos chegar?</p>
 
@@ -2760,8 +2691,8 @@
                     </div>
                 </div>
 
-                <!-- Step 8: Success -->
-                <div class="md-step" data-step="8">
+                <!-- Step 7: Success -->
+                <div class="md-step" data-step="7">
                     <div
                         style="font-size: 4rem; margin-bottom: 20px; color: var(--md-primary); display: flex; justify-content: center;">
                         <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor"

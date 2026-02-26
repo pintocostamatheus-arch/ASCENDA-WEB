@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ascenda-v20';
+const CACHE_NAME = 'ascenda-v17';
 const ASSETS = [
   '/',
   '/index.html',
@@ -93,7 +93,7 @@ self.addEventListener('push', (e) => {
     icon: '/assets/icons/favicon.svg',
     badge: '/assets/icons/favicon.svg',
     tag: payload.tag || 'ascenda',
-    renotify: true,
+    renotify: false,
     data: payload.data || {}
   };
 
@@ -138,19 +138,10 @@ self.addEventListener('fetch', (e) => {
   // Skip non-GET and cross-origin
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
 
-  // HTML pages: network first with timeout, fallback to cache
+  // HTML pages: network first, fallback to cache
   if (e.request.headers.get('accept')?.includes('text/html')) {
     e.respondWith(
-      new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => reject(new Error('Network Timeout')), 3000);
-        fetch(e.request).then(res => {
-          clearTimeout(timeoutId);
-          resolve(res);
-        }).catch(err => {
-          clearTimeout(timeoutId);
-          reject(err);
-        });
-      })
+      fetch(e.request)
         .then((res) => {
           const clone = res.clone();
           caches.open(CACHE_NAME).then((c) => c.put(e.request, clone));

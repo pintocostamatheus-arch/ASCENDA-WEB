@@ -8,7 +8,7 @@ window.NotificationService = {
     // ─── VAPID PUBLIC KEY ──────────────────────
     // Preencha após gerar as chaves VAPID (ver instruções no README).
     // Comando: npx web-push generate-vapid-keys
-    VAPID_PUBLIC_KEY: 'BPvYkuKMnGd1tHTQ4G0Lpzu1HuhKTFUMj92_sSHNK3a5JkIKHy3QtFq43oS1y8awODzsUeYLsxKEjVSUHjGGjuI',
+    VAPID_PUBLIC_KEY: 'BNK9vgNUS8W6Fqq4-eU6NMqsK6Yi9n7dMeRceN25C6LC-OvBf6pbm-1rYsbATth8odkfhfBnMDYLKrLSvu97NzM',
 
     // ─── DEFAULTS ──────────────────────────────
     DEFAULT_SETTINGS: {
@@ -206,8 +206,8 @@ window.NotificationService = {
             return { text: 'Ativo — push nativo', color: 'var(--color-success, #10B981)' };
         }
         const map = {
-            denied: { text: 'Bloqueado — libere nas configurações do browser', color: '#ef4444' },
-            default: { text: 'Permissão não concedida ainda', color: 'var(--text-muted, #9ca3af)' },
+            denied:      { text: 'Bloqueado — libere nas configurações do browser', color: '#ef4444' },
+            default:     { text: 'Permissão não concedida ainda', color: 'var(--text-muted, #9ca3af)' },
             unsupported: { text: 'Não suportado neste browser', color: '#f59e0b' }
         };
         return map[status] || map.default;

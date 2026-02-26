@@ -608,21 +608,10 @@ function _checkLgpdConsent() {
         return;
     }
 
-    // Novos usuários (sem onboarding completo) verão o consentimento durante o onboarding
-    try {
-        const profile = window.StorageService
-            ? StorageService.getSafe(StorageService.KEYS.PROFILE, null)
-            : JSON.parse(localStorage.getItem('ascenda_profile') || 'null');
-        if (!profile || !profile.onboardingComplete) {
-            overlay.style.display = 'none';
-            return;
-        }
-    } catch (e) { /* fallback: mostra modal se algo der errado */ }
-
-    // Usuário existente que completou onboarding mas ainda não consentiu
+    // Mostra o modal bloqueante
     overlay.style.display = 'flex';
 
-    const chk = document.getElementById('chk-lgpd-accept');
+    const chk        = document.getElementById('chk-lgpd-accept');
     const btnAceitar = document.getElementById('btn-lgpd-aceitar');
     const btnRecusar = document.getElementById('btn-lgpd-recusar');
 
@@ -633,12 +622,6 @@ function _checkLgpdConsent() {
         btnAceitar.addEventListener('click', () => {
             localStorage.setItem('monjaro_lgpd_consent', 'true');
             overlay.style.display = 'none';
-            // Persiste consentimento na nuvem para não pedir novamente
-            if (window.SupabaseService) {
-                SupabaseService.getUser().then(user => {
-                    if (user) SupabaseService.update('profiles', { lgpd_consent: true }, { id: user.id });
-                }).catch(() => { });
-            }
         });
     }
 
@@ -700,15 +683,6 @@ window.addEventListener("DOMContentLoaded", async () => {
             StorageService.loadFromCloud().then(() => {
                 if (window.App && window.Router) {
                     App.refreshTab(Router.currentTab || 'hoje');
-                }
-                // Restaura consentimento LGPD do perfil cloud se ausente localmente
-                if (!localStorage.getItem('monjaro_lgpd_consent')) {
-                    const profile = StorageService.getSafe(StorageService.KEYS.PROFILE, {});
-                    if (profile.lgpd_consent) {
-                        localStorage.setItem('monjaro_lgpd_consent', 'true');
-                        const lgpdOverlay = document.getElementById('modal-lgpd');
-                        if (lgpdOverlay) lgpdOverlay.style.display = 'none';
-                    }
                 }
             }).catch(e => console.warn('loadFromCloud falhou:', e));
 

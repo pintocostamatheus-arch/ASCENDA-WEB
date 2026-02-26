@@ -1,6 +1,6 @@
+.agent/
 .vscode/
 node_modules/
 *.log
 .DS_Store
 anti-gravity-quota
-/.agent

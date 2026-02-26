@@ -15,12 +15,7 @@ import webpush from "npm:web-push";
 // ─── Configuração VAPID ────────────────────────────────────────────────────────
 const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY")!;
 const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY")!;
-let VAPID_EMAIL = Deno.env.get("VAPID_EMAIL") || "mailto:contato@ascenda.app";
-
-// Garante que o email tenha o prefixo mailto: (evita erro 400 Bad Request no Web Push)
-if (!VAPID_EMAIL.startsWith("mailto:") && !VAPID_EMAIL.startsWith("https:")) {
-  VAPID_EMAIL = `mailto:${VAPID_EMAIL}`;
-}
+const VAPID_EMAIL = Deno.env.get("VAPID_EMAIL") || "mailto:contato@ascenda.app";
 
 webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
@@ -33,7 +28,7 @@ const supabaseAdmin = createClient(
 // ─── Janela de tolerância (minutos) ──────────────────────────────────────────
 // pg_cron roda a cada 15 min. Uma notificação é enviada se estiver
 // dentro de ±WINDOW_MINUTES do horário configurado pelo usuário.
-const WINDOW_MINUTES = 20;
+const WINDOW_MINUTES = 16;
 
 // ─── Handler principal ────────────────────────────────────────────────────────
 serve(async (req) => {
@@ -208,7 +203,6 @@ serve(async (req) => {
             );
             results.push({ user_id: userId, tag: notif.tag, ok: true });
           } catch (e: any) {
-            console.error(`[SEND ERROR] tag=${notif.tag} | status=${e.statusCode} | msg=${e.message}`);
             results.push({ user_id: userId, tag: notif.tag, ok: false, error: e.message });
             // Subscription expirada/inválida — remove do banco
             if (e.statusCode === 410) {
