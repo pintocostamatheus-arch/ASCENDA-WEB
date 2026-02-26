@@ -34,10 +34,6 @@
     <link rel="stylesheet" href="css/auth.css?v=8">
     <!-- Croppie CSS -->
     <link rel="stylesheet" href="js/vendor/croppie.min.css" />
-    <!-- Supabase JS Client (CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="js/vendor/chart.umd.min.js"></script>
-    <script src="js/vendor/jspdf.umd.min.js"></script>
 </head>
 
 <body>
@@ -2890,6 +2886,11 @@
         </div>
     </div>
 
+
+    <!-- Scripts de terceiros (carregados no body para não bloquear renderização) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="js/vendor/chart.umd.min.js"></script>
+    <script src="js/vendor/jspdf.umd.min.js"></script>
 
     <!-- Scripts (Engine from VERSAO WEB) -->
     <script src="js/version.js"></script>
