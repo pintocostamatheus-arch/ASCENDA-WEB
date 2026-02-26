@@ -15,7 +15,14 @@ window.DoseService = {
 
     add(injection) {
         const all = this.getAll();
-        injection.id = Date.now();
+
+        // Supabase exige UUID V4 autêntico. Se crypto falhar em browsers antigos, temos fallback
+        injection.id = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+            ? crypto.randomUUID()
+            : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
         all.push(injection);
         StorageService.set(StorageService.KEYS.INJECTIONS, all);
         StorageService.snapshot();
