@@ -13,6 +13,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Ascenda - Desperte sua melhor versão</title>
 
+    <!-- Error tracking: SDK carregado cedo para capturar erros desde o início -->
+    <script src="https://browser.sentry-cdn.com/7.119.0/bundle.min.js" crossorigin="anonymous"></script>
     <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
     <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2890,8 +2892,24 @@
 
 
     <!-- Scripts (Engine from VERSAO WEB) -->
+    <script src="js/version.js"></script>
     <script src="js/config.js"></script>
     <script src="js/secrets.js"></script>
+    <script>
+        // Inicializa Sentry assim que o DSN estiver disponível (via secrets.js)
+        if (window.Sentry && window.ENV && window.ENV.SENTRY_DSN) {
+            Sentry.init({
+                dsn: window.ENV.SENTRY_DSN,
+                environment: 'production',
+                ignoreErrors: [
+                    // Erros de rede esperados (offline, timeout)
+                    'NetworkError', 'Failed to fetch', 'Network request failed',
+                    // Erros de extensões de browser
+                    /^chrome-extension:\/\//
+                ]
+            });
+        }
+    </script>
     <script src="js/utils/date-service.js"></script>
     <script src="js/services/storage.js?v=13"></script>
     <script src="js/services/supabase.js?v=9"></script>

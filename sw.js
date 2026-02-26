@@ -1,4 +1,6 @@
-const CACHE_NAME = 'ascenda-v23';
+// Versão centralizada em js/version.js — só edite lá ao fazer deploy
+importScripts('/js/version.js');
+const CACHE_NAME = 'ascenda-v' + (self.CACHE_VERSION || '1');
 const ASSETS = [
   '/',
   '/index.html',
@@ -16,6 +18,7 @@ const ASSETS = [
   '/css/help-tab.css',
   '/css/medical-dark.css',
   // JS - Config & Utils
+  '/js/version.js',
   '/js/config.js',
   '/js/utils/date-service.js',
   // JS - Services

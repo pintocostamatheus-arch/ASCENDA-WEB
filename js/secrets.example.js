@@ -5,5 +5,7 @@
    ============================================ */
 window.ENV = {
     SUPABASE_URL: 'https://SEU-PROJETO.supabase.co',
-    SUPABASE_ANON_KEY: 'sb_publishable_SUA_CHAVE_AQUI'
+    SUPABASE_ANON_KEY: 'sb_publishable_SUA_CHAVE_AQUI',
+    // Crie um projeto gratuito em sentry.io e cole o DSN aqui
+    SENTRY_DSN: 'https://SEU_DSN@oXXXXX.ingest.sentry.io/XXXXXXX'
 };

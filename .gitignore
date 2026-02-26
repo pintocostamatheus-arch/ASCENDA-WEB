@@ -5,3 +5,4 @@ node_modules/
 anti-gravity-quota
 /.agent
 js/secrets.js
+tests/
