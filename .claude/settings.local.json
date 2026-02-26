@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(wc:*)",
-      "WebFetch(domain:ascendaapp.netlify.app)"
+      "WebFetch(domain:ascendaapp.netlify.app)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ]
   }
 }
