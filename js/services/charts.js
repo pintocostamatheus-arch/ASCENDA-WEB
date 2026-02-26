@@ -98,13 +98,31 @@ window.Charts = {
             weights = DateService.filterByPeriod(weights, parseInt(period));
         }
 
-        if (weights.length === 0) return;
+        // Limpa mensagem de estado vazio anterior (se houver)
+        const chartContainer = canvas.parentElement;
+        const oldEmpty = chartContainer?.querySelector('.chart-empty-msg');
+        if (oldEmpty) oldEmpty.remove();
+        canvas.style.display = '';
+
+        if (weights.length === 0) {
+            canvas.style.display = 'none';
+            if (chartContainer) {
+                const msg = document.createElement('div');
+                msg.className = 'chart-empty-msg';
+                msg.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:120px;color:var(--text-secondary);font-size:13px;opacity:0.7;text-align:center;padding:20px;';
+                msg.textContent = period === 'all'
+                    ? 'Nenhum peso registrado ainda'
+                    : `Sem registros nos últimos ${period} dias — tente 30d ou Tudo`;
+                chartContainer.appendChild(msg);
+            }
+            return;
+        }
+
+        // Ponto maior quando há apenas 1 registro no período (ex: botão 7d)
+        const singlePoint = weights.length === 1;
 
         const labels = weights.map(w => DateService.format(w.dateISO));
         const data = weights.map(w => w.weightKg);
-
-        const showBMI = document.getElementById('toggle-bmi')?.checked;
-        const showMA = document.getElementById('toggle-average')?.checked;
 
         // Create gradient for fill
         const ctx = canvas.getContext('2d');
@@ -120,24 +138,12 @@ window.Charts = {
             fill: 'start', // Fill to bottom
             tension: 0.4,
             borderWidth: 3,
-            pointRadius: 4,
+            pointRadius: singlePoint ? 8 : 4,
+            pointHoverRadius: singlePoint ? 11 : 6,
             pointBackgroundColor: themeColors.pointColor,
             pointBorderColor: isDarkMode ? 'rgba(124, 154, 255, 0.6)' : themeColors.pointColor,
-            pointBorderWidth: 2
+            pointBorderWidth: singlePoint ? 3 : 2
         }];
-
-        if (showMA) {
-            datasets.push({
-                label: 'Média Móvel 7d',
-                data: weights.map(w => w.ma),
-                borderColor: themeColors.maLineColor,
-                borderDash: [5, 5],
-                fill: false,
-                tension: 0.4,
-                borderWidth: 2,
-                pointRadius: 0
-            });
-        }
 
         const injections = DoseService.getAll();
         const injDates = new Set(injections.map(i => i.dateISO));
@@ -187,7 +193,11 @@ window.Charts = {
                         ticks: {
                             color: themeColors.tickColor,
                             font: { size: 10, weight: '500' },
-                            padding: 6
+                            padding: 6,
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 8,
+                            autoSkipPadding: 20
                         },
                         border: { display: false }
                     }
@@ -492,7 +502,8 @@ window.Charts = {
                             padding: 6,
                             maxRotation: 0,
                             autoSkip: true,
-                            maxTicksLimit: 6
+                            maxTicksLimit: 5,
+                            autoSkipPadding: 20
                         }
                     }
                 }
