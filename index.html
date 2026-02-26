@@ -750,7 +750,19 @@
                                 <input type="time" id="injection-time" class="input-field" value="08:00">
                             </div>
                         </div>
-                        <button class="btn btn-secondary" id="btn-save-schedule">Salvar Cronograma</button>
+                        <div class="input-row" style="margin-top: 15px;">
+                            <div class="input-group">
+                                <label for="injection-interval">Intervalo das Doses</label>
+                                <select id="injection-interval" class="input-field" style="height: auto; padding: 12px 16px;">
+                                    <option value="7">7 dias (Padrão)</option>
+                                    <option value="10">10 dias</option>
+                                    <option value="14">14 dias</option>
+                                    <option value="21">21 dias</option>
+                                    <option value="30">30 dias</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="btn-save-schedule" style="width:100%; margin-top:12px;">Salvar Cronograma</button>
                     </div>
                 </details>
             </section>
@@ -2135,19 +2147,24 @@
                 <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:12px;">
                     <strong>Finalidade:</strong> Acompanhamento pessoal do seu tratamento com GLP-1.<br>
                     <strong>Armazenamento:</strong> Dados salvos localmente e na nuvem (Supabase).<br>
-                    <strong>Seus direitos (LGPD):</strong> Você pode exportar seus dados (backup JSON) ou apagá-los permanentemente a qualquer momento nas configurações do app.
+                    <strong>Seus direitos (LGPD):</strong> Você pode exportar seus dados (backup JSON) ou apagá-los
+                    permanentemente a qualquer momento nas configurações do app.
                 </p>
                 <p style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:16px;">
-                    Ao continuar, você concorda com o uso dos seus dados conforme descrito acima, em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018)</strong>.
+                    Ao continuar, você concorda com o uso dos seus dados conforme descrito acima, em conformidade com a
+                    <strong>Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018)</strong>.
                 </p>
-                <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-size:0.9rem; color:var(--text-secondary);">
-                    <input type="checkbox" id="chk-lgpd-accept" style="width:18px; height:18px; margin-top:2px; cursor:pointer; flex-shrink:0;">
+                <label
+                    style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-size:0.9rem; color:var(--text-secondary);">
+                    <input type="checkbox" id="chk-lgpd-accept"
+                        style="width:18px; height:18px; margin-top:2px; cursor:pointer; flex-shrink:0;">
                     <span>Li e concordo com a coleta e uso dos meus dados de saúde conforme descrito acima.</span>
                 </label>
             </div>
             <div class="modal-footer" style="justify-content:center; gap:12px; padding:16px 20px;">
                 <button class="btn btn-secondary" id="btn-lgpd-recusar" style="min-width:120px;">Não aceitar</button>
-                <button class="btn btn-primary" id="btn-lgpd-aceitar" disabled style="min-width:140px;">Continuar</button>
+                <button class="btn btn-primary" id="btn-lgpd-aceitar" disabled
+                    style="min-width:140px;">Continuar</button>
             </div>
         </div>
     </div>
@@ -2490,7 +2507,8 @@
                         </div>
 
                         <h2 class="md-title" style="margin-bottom: 8px;">Privacidade e Dados</h2>
-                        <p class="md-desc" style="margin-bottom: 24px; max-width: 280px; margin-left: auto; margin-right: auto;">
+                        <p class="md-desc"
+                            style="margin-bottom: 24px; max-width: 280px; margin-left: auto; margin-right: auto;">
                             Antes de continuar, precisamos do seu consentimento conforme a LGPD.
                         </p>
 
@@ -2506,28 +2524,37 @@
                             max-height: 200px;
                             overflow-y: auto;
                         ">
-                            <p style="font-size: 0.88rem; color: var(--md-text-secondary); margin-bottom: 12px; line-height: 1.6;">
-                                O <strong style="color: var(--md-text-primary);">Ascenda</strong> coleta e armazena os seguintes dados pessoais de saúde:
+                            <p
+                                style="font-size: 0.88rem; color: var(--md-text-secondary); margin-bottom: 12px; line-height: 1.6;">
+                                O <strong style="color: var(--md-text-primary);">Ascenda</strong> coleta e armazena os
+                                seguintes dados pessoais de saúde:
                             </p>
-                            <ul style="font-size: 0.85rem; color: var(--md-text-secondary); margin: 0 0 12px 16px; line-height: 1.9;">
+                            <ul
+                                style="font-size: 0.85rem; color: var(--md-text-secondary); margin: 0 0 12px 16px; line-height: 1.9;">
                                 <li>Peso corporal e medidas</li>
                                 <li>Medicamentos e doses</li>
                                 <li>Sintomas e bem-estar</li>
                                 <li>Refeições e nutrição</li>
                                 <li>Fotos da jornada</li>
                             </ul>
-                            <p style="font-size: 0.82rem; color: var(--md-text-secondary); line-height: 1.6; margin-bottom: 8px;">
-                                <strong style="color: var(--md-text-primary);">Finalidade:</strong> Acompanhamento pessoal do tratamento com GLP-1.<br>
-                                <strong style="color: var(--md-text-primary);">Armazenamento:</strong> Local e na nuvem (Supabase).<br>
-                                <strong style="color: var(--md-text-primary);">Seus direitos (LGPD):</strong> Exporte ou apague seus dados a qualquer momento nas configurações.
+                            <p
+                                style="font-size: 0.82rem; color: var(--md-text-secondary); line-height: 1.6; margin-bottom: 8px;">
+                                <strong style="color: var(--md-text-primary);">Finalidade:</strong> Acompanhamento
+                                pessoal do tratamento com GLP-1.<br>
+                                <strong style="color: var(--md-text-primary);">Armazenamento:</strong> Local e na nuvem
+                                (Supabase).<br>
+                                <strong style="color: var(--md-text-primary);">Seus direitos (LGPD):</strong> Exporte ou
+                                apague seus dados a qualquer momento nas configurações.
                             </p>
                             <p style="font-size: 0.80rem; color: var(--md-text-secondary); line-height: 1.5;">
-                                Em conformidade com a <strong style="color: var(--md-text-primary);">Lei 13.709/2018 (LGPD)</strong>.
+                                Em conformidade com a <strong style="color: var(--md-text-primary);">Lei 13.709/2018
+                                    (LGPD)</strong>.
                             </p>
                         </div>
 
                         <!-- Consent Checkbox -->
-                        <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; width: 100%; text-align: left;">
+                        <label
+                            style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; width: 100%; text-align: left;">
                             <input type="checkbox" id="chk-lgpd-onboard"
                                 style="width: 20px; height: 20px; margin-top: 2px; cursor: pointer; flex-shrink: 0; accent-color: #10B981;">
                             <span style="font-size: 0.88rem; color: var(--md-text-secondary); line-height: 1.5;">

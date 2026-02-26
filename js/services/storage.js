@@ -133,7 +133,8 @@ window.StorageService = {
         } else if (mapping.table === 'injection_schedule') {
             const row = {
                 day_of_week: value.dayOfWeek !== undefined ? value.dayOfWeek : null,
-                time: value.time || null
+                time: value.time || null,
+                interval_days: value.intervalDays || 7
             };
             await SupabaseService.upsert('injection_schedule', row, 'user_id');
         }
@@ -299,7 +300,7 @@ window.StorageService = {
             // Injections
             const injections = await SupabaseService.select('injections', {}, 'date', true);
             if (injections.length > 0) {
-                const arr = injections.map(i => ({
+                const rawArr = injections.map(i => ({
                     id: i.id,
                     dateISO: i.date,
                     time: i.time || null,
@@ -309,6 +310,18 @@ window.StorageService = {
                     side: i.side || null,
                     notes: i.notes || null
                 }));
+                // Deduplicação defensiva: remove duplicatas vindas da nuvem
+                // (pode ocorrer por registros feitos em localhost ou reenvios acidentais)
+                const seen = new Set();
+                const arr = rawArr.filter(i => {
+                    const key = `${i.dateISO}|${i.time || ''}|${i.drugName}|${i.doseMg}`;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+                if (arr.length < rawArr.length) {
+                    console.warn(`loadFromCloud: ${rawArr.length - arr.length} injecao(oes) duplicada(s) removida(s) do cache local.`);
+                }
                 localStorage.setItem(this.KEYS.INJECTIONS, JSON.stringify(arr));
             }
 
@@ -371,7 +384,8 @@ window.StorageService = {
                 const s = schedule[0];
                 localStorage.setItem(this.KEYS.SCHEDULE, JSON.stringify({
                     dayOfWeek: s.day_of_week,
-                    time: s.time
+                    time: s.time,
+                    intervalDays: s.interval_days || 7
                 }));
             }
 

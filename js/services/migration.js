@@ -145,21 +145,35 @@ window.MigrationService = {
         const raw = StorageService.getSafe(StorageService.KEYS.INJECTIONS, []);
         if (!Array.isArray(raw) || raw.length === 0) return { skipped: true, count: 0 };
 
+        let updatedLocal = false;
         const rows = raw
             .filter(i => i && (i.dateISO || i.date) && i.drugName)
-            .map(i => ({
-                date: i.dateISO || i.date,
-                time: i.time || null,
-                drug_name: i.drugName || i.drug || 'Desconhecido',
-                dose_mg: parseFloat(i.doseMg || i.dose || 0),
-                site: i.site || null,
-                side: i.side || null,
-                notes: i.notes || null
-            }));
+            .map(i => {
+                // Garante que o item local tenha um ID único permanente
+                if (!i.id) {
+                    i.id = SecurityUtils.generateUUID();
+                    updatedLocal = true;
+                }
+                return {
+                    id: i.id,
+                    date: i.dateISO || i.date,
+                    time: i.time || null,
+                    drug_name: i.drugName || i.drug || 'Desconhecido',
+                    dose_mg: parseFloat(i.doseMg || i.dose || 0),
+                    site: i.site || null,
+                    side: i.side || null,
+                    notes: i.notes || null
+                };
+            });
 
         if (rows.length === 0) return { skipped: true, count: 0 };
 
-        const { error } = await SupabaseService.insert('injections', rows);
+        // Salva de volta se geramos IDs novos
+        if (updatedLocal) {
+            StorageService.set(StorageService.KEYS.INJECTIONS, raw);
+        }
+
+        const { error } = await SupabaseService.upsert('injections', rows, 'id');
         return { success: !error, count: rows.length, error: error?.message };
     },
 
@@ -233,7 +247,8 @@ window.MigrationService = {
                 }));
 
             if (milestoneRows.length > 0) {
-                const { error } = await SupabaseService.insert('journey_milestones', milestoneRows);
+                // Usamos date,title como constraint para milestones legados ou melhor: não usar data se puder colidir
+                const { error } = await SupabaseService.upsert('journey_milestones', milestoneRows, 'user_id,date,title');
                 results.milestones = { success: !error, count: milestoneRows.length };
             }
         }
@@ -250,7 +265,7 @@ window.MigrationService = {
                 }));
 
             if (measureRows.length > 0) {
-                const { error } = await SupabaseService.insert('journey_measurements', measureRows);
+                const { error } = await SupabaseService.upsert('journey_measurements', measureRows, 'user_id,date,name');
                 results.measurements = { success: !error, count: measureRows.length };
             }
         }
@@ -267,7 +282,7 @@ window.MigrationService = {
                 }));
 
             if (photoRows.length > 0) {
-                const { error } = await SupabaseService.insert('journey_photos', photoRows);
+                const { error } = await SupabaseService.upsert('journey_photos', photoRows, 'user_id,date');
                 results.photos = { success: !error, count: photoRows.length };
             }
         }
@@ -292,7 +307,7 @@ window.MigrationService = {
 
         if (rows.length === 0) return { skipped: true, count: 0 };
 
-        const { error } = await SupabaseService.insert('custom_foods', rows);
+        const { error } = await SupabaseService.upsert('custom_foods', rows, 'user_id,name');
         return { success: !error, count: rows.length, error: error?.message };
     },
 

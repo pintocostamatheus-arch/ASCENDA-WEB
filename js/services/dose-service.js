@@ -16,13 +16,21 @@ window.DoseService = {
     add(injection) {
         const all = this.getAll();
 
-        // Supabase exige UUID V4 autêntico. Se crypto falhar em browsers antigos, temos fallback
-        injection.id = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
-            ? crypto.randomUUID()
-            : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
+        // Deduplicação: ignora se já existe injeção com mesma data + hora + medicamento + dose
+        // (evita duplicatas por duplo clique ou reenvio acidental)
+        const dup = all.find(i =>
+            (i.dateISO || i.date) === (injection.dateISO || injection.date) &&
+            (i.time || '') === (injection.time || '') &&
+            (i.drugName || '') === (injection.drugName || '') &&
+            parseFloat(i.doseMg) === parseFloat(injection.doseMg)
+        );
+        if (dup) {
+            console.warn('DoseService.add: injecao duplicada ignorada.', injection);
+            return dup;
+        }
+
+        // Supabase exige UUID V4 autentico. Preserva ID se ja vier preenchido.
+        if (!injection.id) injection.id = SecurityUtils.generateUUID();
         all.push(injection);
         StorageService.set(StorageService.KEYS.INJECTIONS, all);
         StorageService.snapshot();
@@ -105,7 +113,10 @@ window.DoseService = {
         const last = history[history.length - 1];
         const dateStr = last.dateISO || last.date;
         const lastDate = new Date(dateStr);
-        lastDate.setDate(lastDate.getDate() + 7);
+
+        // Usa o intervalo configurado ou padrão de 7 dias
+        const interval = (schedule && schedule.intervalDays) ? parseInt(schedule.intervalDays) : 7;
+        lastDate.setDate(lastDate.getDate() + interval);
         return lastDate.toISOString().split('T')[0];
     },
 
