@@ -4,4 +4,4 @@
    altere assets (JS, CSS, imagens).
    Formato sugerido: 'MAJOR.MINOR.PATCH'
    ============================================ */
-self.CACHE_VERSION = '1.0.1';
+self.CACHE_VERSION = '1.0.2';

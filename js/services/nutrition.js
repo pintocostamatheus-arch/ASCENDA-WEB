@@ -269,7 +269,9 @@ window.NutritionService = {
                     protein_per_100g: food.proteinPer100g || null,
                     fiber_per_100g: food.fiberPer100g || null,
                     protein_per_unit: food.proteinPerUnit || null,
+                    fiber_per_unit: food.fiberPerUnit || null,
                     protein_per_scoop: food.proteinPerScoop || null,
+                    fiber_per_scoop: food.fiberPerScoop || null,
                     default_unit: food.defaultUnit || 'g'
                 };
                 SupabaseService.upsert('custom_foods', row, 'user_id,name').catch(e => {

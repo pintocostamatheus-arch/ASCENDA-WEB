@@ -169,12 +169,12 @@ saveWeight() {
             el1.className = 'insight-value ' + (insights.totalLoss < 0 ? 'text-success' : insights.totalLoss > 0 ? 'text-danger' : '');
         }
 
-        // Card 2 — Tendência 30d
-        const el2 = document.getElementById('insight-trend30');
+        // Card 2 — Peso Atual
+        const el2 = document.getElementById('insight-current-weight');
         if (el2) {
-            const sign = insights.trend30 > 0 ? '+' : '';
-            el2.textContent = sign + insights.trend30.toFixed(1) + ' kg';
-            el2.className = 'insight-value ' + (insights.trend30 < 0 ? 'text-success' : insights.trend30 > 0 ? 'text-danger' : '');
+            const latest = WeightService.getLatest();
+            el2.textContent = latest ? latest.weightKg.toFixed(1) + ' kg' : '--';
+            el2.className = 'insight-value';
         }
 
         // Card 3 — % da Meta ou IMC Atual
