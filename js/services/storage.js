@@ -17,7 +17,8 @@ window.StorageService = {
         CUSTOM_FOODS: 'monjaro_custom_foods',
         SCHEDULE: 'monjaro_schedule',
         NOTIFICATION_SETTINGS: 'monjaro_notification_settings',
-        LAST_GOOD: 'monjaro_last_good_state'
+        LAST_GOOD: 'monjaro_last_good_state',
+        NUTRITION_FLAGS: 'NUTRITION_FLAGS'
     },
 
     // Mapeamento: localStorage key → tabela Supabase + formato
@@ -29,7 +30,8 @@ window.StorageService = {
         monjaro_symptoms: { table: 'symptoms', format: 'object_by_date', dateField: 'date' },
         monjaro_journey: { table: null, format: 'composite' }, // Handled specially
         monjaro_custom_foods: { table: 'custom_foods', format: 'array' },
-        monjaro_schedule: { table: 'injection_schedule', format: 'single' }
+        monjaro_schedule: { table: 'injection_schedule', format: 'single' },
+        monjaro_notification_settings: { table: 'profiles', format: 'notification_sync' }
     },
 
     // Cache em memória para dados carregados do Supabase
@@ -117,6 +119,10 @@ window.StorageService = {
                     // Arrays são sincronizados sob demanda (não a cada set completo)
                     // para evitar duplicatas. Sincronização granular é feita pelos services.
                     break;
+                case 'notification_sync':
+                    // notification_settings é salvo como coluna JSONB na tabela profiles
+                    await this._syncNotificationSettings(value, user.id);
+                    break;
             }
         } catch (e) {
             console.warn(`StorageService: Falha no sync cloud para ${key}:`, e.message);
@@ -137,6 +143,19 @@ window.StorageService = {
                 interval_days: value.intervalDays || 7
             };
             await SupabaseService.upsert('injection_schedule', row, 'user_id');
+        }
+    },
+
+    /**
+     * Sincroniza notification_settings para a coluna JSONB na tabela profiles.
+     * Chamado automaticamente quando o usuário altera preferências de notificação.
+     */
+    async _syncNotificationSettings(value, userId) {
+        if (!value || !userId) return;
+        try {
+            await SupabaseService.update('profiles', { notification_settings: value }, { id: userId });
+        } catch (e) {
+            console.warn('StorageService._syncNotificationSettings: falha (não crítica):', e.message);
         }
     },
 
@@ -209,7 +228,16 @@ window.StorageService = {
             daily_water_ml: profile.dailyWater || 2000,
             daily_protein_g: profile.dailyProtein || 100,
             daily_fiber_g: profile.dailyFiber || 30,
-            onboarding_complete: profile.onboardingComplete || false
+            onboarding_complete: profile.onboardingComplete || false,
+            // Campos clínicos — afetam diretamente o cálculo de proteína
+            diabetes: profile.diabetes || false,
+            sarcopenia: profile.sarcopenia || false,
+            // Metas manuais definidas pelo usuário no perfil
+            manual_protein_goal: profile.manualProteinGoal || null,
+            manual_fiber_goal: profile.manualFiberGoal || null,
+            manual_water_goal: profile.manualWaterGoal || null,
+            // Foto de perfil (Base64 200x200px JPEG, ~15-30KB — seguro para coluna TEXT)
+            avatar_url: profile.photo || null
         };
     },
 
@@ -263,11 +291,21 @@ window.StorageService = {
                     dailyFiber: p.daily_fiber_g || localProfile.dailyFiber,
                     onboardingComplete: p.onboarding_complete ?? localProfile.onboardingComplete,
                     is_approved: p.is_approved ?? localProfile.is_approved,
-                    createdAt: p.created_at || localProfile.createdAt
+                    createdAt: p.created_at || localProfile.createdAt,
+                    // Campos clínicos — críticos para cálculo correto de proteína
+                    diabetes: p.diabetes ?? localProfile.diabetes ?? false,
+                    sarcopenia: p.sarcopenia ?? localProfile.sarcopenia ?? false,
+                    // Metas manuais definidas pelo usuário
+                    manualProteinGoal: p.manual_protein_goal ?? localProfile.manualProteinGoal ?? null,
+                    manualFiberGoal: p.manual_fiber_goal ?? localProfile.manualFiberGoal ?? null,
+                    manualWaterGoal: p.manual_water_goal ?? localProfile.manualWaterGoal ?? null,
+                    // Foto de perfil — prioridade: nuvem → local (restaura no novo dispositivo)
+                    photo: p.avatar_url || localProfile.photo || null
                 };
                 localStorage.setItem(this.KEYS.PROFILE, JSON.stringify(cloudProfile));
 
-                // Restaura notification_settings salvas na nuvem (novo dispositivo)
+                // Restaura notification_settings salvas na nuvem (novo dispositivo).
+                // Se já existir localmente, mantém o local (pode ser mais recente).
                 if (p.notification_settings) {
                     const localNotifSettings = this.getSafe(this.KEYS.NOTIFICATION_SETTINGS, null);
                     if (!localNotifSettings) {
@@ -387,6 +425,120 @@ window.StorageService = {
                     time: s.time,
                     intervalDays: s.interval_days || 7
                 }));
+            }
+
+            // Journey Photos — restaura cloudUrls no dispositivo (novo dispositivo ou reinstalação)
+            // Não substitui dados locais; apenas preenche cloudUrl onde estava vazio
+            // e adiciona registros de fotos que só existem na nuvem.
+            try {
+                const journeyPhotos = await SupabaseService.select('journey_photos', {}, 'date', true);
+                if (journeyPhotos.length > 0) {
+                    const localJourney = this.getSafe(this.KEYS.JOURNEY, { photos: [], measurements: [], milestones: [] });
+                    let journeyUpdated = false;
+
+                    journeyPhotos.forEach(row => {
+                        if (!row.photo_url) return; // Sem URL na nuvem, nada a restaurar
+
+                        const localPhoto = localJourney.photos.find(p => p.dateISO === row.date);
+
+                        if (localPhoto && !localPhoto.cloudUrl) {
+                            // Foto existe localmente mas sem cloudUrl — restaura o link
+                            localPhoto.cloudUrl = row.photo_url;
+                            journeyUpdated = true;
+                        } else if (!localPhoto) {
+                            // Foto existe na nuvem mas não neste dispositivo (novo dispositivo)
+                            // Cria entrada local com cloudUrl para que getPhotoUrl() funcione via fallback
+                            localJourney.photos.push({
+                                id: row.local_id || (new Date(row.date).getTime()) || Date.now(),
+                                dateISO: row.date,
+                                weightKg: row.weight_kg || null,
+                                note: row.note || '',
+                                storedInIDB: false, // Não está no IndexedDB deste dispositivo
+                                cloudUrl: row.photo_url
+                            });
+                            journeyUpdated = true;
+                        }
+                    });
+
+                    if (journeyUpdated) {
+                        // Salva direto no localStorage (não via StorageService.set para não
+                        // disparar _syncToCloud desnecessariamente para journey)
+                        localStorage.setItem(this.KEYS.JOURNEY, JSON.stringify(localJourney));
+                        console.log('StorageService: cloudUrls das fotos da jornada restaurados.');
+                    }
+                }
+            } catch (e) {
+                // Falha aqui é completamente não-crítica — dados locais permanecem intactos
+                console.warn('StorageService.loadFromCloud: erro ao restaurar fotos da jornada (não crítico):', e.message);
+            }
+
+            // Journey Milestones — restaura marcos no dispositivo (novos desde a última migração)
+            try {
+                const cloudMilestones = await SupabaseService.select('journey_milestones', {}, 'date', true);
+                if (cloudMilestones.length > 0) {
+                    const localJourney = this.getSafe(this.KEYS.JOURNEY, { photos: [], measurements: [], milestones: [] });
+                    let milestonesUpdated = false;
+
+                    cloudMilestones.forEach(row => {
+                        if (!row.title) return;
+                        // Só adiciona se não existir localmente (evita duplicatas)
+                        const exists = localJourney.milestones.find(m =>
+                            m.title === row.title && m.dateISO === row.date
+                        );
+                        if (!exists) {
+                            localJourney.milestones.push({
+                                id: Date.now() + Math.floor(Math.random() * 1000),
+                                dateISO: row.date,
+                                title: row.title,
+                                description: row.description || null,
+                                icon: row.icon || null
+                            });
+                            milestonesUpdated = true;
+                        }
+                    });
+
+                    if (milestonesUpdated) {
+                        localStorage.setItem(this.KEYS.JOURNEY, JSON.stringify(localJourney));
+                        console.log('StorageService: milestones da jornada restaurados da nuvem.');
+                    }
+                }
+            } catch (e) {
+                console.warn('StorageService.loadFromCloud: erro ao restaurar milestones (não crítico):', e.message);
+            }
+
+            // Journey Measurements — restaura medidas corporais no dispositivo
+            try {
+                const cloudMeasurements = await SupabaseService.select('journey_measurements', {}, 'date', true);
+                if (cloudMeasurements.length > 0) {
+                    // Re-lê o journey do localStorage para pegar qualquer mudança feita pelo bloco anterior
+                    const localJourney = this.getSafe(this.KEYS.JOURNEY, { photos: [], measurements: [], milestones: [] });
+                    let measurementsUpdated = false;
+
+                    cloudMeasurements.forEach(row => {
+                        if (!row.name || row.value === undefined || row.value === null) return;
+                        // Só adiciona se não existir localmente (evita duplicatas)
+                        const exists = localJourney.measurements.find(m =>
+                            m.name === row.name && m.dateISO === row.date
+                        );
+                        if (!exists) {
+                            localJourney.measurements.push({
+                                id: Date.now() + Math.floor(Math.random() * 1000),
+                                dateISO: row.date,
+                                name: row.name,
+                                value: parseFloat(row.value),
+                                unit: row.unit || 'cm'
+                            });
+                            measurementsUpdated = true;
+                        }
+                    });
+
+                    if (measurementsUpdated) {
+                        localStorage.setItem(this.KEYS.JOURNEY, JSON.stringify(localJourney));
+                        console.log('StorageService: medidas corporais da jornada restauradas da nuvem.');
+                    }
+                }
+            } catch (e) {
+                console.warn('StorageService.loadFromCloud: erro ao restaurar medidas corporais (não crítico):', e.message);
             }
 
             console.log('StorageService: Dados carregados da nuvem com sucesso.');

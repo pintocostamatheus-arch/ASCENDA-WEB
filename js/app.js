@@ -47,6 +47,17 @@ window.App = {
             }
         });
 
+        // Retry sync ao reconectar à internet
+        window.addEventListener('online', () => {
+            if (!AuthService.isLoggedIn()) return;
+            console.log('App: conexão restaurada, sincronizando...');
+            StorageService.loadFromCloud()
+                .then(() => {
+                    if (window.Router) App.refreshTab(Router.currentTab || 'hoje');
+                })
+                .catch(e => console.warn('App: sync pós-reconexão falhou:', e));
+        });
+
         // Inicializa controller de notificações
         if (this.initNotifications) this.initNotifications();
 
@@ -547,8 +558,8 @@ window.App = {
                                     await SupabaseService.delete(t, { user_id: user.id });
                                 }
                                 await SupabaseService.update('profiles', {
-                                    heightCm: null, startWeight: null, birthdate: null,
-                                    drug: null, notification_settings: null, onboardingComplete: false
+                                    height_cm: null, birthdate: null,
+                                    drug: null, notification_settings: null, onboarding_complete: false
                                 }, { id: user.id });
                             }
                         } catch (e) {

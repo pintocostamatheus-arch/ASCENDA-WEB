@@ -1732,7 +1732,7 @@ textarea.input-field {
    ============================================ */
 .toast-container {
     position: fixed;
-    top: calc(var(--header-height) + var(--space-4));
+    top: calc(var(--header-height) + env(safe-area-inset-top, 0px) + var(--space-4));
     left: 50%;
     transform: translateX(-50%);
     z-index: 600;

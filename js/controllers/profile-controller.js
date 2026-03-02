@@ -131,6 +131,7 @@ loadProfileForm() {
                         type: 'base64',
                         size: 'viewport',
                         format: 'jpeg',
+                        quality: 0.7, // Garante ~15-30KB para caber no sync de nuvem
                         circle: false // viewport creates square
                     }).then((croppedBase64) => {
                         try {

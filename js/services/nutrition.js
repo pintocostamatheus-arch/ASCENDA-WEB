@@ -112,20 +112,20 @@ window.NutritionService = {
     // Daily Flags Storage
     getTodayFlags() {
         const today = DateService.today();
-        const flags = StorageService.getSafe('NUTRITION_FLAGS', {});
+        const flags = StorageService.getSafe(StorageService.KEYS.NUTRITION_FLAGS, {});
         return flags[today] || { training: false, heat: false, symptoms: false };
     },
 
     setFlag(flag, value, hours = 1) {
         const today = DateService.today();
-        const allFlags = StorageService.getSafe('NUTRITION_FLAGS', {});
+        const allFlags = StorageService.getSafe(StorageService.KEYS.NUTRITION_FLAGS, {});
 
         if (!allFlags[today]) allFlags[today] = {};
 
         allFlags[today][flag] = value;
         if (flag === 'training' && value) allFlags[today].trainingHours = hours;
 
-        StorageService.set('NUTRITION_FLAGS', allFlags);
+        StorageService.set(StorageService.KEYS.NUTRITION_FLAGS, allFlags);
     },
 
     // -------------------------------------------------
@@ -259,19 +259,40 @@ window.NutritionService = {
         food.id = Date.now();
         custom.push(food);
         StorageService.set(StorageService.KEYS.CUSTOM_FOODS, custom);
+
+        // Sync granular com Supabase (arrays não são sincronizados via _cloudMap)
+        if (window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
+            SupabaseService.getUser().then(user => {
+                if (!user) return;
+                const row = {
+                    name: food.name,
+                    protein_per_100g: food.proteinPer100g || null,
+                    fiber_per_100g: food.fiberPer100g || null,
+                    protein_per_unit: food.proteinPerUnit || null,
+                    protein_per_scoop: food.proteinPerScoop || null,
+                    default_unit: food.defaultUnit || 'g'
+                };
+                SupabaseService.upsert('custom_foods', row, 'user_id,name').catch(e => {
+                    console.warn('NutritionService.addCustomFood: falha no sync (não crítico):', e.message);
+                });
+            });
+        }
+
         return custom;
     },
 
     deleteCustomFood(id) {
         let custom = StorageService.getSafe(StorageService.KEYS.CUSTOM_FOODS, []);
-        custom = custom.filter(f => f.id !== id);
+        // Compara como string para suportar id numérico (Date.now) e UUID (Supabase)
+        const foodToDelete = custom.find(f => String(f.id) === String(id));
+        custom = custom.filter(f => String(f.id) !== String(id));
         StorageService.set(StorageService.KEYS.CUSTOM_FOODS, custom);
 
-        // Remove também do Supabase para não voltar no próximo pull
-        if (window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
+        // Remove do Supabase usando 'name' como chave (id local é timestamp, não UUID)
+        if (foodToDelete && window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
             SupabaseService.getUser().then(user => {
-                if (user) SupabaseService.delete('custom_foods', { user_id: user.id, id: id });
-            });
+                if (user) SupabaseService.delete('custom_foods', { user_id: user.id, name: foodToDelete.name });
+            }).catch(e => console.warn('NutritionService.deleteCustomFood: falha ao remover do Supabase (não crítico):', e.message));
         }
 
         return custom;

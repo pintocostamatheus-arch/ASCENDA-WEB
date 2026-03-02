@@ -66,16 +66,13 @@ window.AuthService = {
 
         // Atualiza perfil com nome e status inicial
         if (data.user && name) {
-            const { data: profileData } = await SupabaseService.update('profiles', {
+            await SupabaseService.update('profiles', {
                 name,
                 is_approved: false // Por padrão, entra pendente
             }, { id: data.user.id });
 
-            if (profileData && profileData[0]) {
-                StorageService.set(StorageService.KEYS.PROFILE, profileData[0]);
-            } else {
-                StorageService.set(StorageService.KEYS.PROFILE, { name, is_approved: false });
-            }
+            // Salva em camelCase (padrão do app) — loadFromCloud fará o merge completo no login
+            StorageService.set(StorageService.KEYS.PROFILE, { name, is_approved: false });
         }
 
         return { user: data.user, error: null };
@@ -376,6 +373,14 @@ window.AuthService = {
             await MigrationService.migrateLocalDataToSupabase();
         }
         await StorageService.loadFromCloud();
+
+        // Sync fotos sem cloudUrl em background (roda a cada login, é idempotente)
+        // Garante que fotos adicionadas após a migração também subam para a nuvem
+        setTimeout(() => {
+            if (window.JourneyService && typeof JourneyService.syncPhotosToCloud === 'function') {
+                JourneyService.syncPhotosToCloud();
+            }
+        }, 2000);
 
         // ─── 2. Agora avalia o gate com dados atualizados ──────────
         this.gate();

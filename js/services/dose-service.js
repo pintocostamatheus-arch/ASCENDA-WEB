@@ -86,7 +86,7 @@ window.DoseService = {
                     const dateKey = toDelete.dateISO || toDelete.date;
                     if (dateKey) SupabaseService.delete('injections', { user_id: user.id, date: dateKey });
                 }
-            });
+            }).catch(e => console.warn('DoseService.delete: falha ao remover do Supabase (não crítico):', e.message));
         }
 
         return true;

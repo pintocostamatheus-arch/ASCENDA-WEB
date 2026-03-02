@@ -31,27 +31,28 @@ const InsightService = {
     // ─── INJECTION RULES ────────────────────────────
 
     _injectionToday() {
-        if (!window.InjectionService) return null;
-        const next = InjectionService.getNextInjection();
-        if (!next) return null;
+        if (!window.DoseService) return null;
+        const nextDate = DoseService.getNextInjectionDate();
+        if (!nextDate) return null;
         const today = DateService.today();
-        if (next.dateISO !== today) return null;
+        if (nextDate !== today) return null;
+        const lastInj = DoseService.getLastInjection();
         return {
             icon: '💉',
             title: 'Aplicação Hoje',
-            text: `Sua dose de ${next.drugName || 'medicamento'} está programada para hoje. Lembre-se de alternar o local de aplicação.`,
+            text: `Sua dose de ${lastInj?.drugName || 'medicamento'} está programada para hoje. Lembre-se de alternar o local de aplicação.`,
             type: 'warning'
         };
     },
 
     _injectionTomorrow() {
-        if (!window.InjectionService) return null;
-        const next = InjectionService.getNextInjection();
-        if (!next) return null;
+        if (!window.DoseService) return null;
+        const nextDate = DoseService.getNextInjectionDate();
+        if (!nextDate) return null;
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowISO = tomorrow.toISOString().split('T')[0];
-        if (next.dateISO !== tomorrowISO) return null;
+        if (nextDate !== tomorrowISO) return null;
         return {
             icon: '📅',
             title: 'Aplicação Amanhã',
@@ -61,12 +62,12 @@ const InsightService = {
     },
 
     _injectionOverdue() {
-        if (!window.InjectionService) return null;
-        const next = InjectionService.getNextInjection();
-        if (!next) return null;
+        if (!window.DoseService) return null;
+        const nextDate = DoseService.getNextInjectionDate();
+        if (!nextDate) return null;
         const today = DateService.today();
-        if (next.dateISO >= today) return null;
-        const days = Math.floor((new Date(today) - new Date(next.dateISO)) / 86400000);
+        if (nextDate >= today) return null;
+        const days = Math.floor((new Date(today) - new Date(nextDate)) / 86400000);
         if (days < 1) return null;
         return {
             icon: '⚠️',

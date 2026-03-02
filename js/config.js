@@ -39,7 +39,7 @@ window.FOODS_BUILTIN = [
     { id: 22, name: "Queijo Minas Frescal Light", proteinPer100g: 17, defaultUnit: "g" },
     { id: 23, name: "Ricota", proteinPer100g: 11, defaultUnit: "g" },
     { id: 24, name: "Tofu Firme", proteinPer100g: 10, fiberPer100g: 1, defaultUnit: "g" },
-    { id: 25, name: "Seitan (Glúten)", proteinPer100g: 75, fiberPer100g: 2, defaultUnit: "g" },
+    { id: 25, name: "Seitan (Glúten, Cozido)", proteinPer100g: 25, fiberPer100g: 2, defaultUnit: "g" },
     { id: 26, name: "Tempeh", proteinPer100g: 19, fiberPer100g: 5, defaultUnit: "g" },
     { id: 27, name: "Proteína de Ervilha (Pó)", proteinPer100g: 78, fiberPer100g: 2, defaultUnit: "g" },
     { id: 28, name: "Edamame Cozido", proteinPer100g: 11, fiberPer100g: 5, defaultUnit: "g" },
@@ -59,9 +59,21 @@ window.FOODS_BUILTIN = [
     { id: 40, name: "Mamão", proteinPer100g: 0.5, fiberPer100g: 1.7, defaultUnit: "g" },
     { id: 41, name: "Laranja", proteinPer100g: 0.9, fiberPer100g: 2.4, defaultUnit: "g" },
     { id: 42, name: "Banana", proteinPer100g: 1.1, fiberPer100g: 2.6, defaultUnit: "g" },
-    { id: 43, name: "Espinfre (Cozido)", proteinPer100g: 3, fiberPer100g: 2.4, defaultUnit: "g" },
+    { id: 43, name: "Espinafre (Cozido)", proteinPer100g: 3, fiberPer100g: 2.4, defaultUnit: "g" },
     { id: 44, name: "Cenoura (Cozida)", proteinPer100g: 0.8, fiberPer100g: 2.8, defaultUnit: "g" },
     { id: 45, name: "Abóbora Cabotiá", proteinPer100g: 0.7, fiberPer100g: 2.5, defaultUnit: "g" },
     { id: 46, name: "Semente de Linhaça", proteinPer100g: 18, fiberPer100g: 27, defaultUnit: "g" },
-    { id: 47, name: "Quinoa (Cozida)", proteinPer100g: 4.4, fiberPer100g: 2.8, defaultUnit: "g" }
+    { id: 47, name: "Quinoa (Cozida)", proteinPer100g: 4.4, fiberPer100g: 2.8, defaultUnit: "g" },
+
+    // Frutas com fibra
+    { id: 48, name: "Goiaba", proteinPer100g: 2.6, fiberPer100g: 5.4, defaultUnit: "g" },
+    { id: 49, name: "Morango", proteinPer100g: 0.7, fiberPer100g: 2.0, defaultUnit: "g" },
+    { id: 50, name: "Kiwi", proteinPer100g: 1.1, fiberPer100g: 3.0, defaultUnit: "g" },
+    { id: 51, name: "Manga", proteinPer100g: 0.8, fiberPer100g: 1.8, defaultUnit: "g" },
+    { id: 52, name: "Abacaxi", proteinPer100g: 0.5, fiberPer100g: 1.4, defaultUnit: "g" },
+    { id: 53, name: "Ameixa Seca", proteinPer100g: 2.2, fiberPer100g: 7.1, defaultUnit: "g" },
+    { id: 54, name: "Figo Seco", proteinPer100g: 3.3, fiberPer100g: 9.8, defaultUnit: "g" },
+    { id: 55, name: "Melancia", proteinPer100g: 0.6, fiberPer100g: 0.4, defaultUnit: "g" },
+    { id: 56, name: "Uva (com Casca)", proteinPer100g: 0.7, fiberPer100g: 0.9, defaultUnit: "g" },
+    { id: 57, name: "Framboesa", proteinPer100g: 1.2, fiberPer100g: 6.5, defaultUnit: "g" }
 ];

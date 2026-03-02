@@ -90,9 +90,9 @@ refreshNutritionTab() {
 
             unit: unit,
 
-            proteinG: NutritionService.calculateProtein(this.selectedFood, qty, unit),
+            proteinG: Math.round(NutritionService.calculateProtein(this.selectedFood, qty, unit) * 10) / 10,
 
-            fiberG: NutritionService.calculateFiber(this.selectedFood, qty, unit)
+            fiberG: Math.round(NutritionService.calculateFiber(this.selectedFood, qty, unit) * 10) / 10
 
         });
 
@@ -273,7 +273,7 @@ renderMealsList(meals) {
 
                 <span>${m.foodName}</span>
 
-                <span>${m.proteinG}g P / ${m.fiberG}g F</span>
+                <span>${(+m.proteinG || 0).toFixed(1)}g P / ${(+m.fiberG || 0).toFixed(1)}g F</span>
 
                 <button onclick="App.deleteMeal(${m.id})">🗑️</button>
 
@@ -344,7 +344,7 @@ renderCustomFoods() {
 
         return `
 
-    <div class="meal-item" style = "cursor: pointer;" data - id="${f.id}">
+    <div class="meal-item" style = "cursor: pointer;" data-id="${f.id}">
 
                     <div class="meal-info">
 
@@ -414,7 +414,7 @@ renderCustomFoods() {
 
             e.stopPropagation();
 
-            NutritionService.deleteCustomFood(parseInt(btn.dataset.id));
+            NutritionService.deleteCustomFood(btn.dataset.id); // string — suporta UUID e timestamp
 
             this.renderCustomFoods();
 

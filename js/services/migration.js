@@ -113,7 +113,18 @@ window.MigrationService = {
             daily_water_ml: raw.dailyWater || 2000,
             daily_protein_g: raw.dailyProtein || 100,
             daily_fiber_g: raw.dailyFiber || 30,
-            onboarding_complete: raw.onboardingComplete || false
+            onboarding_complete: raw.onboardingComplete || false,
+            // Campos clínicos — afetam cálculo de proteína
+            diabetes: raw.diabetes || false,
+            sarcopenia: raw.sarcopenia || false,
+            // Metas manuais do usuário
+            manual_protein_goal: raw.manualProteinGoal || null,
+            manual_fiber_goal: raw.manualFiberGoal || null,
+            manual_water_goal: raw.manualWaterGoal || null,
+            // Preferências de notificação (coluna JSONB)
+            notification_settings: StorageService.getSafe(StorageService.KEYS.NOTIFICATION_SETTINGS, null),
+            // Foto de perfil (Base64 200x200px JPEG já comprimido pelo Croppie)
+            avatar_url: raw.photo || null
         };
 
         // Profile usa o user.id como PK, então fazemos update
@@ -270,7 +281,9 @@ window.MigrationService = {
             }
         }
 
-        // Photos metadata (blobs serão migrados sob demanda)
+        // Photos metadata — envia registros para journey_photos com photo_url=null inicialmente.
+        // Os blobs reais serão sincronizados em background por JourneyService.syncPhotosToCloud()
+        // logo após esta migração terminar (ver setTimeout abaixo).
         if (journey.photos && journey.photos.length > 0) {
             const photoRows = journey.photos
                 .filter(p => p && p.dateISO)
@@ -278,7 +291,7 @@ window.MigrationService = {
                     date: p.dateISO,
                     weight_kg: p.weightKg ? parseFloat(p.weightKg) : null,
                     note: p.note || null,
-                    photo_url: null // Blob será migrado sob demanda via uploadPhoto
+                    photo_url: p.cloudUrl || null // Preserva cloudUrl existente se houver
                 }));
 
             if (photoRows.length > 0) {
@@ -286,6 +299,17 @@ window.MigrationService = {
                 results.photos = { success: !error, count: photoRows.length };
             }
         }
+
+        // Agenda sincronização de blobs em background.
+        // O delay de 1500ms garante que toda a migração de dados seja finalizada antes
+        // de começar o upload de fotos (que é mais pesado).
+        // Completamente seguro: JourneyService.syncPhotosToCloud() é à prova de falhas.
+        setTimeout(() => {
+            if (window.JourneyService && typeof JourneyService.syncPhotosToCloud === 'function') {
+                console.log('MigrationService: agendando sincronização de blobs de fotos...');
+                JourneyService.syncPhotosToCloud();
+            }
+        }, 1500);
 
         return results;
     },
@@ -317,7 +341,8 @@ window.MigrationService = {
 
         const row = {
             day_of_week: raw.dayOfWeek !== undefined ? raw.dayOfWeek : null,
-            time: raw.time || null
+            time: raw.time || null,
+            interval_days: raw.intervalDays || 7
         };
 
         const { error } = await SupabaseService.upsert('injection_schedule', row, 'user_id');

@@ -5,12 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#10B981">
+    <!-- theme-color adaptativo: branco no modo claro, escuro no modo noturno -->
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
     <meta name="description"
         content="Ascenda - Acompanhamento completo para seu tratamento com GLP-1 (Semaglutida, Tirzepatida, Retatrutida).">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Ícone para iOS (estático — iOS não suporta ícone adaptativo em PWA) -->
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
     <title>Ascenda - Desperte sua melhor versão</title>
 
     <!-- Error tracking: async para não bloquear a renderização da página -->
@@ -34,6 +38,10 @@
     <link rel="stylesheet" href="css/auth.css?v=8">
     <!-- Croppie CSS -->
     <link rel="stylesheet" href="js/vendor/croppie.min.css" />
+    <!-- Evita flash preto antes dos CSS externos carregarem -->
+    <style>
+        html, body { background: #F8FAFC; }
+    </style>
 </head>
 
 <body>
@@ -824,7 +832,7 @@
                 <div class="insights-grid" id="weight-insights-grid">
                     <div class="insight-card">
                         <div class="insight-value" id="insight-avg7">--</div>
-                        <div class="insight-label">Média 7d</div>
+                        <div class="insight-label">Perda Total</div>
                     </div>
                     <div class="insight-card">
                         <div class="insight-value" id="insight-trend30">--</div>
@@ -832,11 +840,11 @@
                     </div>
                     <div class="insight-card">
                         <div class="insight-value" id="insight-best">--</div>
-                        <div class="insight-label">Melhor Peso</div>
+                        <div class="insight-label" id="insight-label-best">% da Meta</div>
                     </div>
                     <div class="insight-card">
                         <div class="insight-value" id="insight-weekly-var">--</div>
-                        <div class="insight-label">Var. Semanal</div>
+                        <div class="insight-label">Ult. Variação</div>
                     </div>
                 </div>
 

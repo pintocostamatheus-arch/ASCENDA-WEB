@@ -33,7 +33,7 @@ window.WeightService = {
             if (window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
                 SupabaseService.getUser().then(user => {
                     if (user) SupabaseService.delete('weights', { user_id: user.id, date: dateISO });
-                });
+                }).catch(e => console.warn('WeightService.delete: falha ao remover do Supabase (não crítico):', e.message));
             }
 
             return true;
@@ -83,30 +83,36 @@ window.WeightService = {
 
     getInsights() {
         const weights = this.getAll();
-        if (weights.length === 0) return { avg7: '0.0', trend30: '0.0', best: '0.0', weeklyVar: '0.0' };
+        if (weights.length === 0) return { totalLoss: 0, trend30: 0, goalPercent: null, currentBmi: 0, weeklyVar: 0 };
 
         const latest = weights[weights.length - 1];
+        const first = weights[0];
 
-        // Avg 7 days
-        const last7 = weights.slice(-7);
-        const avg7 = last7.reduce((sum, w) => sum + w.weightKg, 0) / last7.length;
+        // Perda Total: negativo = perdeu peso (consistente com as outras métricas)
+        const totalLoss = weights.length === 1 ? 0 : latest.weightKg - first.weightKg;
 
-        // Trend 30d
+        // Tendência 30d
         let trend30 = 0;
         if (weights.length > 1) {
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
             const weight30DaysAgo = weights.find(w => new Date(w.dateISO) >= thirtyDaysAgo) || weights[0];
-            // If the found weight is the SAME as the latest (e.g. only 1 entry), diff should be 0
             if (weight30DaysAgo.dateISO !== latest.dateISO) {
                 trend30 = latest.weightKg - weight30DaysAgo.weightKg;
             }
         }
 
-        // Best (Lowest)
-        const best = Math.min(...weights.map(w => w.weightKg));
+        // % da Meta (fallback: IMC atual)
+        const profile = ProfileService.get();
+        let goalPercent = null;
+        const goalKg = parseFloat(profile.weightGoalKg);
+        if (goalKg && first.weightKg > goalKg) {
+            const totalToLose = first.weightKg - goalKg;
+            const lost = first.weightKg - latest.weightKg;
+            goalPercent = Math.min(100, Math.max(0, Math.round((lost / totalToLose) * 100)));
+        }
 
-        // Weekly Variation
+        // Variação entre os dois últimos registros
         let weeklyVar = 0;
         if (weights.length >= 2) {
             const prev = weights[weights.length - 2];
@@ -114,10 +120,11 @@ window.WeightService = {
         }
 
         return {
-            avg7: avg7.toFixed(1),
-            trend30: (weights.length === 1 ? '0.0' : trend30.toFixed(1)),
-            best: best.toFixed(1),
-            weeklyVar: (weights.length === 1 ? '0.0' : weeklyVar.toFixed(1))
+            totalLoss: parseFloat(totalLoss.toFixed(1)),
+            trend30: weights.length === 1 ? 0 : parseFloat(trend30.toFixed(1)),
+            goalPercent,
+            currentBmi: latest.bmi,
+            weeklyVar: weights.length === 1 ? 0 : parseFloat(weeklyVar.toFixed(1))
         };
     }
 };
