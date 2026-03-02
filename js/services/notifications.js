@@ -8,7 +8,7 @@ window.NotificationService = {
     // ─── VAPID PUBLIC KEY ──────────────────────
     // Preencha após gerar as chaves VAPID (ver instruções no README).
     // Comando: npx web-push generate-vapid-keys
-    VAPID_PUBLIC_KEY: 'BPvYkuKMnGd1tHTQ4G0Lpzu1HuhKTFUMj92_sSHNK3a5JkIKHy3QtFq43oS1y8awODzsUeYLsxKEjVSUHjGGjuI',
+    VAPID_PUBLIC_KEY: 'BMRH4U0Xs06rbjtnZC4Q2i7WLIfLD9nSueu28YtG4FRZdEcyGlicqVpktBTXLMatKqyq4kOa8y8j7_pmkWsHwK0',
 
     // ─── DEFAULTS ──────────────────────────────
     DEFAULT_SETTINGS: {

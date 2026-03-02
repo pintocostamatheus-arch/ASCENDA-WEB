@@ -324,21 +324,22 @@ renderCustomFoods() {
 
         let info = [];
 
-        if (f.proteinPerUnit !== undefined) info.push(`P: ${f.proteinPerUnit} g / un`);
+        // Usa != null (cobre null e undefined) para não exibir "null g / un" quando vem da nuvem
+        if (f.proteinPerUnit != null) info.push(`P: ${f.proteinPerUnit} g / un`);
 
-        else if (f.proteinPerScoop !== undefined) info.push(`P: ${f.proteinPerScoop} g / scoop`);
+        else if (f.proteinPerScoop != null) info.push(`P: ${f.proteinPerScoop} g / scoop`);
 
-        else if (f.defaultUnit === 'ml') info.push(`P: ${f.proteinPer100g} g / 100ml`);
+        else if (f.defaultUnit === 'ml') info.push(`P: ${f.proteinPer100g ?? '--'} g / 100ml`);
 
-        else info.push(`P: ${f.proteinPer100g} g / 100g`);
+        else info.push(`P: ${f.proteinPer100g ?? '--'} g / 100g`);
 
 
 
-        if (f.fiberPerUnit !== undefined) info.push(`F: ${f.fiberPerUnit} g / un`);
+        if (f.fiberPerUnit != null) info.push(`F: ${f.fiberPerUnit} g / un`);
 
-        else if (f.fiberPerScoop !== undefined) info.push(`F: ${f.fiberPerScoop} g / scoop`);
+        else if (f.fiberPerScoop != null) info.push(`F: ${f.fiberPerScoop} g / scoop`);
 
-        else if (f.fiberPer100g !== undefined) info.push(`F: ${f.fiberPer100g} g / 100`);
+        else if (f.fiberPer100g != null) info.push(`F: ${f.fiberPer100g} g / 100`);
 
 
 

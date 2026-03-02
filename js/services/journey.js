@@ -78,14 +78,20 @@ window.JourneyService = {
                 this.save(journey);
             }
 
-            // 2. Atualiza coluna photo_url na tabela journey_photos do Supabase
+            // 2. Garante linha em journey_photos com photo_url (upsert cria ou atualiza)
             if (window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
                 const user = await SupabaseService.getUser();
                 if (user && photo && photo.dateISO) {
-                    await SupabaseService.update(
+                    await SupabaseService.upsert(
                         'journey_photos',
-                        { photo_url: cloudUrl },
-                        { user_id: user.id, date: photo.dateISO }
+                        {
+                            user_id: user.id,
+                            date: photo.dateISO,
+                            photo_url: cloudUrl,
+                            weight_kg: photo.weightKg || null,
+                            note: photo.note || ''
+                        },
+                        'user_id,date'
                     );
                 }
             }
