@@ -6,15 +6,7 @@
             <stop offset="0.509804" stop-color="#19A98B" />
             <stop offset="1" stop-color="#9EDC4A" />
         </linearGradient>
-        <style>
-            #icon-bg { fill: #ffffff; }
-            @media (prefers-color-scheme: dark) {
-                #icon-bg { fill: #0f172a; }
-            }
-        </style>
     </defs>
-    <!-- Fundo adaptativo: branco no modo claro, escuro (#0f172a) no modo noturno -->
-    <rect id="icon-bg" width="6773.32" height="6773.32" />
-    <!-- Logo gradiente Ascenda -->
+    <!-- Logo gradiente Ascenda — fundo transparente -->
     <path fill="url(#ascenda-grad-favicon)" d="M799.57 5871.62l2587.09 -4969.93 2587.09 4969.93 -703.52 0 -1883.57 -3653.68 -1906.27 3653.68 -680.82 0zm1225.47 0l1384.32 -2700.55 1316.22 2700.55 -590.03 0 -726.19 -1429.71 -748.89 1429.71 -635.43 0z" />
 </svg>

@@ -39,6 +39,10 @@ const ASSETS = [
   '/js/services/medication-level.js',
   '/js/services/report.js',
   '/js/services/ui.js',
+  '/js/services/auth.js',
+  '/js/services/supabase.js',
+  '/js/services/migration.js',
+  '/js/vendor/supabase.min.js',
   '/js/vendor/chart.umd.min.js',
   '/js/vendor/jspdf.umd.min.js',
   '/js/vendor/croppie.min.js',
@@ -114,7 +118,9 @@ self.addEventListener('message', (e) => {
 // Open app and navigate to the correct tab when notification is clicked
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
-  const tab = e.notification.data?.tab || 'hoje';
+  const VALID_TABS = ['hoje', 'instrucoes', 'injecoes', 'peso', 'nutricao', 'sintomas', 'jornada', 'perfil', 'ajuda'];
+  const rawTab = e.notification.data?.tab || 'hoje';
+  const tab = VALID_TABS.includes(rawTab) ? rawTab : 'hoje';
 
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {

@@ -226,7 +226,9 @@ window.JourneyService = {
     },
 
     /**
-     * Remove uma foto localmente e da nuvem (background).
+     * Remove uma foto localmente e da nuvem.
+     * Sequência: 1) Remove local (IndexedDB) → 2) Remove linha da tabela → 3) Remove arquivo do Storage.
+     * A ordem garante que não há conflito entre as operações.
      */
     async deletePhoto(id) {
         const journey = this.get();
@@ -241,28 +243,23 @@ window.JourneyService = {
         // Remove do IndexedDB local
         try { await PhotoStorageService.deletePhoto(id); } catch (e) { /* ignore */ }
 
-        // Remove da nuvem em background (não bloqueia, falha é ignorada)
-        if (photo) {
-            const filename = `photo_${id}.jpg`;
+        // Remove da nuvem em sequência: tabela primeiro, Storage depois
+        if (photo && window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
+            try {
+                const user = await SupabaseService.getUser();
+                if (user) {
+                    // 1. Remove linha da tabela journey_photos
+                    if (photo.dateISO) {
+                        await SupabaseService.delete('journey_photos', { user_id: user.id, date: photo.dateISO });
+                    }
 
-            // Remove arquivo do Supabase Storage
-            if (window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
-                SupabaseService.deletePhoto(filename).catch(e => {
-                    console.warn(`JourneyService.deletePhoto: falha ao remover storage da nuvem para foto ${id}:`, e.message);
-                });
-            }
-
-            // Remove registro da tabela journey_photos
-            if (window.SupabaseService && window.AuthService && AuthService.isLoggedIn() && photo.dateISO) {
-                SupabaseService.getUser()
-                    .then(user => {
-                        if (user) {
-                            return SupabaseService.delete('journey_photos', { user_id: user.id, date: photo.dateISO });
-                        }
-                    })
-                    .catch(e => {
-                        console.warn(`JourneyService.deletePhoto: falha ao remover metadado da nuvem para foto ${id}:`, e.message);
-                    });
+                    // 2. Remove arquivo do Supabase Storage (APÓS a linha da tabela ser apagada)
+                    const filename = `photo_${id}.jpg`;
+                    await SupabaseService.deletePhoto(filename);
+                    console.log(`JourneyService.deletePhoto: foto ${id} removida da tabela e do Storage.`);
+                }
+            } catch (e) {
+                console.warn(`JourneyService.deletePhoto: falha ao remover foto ${id} da nuvem:`, e.message);
             }
         }
     },
@@ -281,18 +278,41 @@ window.JourneyService = {
             if (url) return url;
         } catch (e) {
             console.warn(`JourneyService.getPhotoUrl: IndexedDB falhou para foto ${id}:`, e.message);
-            // Não para aqui — tenta o próximo fallback
         }
 
-        // 2. cloudUrl — foto existe na nuvem mas não neste dispositivo
         const journey = this.get();
         const photo = journey.photos.find(p => p.id === id);
+
+        // 2. Tenta gerar nova URL assinada do Supabase Storage (resolve URLs expiradas/quebradas)
+        if (photo && window.SupabaseService && window.AuthService && AuthService.isLoggedIn()) {
+            try {
+                const client = SupabaseService.getClient();
+                const user = await SupabaseService.getUser();
+                if (client && user) {
+                    const path = `${user.id}/photo_${id}.jpg`;
+                    const { data } = await client.storage
+                        .from('journey-photos')
+                        .createSignedUrl(path, 60 * 60 * 24 * 365);
+                    if (data?.signedUrl) {
+                        // Atualiza silenciosamente o cloudUrl no localStorage para a próxima vez
+                        photo.cloudUrl = data.signedUrl;
+                        this.save(journey);
+                        console.log(`JourneyService.getPhotoUrl: URL renovada para foto ${id}.`);
+                        return data.signedUrl;
+                    }
+                }
+            } catch (e) {
+                console.warn(`JourneyService.getPhotoUrl: renovação de URL falhou para foto ${id}:`, e.message);
+            }
+        }
+
+        // 3. Fallback: cloudUrl armazenado (pode estar expirado, mas é o último recurso online)
         if (photo && photo.cloudUrl) {
-            console.log(`JourneyService.getPhotoUrl: usando cloudUrl para foto ${id}.`);
+            console.log(`JourneyService.getPhotoUrl: usando cloudUrl salvo para foto ${id}.`);
             return photo.cloudUrl;
         }
 
-        // 3. Base64 legado — compatibilidade com versões antigas
+        // 4. Base64 legado — compatibilidade com versões antigas
         return photo && photo.image ? photo.image : null;
     },
 

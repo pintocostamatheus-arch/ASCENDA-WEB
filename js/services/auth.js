@@ -102,25 +102,6 @@ window.AuthService = {
         return { user: data.user, error: null };
     },
 
-    // ─── GOOGLE OAUTH ──────────────────────────
-    async signInWithGoogle() {
-        const client = SupabaseService.getClient();
-        if (!client) return { error: 'Client não inicializado' };
-
-        const { error } = await client.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin + window.location.pathname
-            }
-        });
-
-        if (error) {
-            return { error: this._translateError(error.message) };
-        }
-
-        return { error: null };
-    },
-
     // ─── LOGOUT ────────────────────────────────
     async signOut() {
         const client = SupabaseService.getClient();
@@ -156,6 +137,15 @@ window.AuthService = {
         const appContainer = document.getElementById('app');
         const splashScreen = document.getElementById('splash-screen');
         const pendingScreen = document.getElementById('pending-screen');
+        const expiredScreen = document.getElementById('expired-screen');
+
+        const _hideAll = () => {
+            if (authScreen) authScreen.hidden = true;
+            if (appContainer) appContainer.classList.add('hidden');
+            if (splashScreen) splashScreen.classList.add('hidden');
+            if (pendingScreen) pendingScreen.hidden = true;
+            if (expiredScreen) expiredScreen.hidden = true;
+        };
 
         const user = this.getUser();
 
@@ -165,26 +155,33 @@ window.AuthService = {
             if (appContainer) appContainer.classList.add('hidden');
             if (splashScreen) splashScreen.classList.add('hidden');
             if (pendingScreen) pendingScreen.hidden = true;
+            if (expiredScreen) expiredScreen.hidden = true;
             return false;
         }
 
-        // 2. Se ESTÁ logado, mas NÃO aprovado (Whitelist Beta)
-        // Precisamos garantir que leia o false explicitamente
         const profile = StorageService.getSafe(StorageService.KEYS.PROFILE, {});
-        // Se profile.is_approved não existir (antigos) ou for true, passa. Se for estritamente false, bloqueia.
+
+        // 2. Não aprovado (controle manual)
         if (profile.is_approved === false) {
-            if (authScreen) authScreen.hidden = true;
-            if (appContainer) appContainer.classList.add('hidden');
-            if (splashScreen) splashScreen.classList.add('hidden');
+            _hideAll();
             if (pendingScreen) pendingScreen.hidden = false;
             return true;
         }
 
-        // 3. Logado e APROVADO: Libera o App
+        // 3. Assinatura expirada (só verifica se subscription_expires_at está preenchido)
+        if (profile.subscription_expires_at) {
+            const expired = new Date(profile.subscription_expires_at) < new Date();
+            if (expired) {
+                _hideAll();
+                if (expiredScreen) expiredScreen.hidden = false;
+                return true;
+            }
+        }
+
+        // 4. Logado, aprovado e com assinatura válida
+        _hideAll();
         if (authScreen) authScreen.hidden = true;
         if (appContainer) appContainer.classList.remove('hidden');
-        if (splashScreen) splashScreen.classList.add('hidden');
-        if (pendingScreen) pendingScreen.hidden = true;
         return true;
     },
 
@@ -276,7 +273,7 @@ window.AuthService = {
                 const password = document.getElementById('signup-password')?.value;
                 const confirm = document.getElementById('signup-confirm')?.value;
 
-                if (!email || !password) {
+                if (!name || !email || !password) {
                     this._showError('signup', 'Preencha todos os campos.');
                     return;
                 }
@@ -305,19 +302,6 @@ window.AuthService = {
                 } finally {
                     btnSignup.disabled = false;
                     btnSignup.textContent = 'Criar Conta';
-                }
-            };
-        }
-
-        // Google login
-        const btnGoogle = document.getElementById('btn-auth-google');
-        if (btnGoogle) {
-            btnGoogle.onclick = async () => {
-                btnGoogle.disabled = true;
-                const { error } = await this.signInWithGoogle();
-                btnGoogle.disabled = false;
-                if (error) {
-                    this._showError('login', error);
                 }
             };
         }
@@ -391,9 +375,8 @@ window.AuthService = {
         if (window.App && !isBlocked) {
             if (!App._initialized) {
                 App.init();
-            } else {
-                App.refreshTab(window.Router?.currentTab || 'hoje');
             }
+            App.refreshTab(window.Router?.currentTab || 'hoje');
 
             // Verifica primeiro acesso APÓS os dados da nuvem estarem carregados
             if (window.ProfileService && ProfileService.isFirstRun()) {

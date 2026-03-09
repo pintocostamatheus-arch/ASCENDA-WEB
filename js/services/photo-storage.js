@@ -7,6 +7,13 @@ window.PhotoStorageService = {
     DB_VERSION: 1,
     STORE_NAME: 'photos',
     _db: null,
+    _blobUrls: [],
+
+    /** Revoke all outstanding blob URLs to free memory */
+    revokeAll() {
+        this._blobUrls.forEach(u => URL.revokeObjectURL(u));
+        this._blobUrls = [];
+    },
 
     async open() {
         if (this._db) return this._db;
@@ -51,7 +58,9 @@ window.PhotoStorageService = {
             req.onsuccess = () => {
                 const result = req.result;
                 if (result && result.blob) {
-                    resolve(URL.createObjectURL(result.blob));
+                    const url = URL.createObjectURL(result.blob);
+                    this._blobUrls.push(url);
+                    resolve(url);
                 } else {
                     resolve(null);
                 }

@@ -6,4 +6,7 @@ anti-gravity-quota
 /.agent
 /.claude
 js/secrets.js
+*.bak
+lighthouse-report.html
+vapid.txt
 tests/

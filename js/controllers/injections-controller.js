@@ -483,21 +483,21 @@ const InjectionsController = {
 
                     <div class="injection-info-col">
 
-                        <div class="injection-item-date">${fullDate} - ${timeDisplay}</div>
+                        <div class="injection-item-date">${SecurityUtils.escapeHTML(fullDate)} - ${SecurityUtils.escapeHTML(timeDisplay)}</div>
 
                         <div class="injection-item-sub">
 
-                            <strong>${drugDisplay} ${i.doseMg}mg</strong>
+                            <strong>${SecurityUtils.escapeHTML(drugDisplay)} ${SecurityUtils.escapeHTML(String(i.doseMg))}mg</strong>
 
                             <span class="dot-sep">•</span>
 
-                            <span>${DoseService.formatSite(siteKey)}</span>
+                            <span>${SecurityUtils.escapeHTML(DoseService.formatSite(siteKey))}</span>
 
                         </div>
 
                     </div>
 
-                    <button class="btn-delete-history" onclick="App.deleteInjection('${itemId}')">
+                    <button class="btn-delete-history" onclick="App.deleteInjection('${SecurityUtils.escapeHTML(String(itemId))}')">
 
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
 

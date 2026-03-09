@@ -31,25 +31,45 @@ const supabaseAdmin = createClient(
 );
 
 // ─── Janela de tolerância (minutos) ──────────────────────────────────────────
-// pg_cron roda a cada 15 min. Uma notificação é enviada se estiver
-// dentro de ±WINDOW_MINUTES do horário configurado pelo usuário.
-const WINDOW_MINUTES = 20;
+// pg_cron roda a cada 1 min. WINDOW_MINUTES = 0 garante disparo exato,
+// sem duplicatas. Aumentar apenas se o cron for alterado para > 1 min.
+const WINDOW_MINUTES = 0;
 
 // ─── Handler principal ────────────────────────────────────────────────────────
+// CORS headers for security
+const CORS_HEADERS = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") || "https://ascenda.app",
+  "Access-Control-Allow-Methods": "POST",
+  "Access-Control-Allow-Headers": "Authorization, Content-Type",
+};
+
 serve(async (req) => {
-  // Segurança: verifica header customizado enviado pelo pg_cron
-  // (JWT verification está desativada nesta função pois é chamada internamente)
-  const cronSecret = req.headers.get("x-cron-secret") ?? "";
-  const expectedSecret = Deno.env.get("CRON_SECRET") ?? "";
-  if (expectedSecret && cronSecret !== expectedSecret) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
+  }
+
+  // ─── Segurança: valida CRON_SECRET (fail-closed: sem secret = negar tudo)
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  if (!cronSecret) {
+    console.error("CRON_SECRET not configured — denying all requests.");
+    return new Response(JSON.stringify({ ok: false, error: "Server misconfigured" }), {
+      status: 500,
+      headers: CORS_HEADERS,
+    });
+  }
+  const authHeader = req.headers.get("Authorization") || "";
+  const token = authHeader.replace("Bearer ", "").trim();
+  if (token !== cronSecret) {
+    return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
       status: 401,
-      headers: { "Content-Type": "application/json" },
+      headers: CORS_HEADERS,
     });
   }
 
   const now = new Date();
-  const results: Array<{ user_id: string; tag: string; ok: boolean; error?: string }> = [];
+  const results: Array<{ tag: string; ok: boolean; error?: string }> = [];
 
   try {
     // 1. Busca todas as subscriptions com dados do perfil + cronograma
@@ -60,30 +80,33 @@ serve(async (req) => {
     if (subError) throw subError;
     if (!subs || subs.length === 0) {
       return new Response(JSON.stringify({ ok: true, sent: 0 }), {
-        headers: { "Content-Type": "application/json" },
+        headers: CORS_HEADERS,
       });
     }
 
-    // 2. Agrupa por user_id para buscar dados uma vez por usuário
+    // 2. Busca todos os perfis e cronogramas de uma vez (evita N+1)
     const userIds = [...new Set(subs.map((s) => s.user_id))];
 
-    for (const userId of userIds) {
-      // Perfil + notification_settings
-      const { data: profile } = await supabaseAdmin
+    const [{ data: profiles }, { data: schedules }] = await Promise.all([
+      supabaseAdmin
         .from("profiles")
-        .select("notification_settings, drug")
-        .eq("id", userId)
-        .maybeSingle();
+        .select("id, notification_settings, drug")
+        .in("id", userIds),
+      supabaseAdmin
+        .from("injection_schedule")
+        .select("user_id, day_of_week, time")
+        .in("user_id", userIds),
+    ]);
 
+    const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
+    const scheduleMap = new Map((schedules ?? []).map((s) => [s.user_id, s]));
+
+    for (const userId of userIds) {
+      const profile = profileMap.get(userId);
       const settings = profile?.notification_settings;
       if (!settings?.enabled) continue;
 
-      // Cronograma de injeção
-      const { data: schedule } = await supabaseAdmin
-        .from("injection_schedule")
-        .select("day_of_week, time")
-        .eq("user_id", userId)
-        .maybeSingle();
+      const schedule = scheduleMap.get(userId) ?? null;
 
       // Calcula horário local do usuário
       const tzOffset = settings.timezone_offset ?? -3;
@@ -108,7 +131,7 @@ serve(async (req) => {
         if (Math.abs(localNowMinutes - targetMinutes) <= WINDOW_MINUTES) {
           const drugName = formatDrugName(profile?.drug);
           toSend.push({
-            title: "💉 Lembrete de Dose",
+            title: "Lembrete de Dose",
             body: `Hoje é dia da sua injeção de ${drugName}!`,
             tag: "dose",
             data: { tab: "injecoes" },
@@ -128,7 +151,7 @@ serve(async (req) => {
           const remainder = minutesSinceStart % intervalMinutes;
           if (remainder <= WINDOW_MINUTES) {
             toSend.push({
-              title: "💧 Hora de se Hidratar!",
+              title: "Hora de se Hidratar!",
               body: "Beba um copo de água agora. Hidratação é fundamental no tratamento.",
               tag: `water_${localHour}`,
               data: { tab: "hoje" },
@@ -146,7 +169,7 @@ serve(async (req) => {
           const targetMinutes = wh * 60 + wm;
           if (Math.abs(localNowMinutes - targetMinutes) <= WINDOW_MINUTES) {
             toSend.push({
-              title: "⚖️ Que tal se pesar hoje?",
+              title: "Que tal se pesar hoje?",
               body: "Registre seu peso e acompanhe seu progresso na jornada.",
               tag: "weight",
               data: { tab: "peso" },
@@ -167,7 +190,7 @@ serve(async (req) => {
           : schedule.day_of_week;
         if (targetDow === localDow && Math.abs(localNowMinutes - targetMinutes) <= WINDOW_MINUTES) {
           toSend.push({
-            title: "😊 Como está se sentindo?",
+            title: "Como está se sentindo?",
             body: "Registre seus sintomas após a aplicação de hoje.",
             tag: "symptoms",
             data: { tab: "sintomas" },
@@ -178,9 +201,9 @@ serve(async (req) => {
       // ── 5. Refeições ─────────────────────────
       if (settings.meals?.enabled) {
         const slots = [
-          { key: "breakfast", title: "☀️ Bom dia!", body: "Lembre de registrar seu café da manhã." },
-          { key: "lunch", title: "🍽️ Hora do Almoço", body: "Registre o que você almoçou." },
-          { key: "dinner", title: "🌙 Jantar", body: "Registre sua refeição noturna." },
+          { key: "breakfast", title: "Café da Manhã", body: "Não esqueça de registrar o que você comeu no café da manhã." },
+          { key: "lunch", title: "Hora do Almoço", body: "Registre seu almoço e mantenha seu acompanhamento nutricional em dia." },
+          { key: "dinner", title: "Hora do Jantar", body: "Registre seu jantar e feche o dia com seu acompanhamento completo." },
         ];
         for (const slot of slots) {
           const timeStr = settings.meals[slot.key];
@@ -198,41 +221,57 @@ serve(async (req) => {
         }
       }
 
-      // ── Envia as notificações devidas ─────────
+      // ── Envia as notificações devidas (em paralelo) ─────────
+      const sendTasks: Promise<void>[] = [];
       for (const notif of toSend) {
+
+        // --- 🔒 VALIDAÇÃO DE ESQUEMA DO PAYLOAD 🔒 ---
+        // Previne XSS, quebra de UI no mobile nativo e payloads massivos
+        if (typeof notif.title !== "string" || notif.title.length > 150) {
+          console.error(`Status 400: Título inválido ou extenso na tag ${notif.tag}`);
+          continue;
+        }
+        if (typeof notif.body !== "string" || notif.body.length > 500) {
+          console.error(`Status 400: Corpo inválido ou extenso na tag ${notif.tag}`);
+          continue;
+        }
+        // ----------------------------------------------
+
         for (const sub of userSubs) {
-          try {
-            await webpush.sendNotification(
+          sendTasks.push(
+            webpush.sendNotification(
               { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
               JSON.stringify(notif)
-            );
-            results.push({ user_id: userId, tag: notif.tag, ok: true });
-          } catch (e: any) {
-            console.error(`[SEND ERROR] tag=${notif.tag} | status=${e.statusCode} | msg=${e.message}`);
-            results.push({ user_id: userId, tag: notif.tag, ok: false, error: e.message });
-            // Subscription expirada/inválida — remove do banco
-            if (e.statusCode === 410) {
-              await supabaseAdmin
-                .from("push_subscriptions")
-                .delete()
-                .eq("endpoint", sub.endpoint);
-              console.log("NotificationService: subscription expirada removida:", sub.endpoint);
-            }
-          }
+
+            ).then(() => {
+              results.push({ tag: notif.tag, ok: true });
+            }).catch(async (e: any) => {
+              console.error(`[SEND ERROR] tag=${notif.tag} | status=${e.statusCode} | msg=${e.message}`);
+              results.push({ tag: notif.tag, ok: false, error: e.message });
+              if (e.statusCode === 410) {
+                await supabaseAdmin
+                  .from("push_subscriptions")
+                  .delete()
+                  .eq("endpoint", sub.endpoint);
+                console.log("NotificationService: subscription expirada removida:", sub.endpoint);
+              }
+            })
+          );
         }
       }
+      await Promise.all(sendTasks);
     }
 
     console.log(`send-scheduled-pushes: ${results.filter((r) => r.ok).length} enviadas.`);
     return new Response(
-      JSON.stringify({ ok: true, sent: results.filter((r) => r.ok).length, results }),
-      { headers: { "Content-Type": "application/json" } }
+      JSON.stringify({ ok: true, sent: results.filter((r) => r.ok).length }),
+      { headers: CORS_HEADERS }
     );
   } catch (err: any) {
     console.error("send-scheduled-pushes ERROR:", err);
-    return new Response(JSON.stringify({ ok: false, error: err.message }), {
+    return new Response(JSON.stringify({ ok: false, error: "Internal error" }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: CORS_HEADERS,
     });
   }
 });

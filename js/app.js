@@ -416,6 +416,10 @@ window.App = {
             this.renderWeightZoneInsight();
             this.renderEscalationSuggestion();
             this.renderDailyInsight();
+
+            // Remove skeleton loading
+            const tabHoje = document.getElementById('tab-hoje');
+            if (tabHoje) tabHoje.classList.remove('skeleton-active');
         } catch (e) {
             console.error('Error refreshing dashboard:', e);
         }
@@ -511,8 +515,11 @@ window.App = {
                 badge.title = analysis.reason;
             }
 
-            // Optionally add a more visible warning if it's a plateau
-            UI.toast('Sugestão clínica: avalie ajuste de dose.', 'info');
+            // Toast só 1x por sessão para não cansar o usuário
+            if (!sessionStorage.getItem('escalation_toast_shown')) {
+                UI.toast('Sugestão clínica: avalie ajuste de dose.', 'info');
+                sessionStorage.setItem('escalation_toast_shown', '1');
+            }
         }
     },
 
@@ -613,6 +620,47 @@ function _checkLgpdConsent() {
     const overlay = document.getElementById('modal-lgpd');
     if (!overlay) return;
 
+    const chk = document.getElementById('chk-lgpd-accept');
+    const btnAceitar = document.getElementById('btn-lgpd-aceitar');
+    const btnRecusar = document.getElementById('btn-lgpd-recusar');
+
+    // ── Bind handlers SEMPRE (funciona tanto no primeiro acesso quanto ao reabrir via Config)
+    if (chk && btnAceitar && !btnAceitar._lgpdBound) {
+        btnAceitar._lgpdBound = true; // evita duplicar listeners em chamadas repetidas
+
+        chk.addEventListener('change', () => {
+            btnAceitar.disabled = !chk.checked;
+        });
+
+        btnAceitar.addEventListener('click', () => {
+            localStorage.setItem('monjaro_lgpd_consent', 'true');
+            overlay.style.display = 'none';
+            // Persiste consentimento na nuvem para não pedir novamente
+            if (window.SupabaseService) {
+                SupabaseService.getUser().then(user => {
+                    if (user) SupabaseService.update('profiles', { lgpd_consent: true }, { id: user.id });
+                }).catch(() => { });
+            }
+        });
+    }
+
+    if (btnRecusar && !btnRecusar._lgpdBound) {
+        btnRecusar._lgpdBound = true;
+
+        btnRecusar.addEventListener('click', () => {
+            overlay.innerHTML = `
+                <div style="color:#fff; text-align:center; padding:40px 20px; max-width:400px;">
+                    <div style="font-size:3rem; margin-bottom:16px;">🔒</div>
+                    <h3 style="margin-bottom:12px;">Acesso não autorizado</h3>
+                    <p style="opacity:0.8; line-height:1.6;">
+                        Sem o consentimento para o uso dos dados de saúde, não é possível utilizar o Ascenda.<br><br>
+                        Se mudar de ideia, acesse o app novamente.
+                    </p>
+                </div>`;
+        });
+    }
+
+    // ── Controle de exibição ──────────────────────────────────────────────────
     // Se já aceitou → garante que o modal está oculto e sai
     if (localStorage.getItem('monjaro_lgpd_consent')) {
         overlay.style.display = 'none';
@@ -632,41 +680,109 @@ function _checkLgpdConsent() {
 
     // Usuário existente que completou onboarding mas ainda não consentiu
     overlay.style.display = 'flex';
-
-    const chk = document.getElementById('chk-lgpd-accept');
-    const btnAceitar = document.getElementById('btn-lgpd-aceitar');
-    const btnRecusar = document.getElementById('btn-lgpd-recusar');
-
-    if (chk && btnAceitar) {
-        chk.addEventListener('change', () => {
-            btnAceitar.disabled = !chk.checked;
-        });
-        btnAceitar.addEventListener('click', () => {
-            localStorage.setItem('monjaro_lgpd_consent', 'true');
-            overlay.style.display = 'none';
-            // Persiste consentimento na nuvem para não pedir novamente
-            if (window.SupabaseService) {
-                SupabaseService.getUser().then(user => {
-                    if (user) SupabaseService.update('profiles', { lgpd_consent: true }, { id: user.id });
-                }).catch(() => { });
-            }
-        });
-    }
-
-    if (btnRecusar) {
-        btnRecusar.addEventListener('click', () => {
-            overlay.innerHTML = `
-                <div style="color:#fff; text-align:center; padding:40px 20px; max-width:400px;">
-                    <div style="font-size:3rem; margin-bottom:16px;">🔒</div>
-                    <h3 style="margin-bottom:12px;">Acesso não autorizado</h3>
-                    <p style="opacity:0.8; line-height:1.6;">
-                        Sem o consentimento para o uso dos dados de saúde, não é possível utilizar o Ascenda.<br><br>
-                        Se mudar de ideia, acesse o app novamente.
-                    </p>
-                </div>`;
-        });
-    }
 }
+
+
+// ── Tutorial Guiado (primeira vez) ───────────────────────────────────────
+window._Tutorial = {
+    _steps: [
+        { target: '#card-weight-dashboard', title: 'Seu Peso', text: 'Aqui você vê seu peso atual e a variação. Toque para ver o histórico completo e registrar novos pesos.' },
+        { target: '.card-injection-v10', title: 'Próxima Injeção', text: 'Acompanhe quando é sua próxima aplicação, o medicamento e a dosagem atual.' },
+        { target: '.card-row-nutrition', title: 'Nutrição Diária', text: 'Seus rings de proteína, água e fibra. Acompanhe suas metas diárias de um relance.' },
+        { target: '.card-bmi-premium', title: 'Seu IMC', text: 'Índice de Massa Corporal atualizado automaticamente. A barra mostra sua faixa.' },
+        { target: '#btn-open-more-modal', title: 'Mais Opções', text: 'Toque no + para acessar Perfil, Relatórios, Jornada, Sintomas, Ajuda e Boas Práticas.', position: 'above' }
+    ],
+    _current: 0,
+
+    start() {
+        if (localStorage.getItem('ascenda_tutorial_done')) return;
+        this._current = 0;
+        this._show();
+    },
+
+    _show() {
+        const step = this._steps[this._current];
+        if (!step) return this._finish();
+
+        const el = document.querySelector(step.target);
+        if (!el) return this._next();
+
+        const spotlight = document.getElementById('tutorial-spotlight');
+        const tooltip = document.getElementById('tutorial-tooltip');
+        const titleEl = document.getElementById('tutorial-title');
+        const textEl = document.getElementById('tutorial-text');
+        const stepsEl = document.getElementById('tutorial-steps');
+        const nextBtn = document.getElementById('tutorial-next-btn');
+        if (!spotlight || !tooltip) return;
+
+        // Scroll element into view first, then position after scroll settles
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        setTimeout(() => {
+            const rect = el.getBoundingClientRect();
+            const pad = 10;
+
+            // Spotlight uses position:fixed — so use viewport coords directly
+            spotlight.style.position = 'fixed';
+            spotlight.style.display = 'block';
+            spotlight.style.top = (rect.top - pad) + 'px';
+            spotlight.style.left = (rect.left - pad) + 'px';
+            spotlight.style.width = (rect.width + pad * 2) + 'px';
+            spotlight.style.height = (rect.height + pad * 2) + 'px';
+            spotlight.classList.add('active');
+
+            // Tooltip also fixed
+            tooltip.style.position = 'fixed';
+            tooltip.style.display = 'block';
+
+            // Horizontal: center on element, clamped to screen
+            const tooltipWidth = 300;
+            let left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
+            left = Math.max(12, Math.min(left, window.innerWidth - tooltipWidth - 12));
+            tooltip.style.left = left + 'px';
+            tooltip.style.width = tooltipWidth + 'px';
+
+            // Vertical: prefer below element, but if nav bar is close or not enough space, go above
+            const navBarHeight = 70; // bottom nav bar
+            const spaceBelow = window.innerHeight - rect.bottom - navBarHeight;
+            const spaceAbove = rect.top - 80; // 80 = header height
+
+            if (step.position === 'above' || spaceBelow < 160) {
+                // Place above the element
+                tooltip.style.top = 'auto';
+                tooltip.style.bottom = (window.innerHeight - rect.top + pad + 8) + 'px';
+            } else {
+                // Place below the element
+                tooltip.style.bottom = 'auto';
+                tooltip.style.top = (rect.bottom + pad + 8) + 'px';
+            }
+
+            titleEl.textContent = step.title;
+            textEl.textContent = step.text;
+            stepsEl.textContent = `${this._current + 1} de ${this._steps.length}`;
+            nextBtn.textContent = this._current === this._steps.length - 1 ? 'Concluir' : 'Próximo';
+        }, 500);
+
+        nextBtn.onclick = () => this._next();
+        spotlight.onclick = () => this._next();
+    },
+
+    _next() {
+        this._current++;
+        const tooltip = document.getElementById('tutorial-tooltip');
+        if (tooltip) { tooltip.style.top = 'auto'; tooltip.style.bottom = 'auto'; }
+        if (this._current >= this._steps.length) return this._finish();
+        this._show();
+    },
+
+    _finish() {
+        localStorage.setItem('ascenda_tutorial_done', 'true');
+        const spotlight = document.getElementById('tutorial-spotlight');
+        const tooltip = document.getElementById('tutorial-tooltip');
+        if (spotlight) { spotlight.style.display = 'none'; spotlight.classList.remove('active'); }
+        if (tooltip) tooltip.style.display = 'none';
+    }
+};
 
 window.addEventListener("DOMContentLoaded", async () => {
 
@@ -678,11 +794,39 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (btnOpenLgpd) {
         btnOpenLgpd.addEventListener('click', () => {
             const overlay = document.getElementById('modal-lgpd');
-            const chk = document.getElementById('chk-lgpd-accept');
-            const btn = document.getElementById('btn-lgpd-aceitar');
-            if (chk) chk.checked = true;
-            if (btn) btn.disabled = false;
-            if (overlay) overlay.style.display = 'flex';
+            if (!overlay) return;
+
+            const alreadyConsented = !!localStorage.getItem('monjaro_lgpd_consent');
+            const footer = overlay.querySelector('.modal-footer');
+            const chkLabel = overlay.querySelector('label[style*="display:flex"]');
+
+            if (alreadyConsented) {
+                // Modo leitura: oculta rodapé e checkbox, mostra só botão "Fechar"
+                if (footer) footer.style.display = 'none';
+                if (chkLabel) chkLabel.style.display = 'none';
+
+                // Adiciona botão "Fechar" no header se ainda não existir
+                const modalHeader = overlay.querySelector('.modal-header');
+                if (modalHeader && !modalHeader.querySelector('#btn-lgpd-close')) {
+                    const closeBtn = document.createElement('button');
+                    closeBtn.id = 'btn-lgpd-close';
+                    closeBtn.className = 'btn btn-secondary';
+                    closeBtn.textContent = 'Fechar';
+                    closeBtn.style.cssText = 'margin-left:auto; padding:6px 16px; font-size:0.85rem;';
+                    closeBtn.addEventListener('click', () => { overlay.style.display = 'none'; });
+                    modalHeader.style.display = 'flex';
+                    modalHeader.style.alignItems = 'center';
+                    modalHeader.appendChild(closeBtn);
+                }
+            } else {
+                // Modo consentimento: garante que tudo está visível
+                if (footer) footer.style.display = '';
+                if (chkLabel) chkLabel.style.display = '';
+                // Garante que handlers já foram vinculados
+                _checkLgpdConsent();
+            }
+
+            overlay.style.display = 'flex';
         });
     }
 
@@ -713,6 +857,8 @@ window.addEventListener("DOMContentLoaded", async () => {
                 if (window.App && window.Router) {
                     App.refreshTab(Router.currentTab || 'hoje');
                 }
+                // Verifica gate após carregar dados atualizados do perfil
+                if (window.AuthService) AuthService.gate();
                 // Restaura consentimento LGPD do perfil cloud se ausente localmente
                 if (!localStorage.getItem('monjaro_lgpd_consent')) {
                     const profile = StorageService.getSafe(StorageService.KEYS.PROFILE, {});
@@ -723,6 +869,9 @@ window.addEventListener("DOMContentLoaded", async () => {
                     }
                 }
             }).catch(e => console.warn('loadFromCloud falhou:', e));
+
+            // 6b. Tutorial guiado (só na primeira vez, depois dos dados carregarem)
+            setTimeout(() => { if (window._Tutorial) _Tutorial.start(); }, 1200);
 
             // 7. Agenda notificações do dia
             if (window.NotificationService) NotificationService.scheduleAll();

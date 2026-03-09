@@ -64,6 +64,9 @@ window.StorageService = {
             return true;
         } catch (e) {
             console.error(`Erro ao salvar ${key}:`, e);
+            if (e.name === 'QuotaExceededError' || e.code === 22) {
+                if (window.UI) UI.toast('Armazenamento local cheio. Seus dados podem não ser salvos. Limpe dados antigos ou reinstale o app.', 'error');
+            }
             return false;
         }
     },
@@ -166,8 +169,15 @@ window.StorageService = {
         if (entries.length === 0) return;
 
         // syncAll=true: sincroniza todas as entradas (usado na importação de backup)
-        // syncAll=false: sincroniza só a última (otimização para uso diário normal)
-        const entriesToSync = syncAll ? entries : [entries[entries.length - 1]];
+        // syncAll=false: sincroniza o dia de hoje (operação mais comum) ou fallback para última entrada
+        let entriesToSync;
+        if (syncAll) {
+            entriesToSync = entries;
+        } else {
+            const today = window.DateService ? DateService.today() : new Date().toISOString().split('T')[0];
+            const todayEntry = entries.find(([dateKey]) => dateKey === today);
+            entriesToSync = todayEntry ? [todayEntry] : [entries[entries.length - 1]];
+        }
 
         for (const [dateKey, data] of entriesToSync) {
             if (!data) continue;
@@ -291,6 +301,7 @@ window.StorageService = {
                     dailyFiber: p.daily_fiber_g || localProfile.dailyFiber,
                     onboardingComplete: p.onboarding_complete ?? localProfile.onboardingComplete,
                     is_approved: p.is_approved ?? localProfile.is_approved,
+                    subscription_expires_at: p.subscription_expires_at ?? localProfile.subscription_expires_at ?? null,
                     createdAt: p.created_at || localProfile.createdAt,
                     // Campos clínicos — críticos para cálculo correto de proteína
                     diabetes: p.diabetes ?? localProfile.diabetes ?? false,
@@ -321,10 +332,11 @@ window.StorageService = {
             const weights = await SupabaseService.select('weights', {}, 'date', true);
             if (weights.length > 0) {
                 const obj = {};
+                // Lê o perfil UMA vez (já foi salvo acima pelo bloco de profile)
+                const profileForBmi = this.getSafe(this.KEYS.PROFILE, {});
+                const heightCmForBmi = profileForBmi.heightCm || 160;
                 weights.forEach(w => {
-                    const profile = this.getSafe(this.KEYS.PROFILE, {});
-                    const heightCm = profile.heightCm || 160;
-                    const bmi = w.weight_kg / ((heightCm / 100) ** 2);
+                    const bmi = w.weight_kg / ((heightCmForBmi / 100) ** 2);
                     obj[w.date] = {
                         dateISO: w.date,
                         weightKg: parseFloat(w.weight_kg),
@@ -597,6 +609,11 @@ window.StorageService = {
     },
 
     importData(data, mode = 'merge') {
+        // Sanitize imported data to prevent XSS via malicious JSON
+        if (window.SecurityUtils && typeof SecurityUtils.sanitizeImportData === 'function') {
+            data = SecurityUtils.sanitizeImportData(data);
+        }
+
         if (mode === 'replace') {
             Object.values(this.KEYS).forEach(key => this.remove(key));
         }

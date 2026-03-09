@@ -13,6 +13,20 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Security Headers via meta tags -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self';
+                 script-src 'self' 'unsafe-inline' https://browser.sentry-cdn.com;
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                 font-src 'self' https://fonts.gstatic.com;
+                 connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io;
+                 img-src 'self' data: blob:;
+                 media-src 'self' blob:;
+                 worker-src 'self';
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <!-- Ícone para iOS (estático — iOS não suporta ícone adaptativo em PWA) -->
     <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
     <title>Ascenda - Desperte sua melhor versão</title>
@@ -40,7 +54,10 @@
     <link rel="stylesheet" href="js/vendor/croppie.min.css" />
     <!-- Evita flash preto antes dos CSS externos carregarem -->
     <style>
-        html, body { background: #F8FAFC; }
+        html,
+        body {
+            background: #F8FAFC;
+        }
     </style>
 </head>
 
@@ -184,6 +201,28 @@
                 <line x1="23" y1="11" x2="23" y2="13" />
                 <line x1="5" y1="10" x2="5" y2="14" />
             </symbol>
+            <symbol id="icon-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </symbol>
+            <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </symbol>
+            <symbol id="icon-help-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </symbol>
+            <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <path d="M12 8v4"></path>
+                <path d="M12 16h.01"></path>
+            </symbol>
             <symbol id="logo-wordmark" viewBox="0 0 7619.98 2539.98">
                 <path fill="currentColor"
                     d="M431.29 1714.49l400.05 -889 162.56 0 401.32 889 -172.72 0 -344.17 -801.37 66.04 0 -342.9 801.37 -170.18 0zm184.15 -205.74l44.45 -129.54 480.06 0 44.45 129.54 -568.96 0z" />
@@ -295,25 +334,7 @@
                 <a href="#" id="auth-back-to-login" class="auth-link">Voltar ao login</a>
             </form>
 
-            <!-- Divider -->
-            <div class="auth-divider">
-                <span>ou</span>
-            </div>
 
-            <!-- Google OAuth -->
-            <button id="btn-auth-google" class="btn auth-btn-google">
-                <svg width="18" height="18" viewBox="0 0 48 48">
-                    <path fill="#EA4335"
-                        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                    <path fill="#4285F4"
-                        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                    <path fill="#FBBC05"
-                        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                    <path fill="#34A853"
-                        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-                </svg>
-                Continuar com Google
-            </button>
         </div>
     </div>
 
@@ -361,9 +382,49 @@
     </div>
 
     <!-- ═══════════════════════════════════════════
+         EXPIRED SUBSCRIPTION SCREEN
+         ═══════════════════════════════════════════ -->
+    <div id="expired-screen" class="auth-screen" hidden>
+        <div class="auth-container" style="text-align: center; padding: 40px 20px;">
+            <div class="auth-header">
+                <img src="assets/img/logo.svg" alt="Ascenda Icon" class="auth-logo-icon">
+                <div class="auth-wordmark-wrapper">
+                    <svg class="auth-logo-wordmark" viewBox="0 0 7619.98 2539.98">
+                        <use href="#logo-wordmark"></use>
+                    </svg>
+                </div>
+            </div>
+            <div style="margin: 30px 0;">
+                <div
+                    style="width: 80px; height: 80px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #EF4444;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <h2 style="font-family: 'Outfit', sans-serif; color: var(--text-primary); margin-bottom: 10px;">
+                    Assinatura expirada</h2>
+                <p style="color: var(--text-muted); line-height: 1.5; font-size: 0.95rem;">
+                    O seu acesso ao Ascenda expirou. Renove sua assinatura para continuar acompanhando sua jornada. Seus
+                    dados estão salvos e seguros.
+                </p>
+            </div>
+            <div style="background: var(--bg-input); border-radius: 12px; padding: 15px; margin-bottom: 30px;">
+                <p style="font-size: 0.85rem; color: var(--text-primary); margin: 0;">Todos os seus dados de peso,
+                    injeções e histórico continuam preservados.</p>
+            </div>
+            <button onclick="AuthService.signOut()" class="btn btn-secondary auth-btn" style="width: 100%;">
+                Sair
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
          MAIN APP
          ═══════════════════════════════════════════ -->
     <div id="app" class="app-container hidden">
+
         <!-- HEADER (Mobile) -->
         <header class="app-header">
             <div class="header-top">
@@ -415,7 +476,7 @@
         <main class="main-content">
 
             <!-- ═══════ TAB: HOJE (Dashboard) ═══════ -->
-            <section class="tab-section active" id="tab-hoje">
+            <section class="tab-section active skeleton-active" id="tab-hoje">
                 <!-- Weight Card -->
                 <div class="card card-weight card-weight-v11" id="card-weight-dashboard"
                     onclick="Router.navigate('peso')" style="cursor: pointer;">
@@ -424,6 +485,10 @@
                         <svg class="card-icon" width="24" height="24">
                             <use href="#icon-scale"></use>
                         </svg>
+                    </div>
+                    <div class="skeleton-ph">
+                        <div class="skeleton skeleton-value"></div>
+                        <div class="skeleton skeleton-text-sm"></div>
                     </div>
                     <div class="card-value-group" style="display: flex; align-items: baseline; gap: 12px;">
                         <div class="card-value" id="today-weight">-- kg</div>
@@ -445,6 +510,10 @@
                     <div class="card-header-v10">
                         <span class="card-title-v10">PRÓXIMA INJEÇÃO</span>
                         <span class="status-badge-v10" id="injection-status-badge">NO PRAZO</span>
+                    </div>
+                    <div class="skeleton-ph" style="padding:12px 0;">
+                        <div class="skeleton skeleton-value" style="width:30%; background-size:200% 100;"></div>
+                        <div class="skeleton skeleton-text-sm" style="margin-top:10px;"></div>
                     </div>
                     <div class="injection-main-v10">
                         <span class="injection-days-v10" id="next-injection-days-v10">--</span>
@@ -927,18 +996,6 @@
                     <button class="btn btn-primary btn-block" id="btn-add-meal">Adicionar</button>
                 </div>
 
-                <!-- 2. Meus Alimentos -->
-                <div class="card">
-                    <div class="card-header"
-                        style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="card-label">Meus Alimentos</span>
-                        <button class="btn-text-sm" onclick="App.showAddFoodModal()">+ Novo</button>
-                    </div>
-                    <div id="custom-foods-list" class="meals-list small">
-                        <div class="empty-state">Vazio</div>
-                    </div>
-                </div>
-
                 <!-- 2. Protein Daily -->
                 <div class="card">
                     <div class="card-header"
@@ -1032,11 +1089,15 @@
                     <div class="progress-bar progress-bar-water">
                         <div class="progress-fill" id="water-bar" style="width: 0%"></div>
                     </div>
+                    <div class="progress-remaining" id="water-remaining">Faltam 3000ml</div>
                     <div class="water-buttons">
                         <button class="btn-water" onclick="App.addWater(250)">+250ml</button>
                         <button class="btn-water" onclick="App.addWater(500)">+500ml</button>
                         <button class="btn-water" onclick="App.addWater(750)">+750ml</button>
-                        <button class="btn-water btn-water-undo" onclick="App.undoWater()">↩ Desfazer</button>
+                        <button class="btn-water btn-water-undo" onclick="App.undoWater()"><svg width="14" height="14"
+                                style="vertical-align:-2px; margin-right:4px;">
+                                <use href="#icon-undo"></use>
+                            </svg>Desfazer</button>
                     </div>
                 </div>
 
@@ -1268,7 +1329,9 @@
 
                 <div class="card" style="padding: 0; overflow: hidden;">
                     <div class="help-search-bar">
-                        <span class="help-search-icon">🔍</span>
+                        <span class="help-search-icon"><svg width="18" height="18" style="vertical-align:-3px;">
+                                <use href="#icon-search"></use>
+                            </svg></span>
                         <input type="text" id="help-search-input" placeholder="Buscar nos tópicos..."
                             oninput="App.filterHelp(this.value)" />
                     </div>
@@ -1283,7 +1346,9 @@
 
                 <div class="card" style="padding: 0; overflow: hidden;">
                     <div class="help-search-bar">
-                        <span class="help-search-icon">🔍</span>
+                        <span class="help-search-icon"><svg width="18" height="18" style="vertical-align:-3px;">
+                                <use href="#icon-search"></use>
+                            </svg></span>
                         <input type="text" id="boaspraticas-search-input" placeholder="Buscar nas boas práticas..."
                             oninput="App.filterBoasPraticas(this.value)" />
                     </div>
@@ -1513,7 +1578,7 @@
                         <div class="input-group">
                             <label for="profile-objective">Objetivo</label>
                             <select id="profile-objective" class="input-field">
-                                <option value="loss">Perda de Pesos</option>
+                                <option value="loss">Perda de Peso</option>
                                 <option value="maintain">Manutenção</option>
                                 <option value="gain">Ganho de Massa</option>
                             </select>
@@ -1579,8 +1644,8 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <div style="font-size:0.9rem; font-weight:600; color:var(--text-primary);">Push
-                                        Notifications</div>
+                                    <div style="font-size:0.9rem; font-weight:600; color:var(--text-primary);">
+                                        Notificações Push</div>
                                     <div style="font-size:0.72rem; margin-top:2px;">
                                         <span id="notif-permission-status" style="color:var(--text-muted);">—</span>
                                     </div>
@@ -2027,20 +2092,14 @@
                     <span>Sintomas</span>
                 </button>
                 <button class="more-card" data-navigate="ajuda">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    <svg width="32" height="32">
+                        <use href="#icon-help-circle"></use>
                     </svg>
                     <span>Ajuda</span>
                 </button>
                 <button class="more-card" data-navigate="boaspraticas">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        <path d="M12 8v4"></path>
-                        <path d="M12 16h.01"></path>
+                    <svg width="32" height="32">
+                        <use href="#icon-shield"></use>
                     </svg>
                     <span>Boas Práticas</span>
                 </button>
@@ -2386,8 +2445,18 @@
                         <input type="number" id="measure-hip" class="input-field" step="0.1">
                     </div>
                     <div class="input-group">
+                        <label>Peito (cm)</label>
+                        <input type="number" id="measure-chest" class="input-field" step="0.1">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
                         <label>Braço (cm)</label>
                         <input type="number" id="measure-arm" class="input-field" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Coxas (cm)</label>
+                        <input type="number" id="measure-thigh" class="input-field" step="0.1">
                     </div>
                 </div>
             </div>
@@ -2790,8 +2859,83 @@
                     </div>
                 </div>
 
-                <!-- Step 8: Success -->
+                <!-- Step 8: Notificações -->
                 <div class="md-step" data-step="8">
+                    <div style="display:flex; justify-content:center; margin-bottom:16px; color:var(--md-primary);">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
+                    </div>
+                    <h2 class="md-title">Lembretes</h2>
+                    <p class="md-desc">Ative os avisos para não perder doses, hidratação e registros importantes.</p>
+
+                    <div style="display:flex; flex-direction:column; gap:8px; margin:20px 0;">
+                        <div
+                            style="display:flex; align-items:center; gap:12px; padding:12px 14px; background:rgba(255,255,255,0.06); border-radius:12px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--md-primary)"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                            </svg>
+                            <span style="color:var(--text-secondary); font-size:0.9rem;">Dia da injeção de GLP-1</span>
+                        </div>
+                        <div
+                            style="display:flex; align-items:center; gap:12px; padding:12px 14px; background:rgba(255,255,255,0.06); border-radius:12px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--md-primary)"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                            </svg>
+                            <span style="color:var(--text-secondary); font-size:0.9rem;">Hidratação ao longo do
+                                dia</span>
+                        </div>
+                        <div
+                            style="display:flex; align-items:center; gap:12px; padding:12px 14px; background:rgba(255,255,255,0.06); border-radius:12px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--md-primary)"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <path d="M3 9h18M9 21V9" />
+                            </svg>
+                            <span style="color:var(--text-secondary); font-size:0.9rem;">Pesagem semanal</span>
+                        </div>
+                        <div
+                            style="display:flex; align-items:center; gap:12px; padding:12px 14px; background:rgba(255,255,255,0.06); border-radius:12px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--md-primary)"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                            <span style="color:var(--text-secondary); font-size:0.9rem;">Sintomas pós-dose</span>
+                        </div>
+                    </div>
+
+                    <button id="btn-onboard-notif" onclick="App.activateOnboardingNotifications()"
+                        class="md-btn-primary" style="width:100%; padding:14px; margin-bottom:10px;">
+                        Ativar Lembretes
+                    </button>
+                    <div id="onboard-notif-status"
+                        style="text-align:center; font-size:0.85rem; color:var(--text-muted); min-height:18px;"></div>
+
+                    <!-- Dica: configurar horários -->
+                    <div
+                        style="display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:12px 14px; background:rgba(255,255,255,0.04); border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--md-primary)"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="flex-shrink:0; margin-top:2px;">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        <span style="font-size:0.82rem; color:var(--text-muted); line-height:1.5;">
+                            Após começar, personalize os dias e horários de cada lembrete em
+                            <strong style="color:var(--text-secondary);">Perfil → Notificações</strong>.
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Step 9: Pronto -->
+                <div class="md-step" data-step="9">
                     <div
                         style="font-size: 4rem; margin-bottom: 20px; color: var(--md-primary); display: flex; justify-content: center;">
                         <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -2898,7 +3042,7 @@
 
 
     <!-- Scripts: defer = download em paralelo, execução em ordem garantida -->
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script defer src="js/vendor/supabase.min.js"></script>
     <script defer src="js/vendor/chart.umd.min.js"></script>
     <script defer src="js/vendor/jspdf.umd.min.js"></script>
     <script defer src="js/version.js"></script>
@@ -2984,6 +3128,17 @@
             });
         }
     </script>
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorial-spotlight" class="tutorial-spotlight" style="display:none;"></div>
+    <div id="tutorial-tooltip" class="tutorial-tooltip" style="display:none;">
+        <div class="tutorial-tooltip-title" id="tutorial-title"></div>
+        <div class="tutorial-tooltip-text" id="tutorial-text"></div>
+        <div class="tutorial-tooltip-footer">
+            <span class="tutorial-tooltip-steps" id="tutorial-steps"></span>
+            <button class="tutorial-tooltip-btn" id="tutorial-next-btn">Próximo</button>
+        </div>
+    </div>
 </body>
 
 </html>

@@ -32,7 +32,7 @@ showOnboardingModal() {
 },
 
 handleWizardNext() {
-    const totalSteps = 8;
+    const totalSteps = 9;
     if (this.validateStep(this.currentWizardStep)) {
         // Armazena consentimento LGPD ao avançar do passo de privacidade
         if (this.currentWizardStep === 1) {
@@ -48,8 +48,8 @@ handleWizardNext() {
         } else {
             this.currentWizardStep++;
             this.goToStep(this.currentWizardStep);
-            // Fix: Trigger calc when entering Step 8 (Summary)
-            if (this.currentWizardStep === 8) {
+            // Trigger calc when entering Step 9 (Summary)
+            if (this.currentWizardStep === 9) {
                 UI.toast('Calculando protocolo...', 'info');
                 this.calculateOnboardingSummary();
             }
@@ -68,8 +68,8 @@ goToStep(step) {
     const container = document.getElementById('wizard-steps-container');
     if (!container) return;
 
-    const safeStep = Math.max(0, Math.min(step, 8));
-    // 0 to 8 = 9 steps. Simple translateX works best with 100% width steps
+    const safeStep = Math.max(0, Math.min(step, 9));
+    // 0 to 9 = 10 steps. Simple translateX works best with 100% width steps
     const percentage = safeStep * -100;
 
     container.style.transform = `translateX(${percentage}%)`;
@@ -78,15 +78,15 @@ goToStep(step) {
     const steps = container.querySelectorAll('.md-step');
     steps.forEach((el, idx) => el.classList.toggle('active', idx === safeStep));
 
-    // Update Progress Bar (Skip step 0 for styling or start from 0)
+    // Update Progress Bar
     const progressBar = document.querySelector('.md-progress-bar');
     if (progressBar) {
-        // Step 0 = 0%, Step 1 = 12.5% ...
-        const progress = (safeStep / 8) * 100;
+        // Step 0 = 0%, Step 9 = 100%
+        const progress = (safeStep / 9) * 100;
         progressBar.style.width = `${progress}%`;
     }
 
-    this.updateWizardButtons(safeStep, 8);
+    this.updateWizardButtons(safeStep, 9);
 },
 
 updateWizardButtons(step, total) {
@@ -104,16 +104,27 @@ updateWizardButtons(step, total) {
     if (btnNext) {
         if (step === 0) {
             btnNext.textContent = 'Concordar e Continuar';
-            btnNext.classList.remove('pulse-animation');
+            btnNext.className = 'md-btn-primary';
         } else if (step === 1) {
             btnNext.textContent = 'Aceitar e Continuar';
+            btnNext.className = 'md-btn-primary';
+        } else if (step === 8) {
+            // Notificações: mostra "Pular" se ainda não ativou, "Continuar" se já ativou
+            const alreadyGranted = (typeof Notification !== 'undefined' && Notification.permission === 'granted');
+            if (alreadyGranted) {
+                btnNext.textContent = 'Continuar';
+                btnNext.className = 'md-btn-primary';
+            } else {
+                btnNext.textContent = 'Pular por agora';
+                btnNext.className = 'md-btn-ghost';
+            }
             btnNext.classList.remove('pulse-animation');
         } else if (step === total) {
             btnNext.textContent = 'Começar Jornada';
-            btnNext.classList.add('pulse-animation');
+            btnNext.className = 'md-btn-primary pulse-animation';
         } else {
             btnNext.textContent = 'Continuar';
-            btnNext.classList.remove('pulse-animation');
+            btnNext.className = 'md-btn-primary';
         }
     }
 },
@@ -208,6 +219,7 @@ validateStep(step) {
                 UI.toast('Defina sua meta de peso.', 'error'); return false;
             }
             return true;
+        case 8: return true; // Notificações — opcional, usuário pode pular
         default: return true;
     }
 },
@@ -391,6 +403,47 @@ completeOnboarding() {
         console.error('Onboarding Error:', error);
         UI.toast('Erro: ' + error.message, 'error');
         if (btn) btn.textContent = 'Tentar Novamente';
+    }
+},
+
+async activateOnboardingNotifications() {
+    const btn = document.getElementById('btn-onboard-notif');
+    const status = document.getElementById('onboard-notif-status');
+    const btnNext = document.getElementById('btn-wizard-next');
+
+    if (!window.NotificationService) {
+        if (status) status.textContent = 'Notificações não disponíveis neste dispositivo.';
+        return;
+    }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Aguardando permissão...'; }
+
+    const result = await NotificationService.requestPermission();
+
+    if (result.granted) {
+        // Habilita notificações com as configurações padrão
+        const settings = NotificationService.getSettings();
+        settings.enabled = true;
+        NotificationService.saveSettings(settings);
+        NotificationService.scheduleAll().catch(() => {});
+
+        if (btn) {
+            btn.textContent = 'Lembretes Ativados!';
+            btn.style.background = 'var(--color-success, #10B981)';
+            btn.style.cursor = 'default';
+        }
+        if (status) status.textContent = 'Perfeito! Você receberá lembretes no horário certo.';
+        // Atualiza botão wizard para "Continuar" com estilo primário
+        if (btnNext) { btnNext.textContent = 'Continuar'; btnNext.className = 'md-btn-primary'; }
+
+    } else if (result.reason === 'denied') {
+        if (btn) { btn.disabled = true; btn.textContent = 'Permissão bloqueada'; }
+        if (status) status.textContent = 'Libere nas configurações do navegador ou ative depois em Configurações.';
+
+    } else {
+        // Usuário fechou o prompt sem responder
+        if (btn) { btn.disabled = false; btn.textContent = 'Ativar Lembretes'; }
+        if (status) status.textContent = 'Você pode ativar depois em Configurações > Notificações.';
     }
 },
 

@@ -17,7 +17,6 @@
 /* TAB SECTIONS */
 .tab-section {
     display: none;
-    animation: fadeSlideIn 0.4s var(--ease-smooth);
 }
 
 .tab-section.active {
@@ -44,15 +43,22 @@
 }
 
 @keyframes fadeSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(12px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(60px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-60px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+.tab-section.slide-right { animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.tab-section.slide-left { animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+    .tab-section.slide-right,
+    .tab-section.slide-left { animation: fadeSlideIn 0.2s ease both; }
 }
 
 /* HEADER GLOBAL (Mobile First) - CLEANED FOR STANDARDIZATION */

@@ -36,6 +36,65 @@ window.SecurityUtils = {
     },
 
     /**
+     * Strips all HTML tags from a string (simple sanitizer).
+     * Use when you need plain text from potentially unsafe input.
+     * @param {string} input - The string to sanitize.
+     * @returns {string} - The sanitized string with all HTML tags removed.
+     */
+    sanitizeHTML(input) {
+        if (input === null || input === undefined) return '';
+        return String(input).replace(/<[^>]*>/g, '');
+    },
+
+    /**
+     * Escapes a value for safe insertion into HTML attributes.
+     * @param {string} value - The value to escape.
+     * @returns {string} - The safely escaped value.
+     */
+    escapeForAttribute(value) {
+        if (value === null || value === undefined) return '';
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    },
+
+    /**
+     * Validates a tab name against a whitelist.
+     * Used to prevent XSS via push notification data.tab.
+     * @param {string} tab - The tab name to validate.
+     * @returns {string} - The validated tab name, or 'hoje' as fallback.
+     */
+    sanitizeTabName(tab) {
+        const VALID_TABS = ['hoje', 'instrucoes', 'injecoes', 'peso', 'nutricao', 'sintomas', 'jornada', 'perfil', 'ajuda'];
+        if (!tab || typeof tab !== 'string') return 'hoje';
+        const clean = tab.toLowerCase().trim();
+        return VALID_TABS.includes(clean) ? clean : 'hoje';
+    },
+
+    /**
+     * Validates imported JSON data, stripping HTML from string values.
+     * Prevents XSS via malicious JSON import.
+     * @param {*} data - The data to sanitize (recursively).
+     * @returns {*} - The sanitized data.
+     */
+    sanitizeImportData(data) {
+        if (data === null || data === undefined) return data;
+        if (typeof data === 'string') return this.sanitizeHTML(data);
+        if (Array.isArray(data)) return data.map(item => this.sanitizeImportData(item));
+        if (typeof data === 'object') {
+            const clean = {};
+            for (const [key, value] of Object.entries(data)) {
+                clean[this.sanitizeHTML(key)] = this.sanitizeImportData(value);
+            }
+            return clean;
+        }
+        return data; // numbers, booleans pass through
+    },
+
+    /**
      * Generates a standard UUID V4.
      * @returns {string}
      */

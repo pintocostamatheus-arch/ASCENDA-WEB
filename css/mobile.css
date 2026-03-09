@@ -285,7 +285,6 @@ body {
 /* Tab Sections */
 .tab-section {
     display: none;
-    animation: fadeIn 0.3s ease;
 }
 
 .tab-section.active {
@@ -927,8 +926,8 @@ body {
 }
 
 .more-card:nth-child(6) {
-    /* Boas Práticas - Emerald/Green */
-    background: linear-gradient(135deg, #10B981, #059669);
+    /* Boas Práticas - Amber/Gold */
+    background: linear-gradient(135deg, #F59E0B, #D97706);
 }
 
 .more-card:active {

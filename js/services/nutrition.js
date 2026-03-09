@@ -230,7 +230,14 @@ window.NutritionService = {
         if (!query || query.length < 2) return [];
         const foods = this.getAllFoods();
         const q = this.normalize(query);
-        return foods.filter(f => this.normalize(f.name).includes(q)).slice(0, 10);
+        // Prioriza nomes que COMEÇAM com a query, depois os que contêm
+        const matches = foods.filter(f => this.normalize(f.name).includes(q));
+        matches.sort((a, b) => {
+            const aStarts = this.normalize(a.name).startsWith(q) ? 0 : 1;
+            const bStarts = this.normalize(b.name).startsWith(q) ? 0 : 1;
+            return aStarts - bStarts;
+        });
+        return matches.slice(0, 15);
     },
 
     calculateProtein(food, quantity, unit) {
@@ -307,10 +314,22 @@ window.NutritionService = {
         const all = StorageService.getSafe(StorageService.KEYS.NUTRITION, {});
         const dates = Object.keys(all).sort().reverse();
         let streak = 0;
-        const today = DateService.today();
+        let expectedDate = DateService.today();
 
         for (const date of dates) {
-            // Allow skipping current day if not yet complete, but usually we just count backwards
+            // Se o dia esperado não tem registro, verifica se é o dia atual (pode ainda não ter registrado)
+            if (date !== expectedDate) {
+                // Se o dia atual não tem registro ainda, pula para ontem
+                if (streak === 0 && expectedDate === DateService.today()) {
+                    const yesterday = new Date(expectedDate);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    expectedDate = yesterday.toISOString().split('T')[0];
+                    if (date !== expectedDate) break; // Gap detectado
+                } else {
+                    break; // Gap detectado — streak interrompido
+                }
+            }
+
             const data = all[date];
             let reached = false;
 
@@ -318,8 +337,15 @@ window.NutritionService = {
             else if (metric === 'protein') reached = data.proteinConsumed >= (data.proteinTarget || 60);
             else if (metric === 'fiber') reached = data.fiberG >= (data.fiberTarget || 30);
 
-            if (reached) streak++;
-            else break;
+            if (reached) {
+                streak++;
+                // Próximo dia esperado = dia anterior
+                const prev = new Date(date);
+                prev.setDate(prev.getDate() - 1);
+                expectedDate = prev.toISOString().split('T')[0];
+            } else {
+                break;
+            }
         }
         return streak;
     },

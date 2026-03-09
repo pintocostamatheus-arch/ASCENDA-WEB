@@ -4,119 +4,168 @@
  */
 const JourneyController = {
 
-// --- JOURNEY V12 ---
+    // --- JOURNEY V12 ---
 
     async refreshJourneyTab() {
 
-    const stats = JourneyService.getStats();
+        // Libera blob URLs anteriores para evitar memory leak
+        if (window.PhotoStorageService) PhotoStorageService.revokeAll();
 
-    document.getElementById('journey-days').textContent = stats.days;
+        const stats = JourneyService.getStats();
 
-    document.getElementById('journey-weight-loss').textContent = stats.weightLoss;
+        document.getElementById('journey-days').textContent = stats.days;
 
-    document.getElementById('journey-injections').textContent = stats.injections;
+        document.getElementById('journey-weight-loss').textContent = stats.weightLoss;
 
-
-
-    // Render Comparison (Antes vs Depois) — load from IndexedDB
-
-    const comparison = JourneyService.getComparison();
-
-    const imgStart = document.getElementById('comp-img-start');
-
-    const imgCurrent = document.getElementById('comp-img-current');
-
-    const dateStart = document.getElementById('comp-date-start');
-
-    const dateCurrent = document.getElementById('comp-date-current');
+        document.getElementById('journey-injections').textContent = stats.injections;
 
 
 
-    if (comparison && comparison.start) {
+        // Render Comparison (Antes vs Depois) — load from IndexedDB
 
-        const startUrl = await JourneyService.getPhotoUrl(comparison.start.id);
+        const comparison = JourneyService.getComparison();
 
-        if (imgStart) imgStart.src = startUrl || ''; // limpa se foto foi apagada
+        const imgStart = document.getElementById('comp-img-start');
 
-        if (dateStart) dateStart.textContent = startUrl ? DateService.format(comparison.start.dateISO, 'DD/MM') : '--';
+        const imgCurrent = document.getElementById('comp-img-current');
 
-    } else {
+        const dateStart = document.getElementById('comp-date-start');
 
-        if (imgStart) imgStart.src = ''; // limpa miniatura obsoleta
-
-        if (dateStart) dateStart.textContent = '--';
-
-    }
-
-    if (comparison && comparison.current) {
-
-        const currentUrl = await JourneyService.getPhotoUrl(comparison.current.id);
-
-        if (imgCurrent) imgCurrent.src = currentUrl || ''; // limpa se foto foi apagada
-
-        if (dateCurrent) dateCurrent.textContent = currentUrl ? DateService.format(comparison.current.dateISO, 'DD/MM') : '--';
-
-    } else {
-
-        if (imgCurrent) imgCurrent.src = ''; // limpa miniatura obsoleta
-
-        if (dateCurrent) dateCurrent.textContent = '--';
-
-    }
+        const dateCurrent = document.getElementById('comp-date-current');
 
 
 
-    this.renderJourneyMilestones();
+        if (comparison && comparison.start) {
 
-},
+            const startUrl = await JourneyService.getPhotoUrl(comparison.start.id);
 
+            if (imgStart) imgStart.src = startUrl || ''; // limpa se foto foi apagada
 
+            if (dateStart) dateStart.textContent = startUrl ? DateService.format(comparison.start.dateISO, 'DD/MM') : '--';
 
-_getMilestones() {
+        } else {
 
-    const stats = JourneyService.getStats();
+            if (imgStart) imgStart.src = ''; // limpa miniatura obsoleta
 
-    const waterStreak = NutritionService.getStreak('water');
+            if (dateStart) dateStart.textContent = '--';
 
-    const proteinStreak = NutritionService.getStreak('protein');
+        }
 
-    const fiberStreak = NutritionService.getStreak('fiber');
+        if (comparison && comparison.current) {
 
+            const currentUrl = await JourneyService.getPhotoUrl(comparison.current.id);
 
+            if (imgCurrent) imgCurrent.src = currentUrl || ''; // limpa se foto foi apagada
 
-    return [
+            if (dateCurrent) dateCurrent.textContent = currentUrl ? DateService.format(comparison.current.dateISO, 'DD/MM') : '--';
 
-        { title: 'O Início', shortTitle: 'Início', desc: 'Sua primeira aplicação registrada', icon: '🌱', active: true },
+        } else {
 
-        { title: 'Comprometido', shortTitle: '1 Semana', desc: '7 dias de jornada ativa', icon: '🔥', active: stats.days >= 7 },
+            if (imgCurrent) imgCurrent.src = ''; // limpa miniatura obsoleta
 
-        { title: 'Hábito Água', shortTitle: 'Hidratado', desc: '3 dias batendo meta de água', icon: '💧', active: waterStreak >= 3 },
+            if (dateCurrent) dateCurrent.textContent = '--';
 
-        { title: 'Hábito Proteína', shortTitle: 'Nutrido', desc: '3 dias batendo meta de proteína', icon: '🥩', active: proteinStreak >= 3 },
-
-        { title: 'Hábito Fibra', shortTitle: 'Fibra Ok', desc: '3 dias batendo meta de fibra', icon: '🥗', active: fiberStreak >= 3 },
-
-        { title: 'Firme e Forte', shortTitle: '1 Mês', desc: '30 dias de transformação', icon: '💎', active: stats.days >= 30 }
-
-    ];
-
-},
+        }
 
 
 
-renderJourneyMilestones() {
+        this.renderJourneyMilestones();
 
-    const scroller = document.getElementById('journey-milestones-scroller');
-
-    if (!scroller) return;
+    },
 
 
 
-    const milestones = this._getMilestones();
+    _getMilestones() {
+
+        const stats = JourneyService.getStats();
+
+        const journey = JourneyService.get();
+
+        const waterStreak = NutritionService.getStreak('water');
+
+        const proteinStreak = NutritionService.getStreak('protein');
+
+        const fiberStreak = NutritionService.getStreak('fiber');
+
+        const photos = journey.photos ? journey.photos.length : 0;
+
+        const measurements = journey.measurements ? journey.measurements.length : 0;
+
+        const weights = WeightService.getAll();
+
+        let weightPercent = 0;
+
+        if (weights.length >= 2) {
+
+            const initial = weights[0].weightKg;
+
+            const current = weights[weights.length - 1].weightKg;
+
+            if (initial > 0) weightPercent = ((initial - current) / initial) * 100;
+
+        }
+
+        return [
+
+            { title: 'O Início', shortTitle: 'Início', desc: 'Primeira dose registrada no app', icon: '🌱', active: stats.injections >= 1 },
+
+            { title: 'Primeira Pesagem', shortTitle: '1º Peso', desc: 'Primeiro peso registrado', icon: '⚖️', active: weights.length >= 1 },
+
+            { title: 'Memória Visual', shortTitle: '1ª Foto', desc: 'Primeira foto da jornada adicionada', icon: '📸', active: photos >= 1 },
+
+            { title: 'Uma Semana', shortTitle: '7 Dias', desc: '7 dias de jornada ativa', icon: '🔥', active: stats.days >= 7 },
+
+            { title: 'Hábito Água', shortTitle: 'Hidratado', desc: '3 dias consecutivos batendo meta de água', icon: '💧', active: waterStreak >= 3 },
+
+            { title: 'Hábito Proteína', shortTitle: 'Nutrido', desc: '3 dias consecutivos batendo meta de proteína', icon: '🥩', active: proteinStreak >= 3 },
+
+            { title: 'Hábito Fibra', shortTitle: 'Fibra Ok', desc: '3 dias consecutivos batendo meta de fibra', icon: '🥗', active: fiberStreak >= 3 },
+
+            { title: 'Primeiro Kilo', shortTitle: '-1 kg', desc: 'Primeiro quilograma perdido', icon: '📉', active: parseFloat(stats.weightLoss) >= 1 },
+
+            { title: '5ª Dose', shortTitle: '5 Doses', desc: 'Quinta aplicação registrada', icon: '💉', active: stats.injections >= 5 },
+
+            { title: 'Um Mês', shortTitle: '30 Dias', desc: '30 dias de tratamento ativo', icon: '💎', active: stats.days >= 30 },
+
+            { title: 'Corpo Mapeado', shortTitle: '1ª Medida', desc: 'Primeiras medidas corporais registradas', icon: '📏', active: measurements >= 1 },
+
+            { title: 'Hidratação Total', shortTitle: 'Água 7d', desc: '7 dias seguidos batendo meta de água', icon: '🌊', active: waterStreak >= 7 },
+
+            { title: '5% Conquistados', shortTitle: '-5%', desc: '5% do peso inicial perdido', icon: '🎯', active: weightPercent >= 5 },
+
+            { title: '10ª Dose', shortTitle: '10 Doses', desc: 'Décima aplicação registrada', icon: '💊', active: stats.injections >= 10 },
+
+            { title: 'Rastreador Dedicado', shortTitle: 'Dedicado', desc: '60 dias usando o Ascenda', icon: '🏅', active: stats.days >= 60 },
+
+            { title: '10% Conquistados', shortTitle: '-10%', desc: '10% do peso inicial perdido', icon: '⭐', active: weightPercent >= 10 },
+
+            { title: 'Três Meses', shortTitle: '3 Meses', desc: '90 dias de transformação contínua', icon: '🏆', active: stats.days >= 90 },
+
+            { title: 'Álbum da Jornada', shortTitle: '3 Fotos', desc: 'Três registros fotográficos da jornada', icon: '🖼️', active: photos >= 3 },
+
+            { title: '15% Conquistados', shortTitle: '-15%', desc: '15% do peso inicial perdido', icon: '🚀', active: weightPercent >= 15 },
+
+            { title: 'Guerreiro GLP-1', shortTitle: '6 Meses', desc: '180 dias de dedicação ao tratamento', icon: '👑', active: stats.days >= 180 },
+
+        ];
+
+    },
 
 
 
-    scroller.innerHTML = milestones.map(m => `
+    renderJourneyMilestones() {
+
+        const scroller = document.getElementById('journey-milestones-scroller');
+
+        if (!scroller) return;
+
+
+
+        const milestones = this._getMilestones();
+
+
+
+        scroller.innerHTML = milestones.map(m => `
 
     <div class="milestone-badge-v12 ${m.active ? 'active' : 'locked'}">
 
@@ -128,148 +177,148 @@ renderJourneyMilestones() {
 
     `).join('');
 
-},
+    },
 
 
 
     async handleJourneyPhoto(input) {
-    const file = input.files ? input.files[0] : null;
-    if (!file) return;
+        const file = input.files ? input.files[0] : null;
+        if (!file) return;
 
-    // VALIDACAO PRE-UPLOAD
-    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
-    const MAX_SIZE_BYTES = 15 * 1024 * 1024; // 15MB
+        // VALIDACAO PRE-UPLOAD
+        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+        const MAX_SIZE_BYTES = 15 * 1024 * 1024; // 15MB
 
-    if (!file.type.startsWith('image/') || !ALLOWED_TYPES.includes(file.type.toLowerCase())) {
-        UI.toast('Arquivo invalido. Use JPG, PNG, WEBP ou HEIC.', 'error');
-        input.value = '';
-        return;
-    }
-    if (file.size > MAX_SIZE_BYTES) {
-        UI.toast('Imagem muito grande. Maximo 15MB.', 'error');
-        input.value = '';
-        return;
-    }
+        if (!file.type.startsWith('image/') || !ALLOWED_TYPES.includes(file.type.toLowerCase())) {
+            UI.toast('Arquivo invalido. Use JPG, PNG, WEBP ou HEIC.', 'error');
+            input.value = '';
+            return;
+        }
+        if (file.size > MAX_SIZE_BYTES) {
+            UI.toast('Imagem muito grande. Maximo 15MB.', 'error');
+            input.value = '';
+            return;
+        }
 
         UI.toast('Processando...');
 
-    try {
+        try {
 
-        // Compress to Blob (800px, 75% quality)
+            // Compress to Blob (800px, 75% quality)
 
-        this._pendingPhotoBlob = await PhotoStorageService.compressToBlob(file);
-
-
-
-        // Create temporary preview URL
-
-        const previewUrl = URL.createObjectURL(this._pendingPhotoBlob);
-
-        const imgPreview = document.getElementById('journey-photo-preview');
-
-        if (imgPreview) imgPreview.src = previewUrl;
+            this._pendingPhotoBlob = await PhotoStorageService.compressToBlob(file);
 
 
 
-        document.getElementById('modal-photo-date').value = DateService.today();
+            // Create temporary preview URL
 
-        const latestWeight = WeightService.getLatest();
+            const previewUrl = URL.createObjectURL(this._pendingPhotoBlob);
 
-        document.getElementById('modal-photo-weight').value = latestWeight ? latestWeight.weightKg : '';
+            const imgPreview = document.getElementById('journey-photo-preview');
 
-        document.getElementById('modal-photo-notes').value = '';
+            if (imgPreview) imgPreview.src = previewUrl;
 
 
 
-        UI.openModal('modal-add-journey-photo');
+            document.getElementById('modal-photo-date').value = DateService.today();
 
-        input.value = '';
+            const latestWeight = WeightService.getLatest();
 
-    } catch (e) {
+            document.getElementById('modal-photo-weight').value = latestWeight ? latestWeight.weightKg : '';
 
-        console.error('Error processing photo:', e);
+            document.getElementById('modal-photo-notes').value = '';
 
-        UI.toast('Erro ao Processar Foto', 'error');
 
-    }
 
-},
+            UI.openModal('modal-add-journey-photo');
+
+            input.value = '';
+
+        } catch (e) {
+
+            console.error('Error processing photo:', e);
+
+            UI.toast('Erro ao Processar Foto', 'error');
+
+        }
+
+    },
 
 
 
     async saveJourneyPhoto() {
 
-    const date = document.getElementById('modal-photo-date').value;
+        const date = document.getElementById('modal-photo-date').value;
 
-    const weight = document.getElementById('modal-photo-weight').value;
+        const weight = document.getElementById('modal-photo-weight').value;
 
-    const note = document.getElementById('modal-photo-notes').value;
-
-
-
-    if (!date) return UI.toast('Informe a data', 'error');
+        const note = document.getElementById('modal-photo-notes').value;
 
 
 
-    const btn = document.querySelector('#modal-add-journey-photo .btn-primary');
+        if (!date) return UI.toast('Informe a data', 'error');
 
-    await UI.withLoading(btn, async () => {
 
-        await JourneyService.addPhoto({
 
-            dateISO: date,
+        const btn = document.querySelector('#modal-add-journey-photo .btn-primary');
 
-            blob: this._pendingPhotoBlob,
+        await UI.withLoading(btn, async () => {
 
-            weightKg: weight ? parseFloat(weight) : null,
+            await JourneyService.addPhoto({
 
-            note: note
+                dateISO: date,
+
+                blob: this._pendingPhotoBlob,
+
+                weightKg: weight ? parseFloat(weight) : null,
+
+                note: note
+
+            });
+
+
+
+            this._pendingPhotoBlob = null;
+
+            UI.closeModal('modal-add-journey-photo');
+
+            UI.toast('Foto salva com sucesso!');
+
+            this.refreshJourneyTab();
 
         });
 
-
-
-        this._pendingPhotoBlob = null;
-
-        UI.closeModal('modal-add-journey-photo');
-
-        UI.toast('Foto salva com sucesso!');
-
-        this.refreshJourneyTab();
-
-    });
-
-},
+    },
 
 
 
     async showFullGallery() {
 
-    const journey = JourneyService.get();
+        const journey = JourneyService.get();
 
-    const grid = document.getElementById('journey-gallery-grid');
+        const grid = document.getElementById('journey-gallery-grid');
 
-    if (!grid) return;
+        if (!grid) return;
 
 
 
-    if (journey.photos.length === 0) {
+        if (journey.photos.length === 0) {
 
-        grid.innerHTML = '<div class="empty-state">Nenhuma foto registrada ainda.</div>';
+            grid.innerHTML = '<div class="empty-state">Nenhuma foto registrada ainda.</div>';
 
-    } else {
+        } else {
 
-        const sorted = [...journey.photos].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
+            const sorted = [...journey.photos].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
 
-        const htmlParts = [];
+            const htmlParts = [];
 
-        for (const p of sorted) {
+            for (const p of sorted) {
 
-            const url = await JourneyService.getPhotoUrl(p.id);
+                const url = await JourneyService.getPhotoUrl(p.id);
 
-            if (!url) continue;
+                if (!url) continue;
 
-            htmlParts.push(`
+                htmlParts.push(`
 
     <div class="gallery-item-v12">
 
@@ -285,81 +334,81 @@ renderJourneyMilestones() {
 
         </div>`);
 
-        }
+            }
 
-        grid.innerHTML = htmlParts.join('');
-
-    }
-
-    UI.openModal('modal-journey-gallery');
-
-},
-
-
-
-showPhotoDetail(id) {
-
-    const journey = JourneyService.get();
-
-    const photo = journey.photos.find(p => p.id === id);
-
-    if (!photo) return;
-
-
-
-    UI.confirmDelete({
-
-        title: 'Visualizar Foto',
-
-        message: `Registrado em ${DateService.format(photo.dateISO, 'short')}. Deseja excluir esta foto?`,
-
-        onConfirm: async () => {
-
-            await JourneyService.deletePhoto(id);
-
-            this.showFullGallery();
-
-            this.refreshJourneyTab();
-
-            UI.toast('Foto removida');
+            grid.innerHTML = htmlParts.join('');
 
         }
 
-    });
+        UI.openModal('modal-journey-gallery');
 
-},
-
-
-
-showComparisonModal() {
-
-    const comp = JourneyService.getComparison();
-
-    if (!comp || !comp.start || !comp.current) {
-
-        return UI.toast('Adicione pelo menos duas fotos para comparar');
-
-    }
-
-    this.showFullGallery(); // Fallback for now or create specialized modal
-
-},
+    },
 
 
 
-showAllMilestones() {
+    showPhotoDetail(id) {
 
-    const container = document.getElementById('milestones-full-list');
+        const journey = JourneyService.get();
 
-    if (!container) return;
+        const photo = journey.photos.find(p => p.id === id);
 
-
-
-    const milestones = this._getMilestones();
+        if (!photo) return;
 
 
 
-    container.innerHTML = milestones.map(m => `
+        UI.confirmDelete({
+
+            title: 'Visualizar Foto',
+
+            message: `Registrado em ${DateService.format(photo.dateISO, 'short')}. Deseja excluir esta foto?`,
+
+            onConfirm: async () => {
+
+                await JourneyService.deletePhoto(id);
+
+                this.showFullGallery();
+
+                this.refreshJourneyTab();
+
+                UI.toast('Foto removida');
+
+            }
+
+        });
+
+    },
+
+
+
+    showComparisonModal() {
+
+        const comp = JourneyService.getComparison();
+
+        if (!comp || !comp.start || !comp.current) {
+
+            return UI.toast('Adicione pelo menos duas fotos para comparar');
+
+        }
+
+        this.showFullGallery(); // Fallback for now or create specialized modal
+
+    },
+
+
+
+    showAllMilestones() {
+
+        const container = document.getElementById('milestones-full-list');
+
+        if (!container) return;
+
+
+
+        const milestones = this._getMilestones();
+
+
+
+        container.innerHTML = milestones.map(m => `
 
     <div class="milestone-item-full ${m.active ? 'active' : 'locked'}">
 
@@ -381,31 +430,31 @@ showAllMilestones() {
 
 
 
-    UI.openModal('modal-milestones-all');
+        UI.openModal('modal-milestones-all');
 
-},
-
-
-
-showMeasurementsHistory() {
-
-    const journey = JourneyService.get();
-
-    const list = document.getElementById('measurements-history-list');
-
-    if (!list) return;
+    },
 
 
 
-    if (journey.measurements.length === 0) {
+    showMeasurementsHistory() {
 
-        list.innerHTML = '<div class="empty-state">Nenhum registro de medidas.</div>';
+        const journey = JourneyService.get();
 
-    } else {
+        const list = document.getElementById('measurements-history-list');
 
-        const sorted = [...journey.measurements].sort((a, b) => b.id - a.id);
+        if (!list) return;
 
-        list.innerHTML = sorted.map(m => `
+
+
+        if (journey.measurements.length === 0) {
+
+            list.innerHTML = '<div class="empty-state">Nenhum registro de medidas.</div>';
+
+        } else {
+
+            const sorted = [...journey.measurements].sort((a, b) => b.id - a.id);
+
+            list.innerHTML = sorted.map(m => `
 
                 <div class="history-item">
 
@@ -422,7 +471,8 @@ showMeasurementsHistory() {
                             <span>Q: ${m.hip}cm</span>
 
                             <span>B: ${m.arm}cm</span>
-
+                            ${m.chest ? `<span>P: ${m.chest}cm</span>` : ''}
+                            ${m.thigh ? `<span>Cx: ${m.thigh}cm</span>` : ''}
                         </div>
 
                     </div>
@@ -433,101 +483,97 @@ showMeasurementsHistory() {
 
             `).join('');
 
-    }
-
-    UI.openModal('modal-measurements-history');
-
-},
-
-
-
-showAddMeasurementModal() {
-
-    document.getElementById('measure-date').value = DateService.today();
-
-    ['waist', 'abdomen', 'hip', 'arm'].forEach(k => {
-
-        const el = document.getElementById(`measure-${k}`);
-
-        if (el) el.value = '';
-
-    });
-
-    UI.openModal('modal-add-measurement');
-
-},
-
-
-
-saveMeasurement() {
-
-    const date = document.getElementById('measure-date').value;
-
-    const waist = parseFloat(document.getElementById('measure-waist').value);
-
-    const abdomen = parseFloat(document.getElementById('measure-abdomen').value);
-
-    const hip = parseFloat(document.getElementById('measure-hip').value);
-
-    const arm = parseFloat(document.getElementById('measure-arm').value);
-
-
-
-    if (!date || isNaN(waist)) return UI.toast('Data e Cintura são obrigatórios', 'error');
-
-
-
-    JourneyService.addMeasurement({
-
-        dateISO: date,
-
-        waist, abdomen, hip, arm
-
-    });
-
-
-
-    UI.closeModal('modal-add-measurement');
-
-    UI.toast('Medidas salvas!');
-
-    this.refreshJourneyTab();
-
-},
-
-
-
-deleteMeasurement(id) {
-
-    UI.confirmDelete({
-
-        message: 'Excluir este registro de medidas?',
-
-        onConfirm: () => {
-
-            JourneyService.deleteMeasurement(id);
-
-            this.showMeasurementsHistory();
-
-            this.refreshJourneyTab();
-
-            UI.toast('Medidas excluídas');
-
         }
 
-    });
+        UI.openModal('modal-measurements-history');
 
-},
+    },
 
 
 
-compressImage(file) {
+    showAddMeasurementModal() {
 
-    // Legacy wrapper — delegates to PhotoStorageService
+        document.getElementById('measure-date').value = DateService.today();
 
-    return PhotoStorageService.compressToBlob(file);
+        ['waist', 'abdomen', 'hip', 'arm', 'chest', 'thigh'].forEach(k => {
 
-},
+            const el = document.getElementById(`measure-${k}`);
+
+            if (el) el.value = '';
+
+        });
+
+        UI.openModal('modal-add-measurement');
+
+    },
+
+
+
+    saveMeasurement() {
+
+        const date = document.getElementById('measure-date').value;
+
+        const waist = parseFloat(document.getElementById('measure-waist').value);
+        const abdomen = parseFloat(document.getElementById('measure-abdomen').value);
+        const hip = parseFloat(document.getElementById('measure-hip').value);
+        const arm = parseFloat(document.getElementById('measure-arm').value);
+        const chest = parseFloat(document.getElementById('measure-chest').value);
+        const thigh = parseFloat(document.getElementById('measure-thigh').value);
+
+
+
+        if (!date || isNaN(waist)) return UI.toast('Data e Cintura são obrigatórios', 'error');
+
+
+
+        JourneyService.addMeasurement({
+            dateISO: date,
+            waist, abdomen, hip, arm, chest, thigh
+        });
+
+
+
+        UI.closeModal('modal-add-measurement');
+
+        UI.toast('Medidas salvas!');
+
+        this.refreshJourneyTab();
+
+    },
+
+
+
+    deleteMeasurement(id) {
+
+        UI.confirmDelete({
+
+            message: 'Excluir este registro de medidas?',
+
+            onConfirm: () => {
+
+                JourneyService.deleteMeasurement(id);
+
+                this.showMeasurementsHistory();
+
+                this.refreshJourneyTab();
+
+                UI.toast('Medidas excluídas');
+
+            }
+
+        });
+
+    },
+
+
+
+    compressImage(file) {
+
+        // Legacy wrapper — delegates to PhotoStorageService
+
+        return PhotoStorageService.compressToBlob(file);
+
+    },
 
 };
 

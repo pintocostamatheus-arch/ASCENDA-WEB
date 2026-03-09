@@ -4,7 +4,7 @@
  */
 const NutritionController = {
 
-refreshNutritionTab() {
+    refreshNutritionTab() {
 
         const nutrition = NutritionService.getToday();
 
@@ -62,7 +62,7 @@ refreshNutritionTab() {
 
         setLabel('nutrition-water-goal', waterGoal);
 
-
+        setLabel('water-remaining', `Faltam ${Math.max(0, waterGoal - (nutrition.waterMl || 0))}ml`);
 
         this.renderMealsList(nutrition.meals);
 
@@ -77,6 +77,8 @@ refreshNutritionTab() {
         if (!this.selectedFood) return UI.toast('Selecione um alimento', 'error');
 
         const qty = parseFloat(document.getElementById('meal-quantity').value);
+
+        if (isNaN(qty) || qty <= 0) return UI.toast('Informe uma quantidade válida', 'error');
 
         const unit = document.getElementById('meal-unit').value;
 
@@ -128,7 +130,7 @@ refreshNutritionTab() {
 
             const estimateEl = document.getElementById('protein-estimate');
 
-            if (estimateEl) estimateEl.textContent = Math.round(prot);
+            if (estimateEl) estimateEl.textContent = `${Math.round(prot)}g P / ${Math.round(fib)}g F`;
 
         }
 
@@ -207,71 +209,71 @@ refreshNutritionTab() {
 
 
 
-handleFoodSearch(q) {
+    handleFoodSearch(q) {
 
-    const results = NutritionService.searchFoods(q);
+        const results = NutritionService.searchFoods(q);
 
-    const list = document.getElementById('food-autocomplete');
+        const list = document.getElementById('food-autocomplete');
 
-    if (!list) return;
+        if (!list) return;
 
-    if (results.length === 0) return list.classList.remove('show');
-
-
-
-    list.innerHTML = results.map(f => `<div class="autocomplete-item" onclick = "App.selectFood(${f.id})"> ${f.name}</div> `).join('');
-
-    list.classList.add('show');
-
-},
+        if (results.length === 0) return list.classList.remove('show');
 
 
 
-selectFood(id) {
+        list.innerHTML = results.map(f => `<div class="autocomplete-item" onclick = "App.selectFood(${f.id})"> ${SecurityUtils.escapeHTML(f.name)}</div> `).join('');
 
-    const food = NutritionService.getAllFoods().find(f => f.id === id);
+        list.classList.add('show');
 
-    if (!food) return;
-
-
-
-    this.selectedFood = food;
-
-    document.getElementById('meal-food').value = food.name;
-
-    document.getElementById('food-autocomplete').classList.remove('show');
+    },
 
 
 
-    // Automatic Unit Selection
+    selectFood(id) {
 
-    const unitEl = document.getElementById('meal-unit');
+        const food = NutritionService.getAllFoods().find(f => f.id === id);
 
-    if (unitEl && food.defaultUnit) {
-
-        unitEl.value = food.defaultUnit;
-
-    }
+        if (!food) return;
 
 
 
-    this.updateProteinPreview();
+        this.selectedFood = food;
 
-},
+        document.getElementById('meal-food').value = food.name;
+
+        document.getElementById('food-autocomplete').classList.remove('show');
 
 
 
-renderMealsList(meals) {
+        // Automatic Unit Selection
 
-    const list = document.getElementById('meals-today-list');
+        const unitEl = document.getElementById('meal-unit');
 
-    if (!list) return;
+        if (unitEl && food.defaultUnit) {
 
-    list.innerHTML = (meals || []).map(m => `
+            unitEl.value = food.defaultUnit;
+
+        }
+
+
+
+        this.updateProteinPreview();
+
+    },
+
+
+
+    renderMealsList(meals) {
+
+        const list = document.getElementById('meals-today-list');
+
+        if (!list) return;
+
+        list.innerHTML = (meals || []).map(m => `
 
     <div class="meal-item">
 
-                <span>${m.foodName}</span>
+                <span>${SecurityUtils.escapeHTML(m.foodName)}</span>
 
                 <span>${(+m.proteinG || 0).toFixed(1)}g P / ${(+m.fiberG || 0).toFixed(1)}g F</span>
 
@@ -281,75 +283,75 @@ renderMealsList(meals) {
 
     `).join('');
 
-},
+    },
 
 
 
-deleteMeal(id) {
+    deleteMeal(id) {
 
-    UI.confirmDelete({
+        UI.confirmDelete({
 
-        message: 'Deseja remover esta refeição do registro?',
+            message: 'Deseja remover esta refeição do registro?',
 
-        onConfirm: () => {
+            onConfirm: () => {
 
-            NutritionService.deleteMeal(id);
+                NutritionService.deleteMeal(id);
 
-            this.refreshNutritionTab();
+                this.refreshNutritionTab();
 
-            UI.toast('Refeição removida');
+                UI.toast('Refeição removida');
 
-        }
+            }
 
-    });
+        });
 
-},
-
-
-
-
-renderCustomFoods() {
-
-    const custom = StorageService.getSafe(StorageService.KEYS.CUSTOM_FOODS, []);
-
-    const list = document.getElementById('custom-foods-list');
-
-    if (!list) return;
-
-    if (custom.length === 0) { list.innerHTML = '<div class="empty-state">Nenhum alimento personalizado</div>'; return; }
+    },
 
 
 
-    list.innerHTML = custom.map(f => {
 
-        let info = [];
+    renderCustomFoods() {
 
-        // Usa != null (cobre null e undefined) para não exibir "null g / un" quando vem da nuvem
-        if (f.proteinPerUnit != null) info.push(`P: ${f.proteinPerUnit} g / un`);
+        const custom = StorageService.getSafe(StorageService.KEYS.CUSTOM_FOODS, []);
 
-        else if (f.proteinPerScoop != null) info.push(`P: ${f.proteinPerScoop} g / scoop`);
+        const list = document.getElementById('custom-foods-list');
 
-        else if (f.defaultUnit === 'ml') info.push(`P: ${f.proteinPer100g ?? '--'} g / 100ml`);
+        if (!list) return;
 
-        else info.push(`P: ${f.proteinPer100g ?? '--'} g / 100g`);
+        if (custom.length === 0) { list.innerHTML = '<div class="empty-state">Nenhum alimento personalizado</div>'; return; }
 
 
 
-        if (f.fiberPerUnit != null) info.push(`F: ${f.fiberPerUnit} g / un`);
+        list.innerHTML = custom.map(f => {
 
-        else if (f.fiberPerScoop != null) info.push(`F: ${f.fiberPerScoop} g / scoop`);
+            let info = [];
 
-        else if (f.fiberPer100g != null) info.push(`F: ${f.fiberPer100g} g / 100`);
+            // Usa != null (cobre null e undefined) para não exibir "null g / un" quando vem da nuvem
+            if (f.proteinPerUnit != null) info.push(`P: ${f.proteinPerUnit} g / un`);
+
+            else if (f.proteinPerScoop != null) info.push(`P: ${f.proteinPerScoop} g / scoop`);
+
+            else if (f.defaultUnit === 'ml') info.push(`P: ${f.proteinPer100g ?? '--'} g / 100ml`);
+
+            else info.push(`P: ${f.proteinPer100g ?? '--'} g / 100g`);
 
 
 
-        return `
+            if (f.fiberPerUnit != null) info.push(`F: ${f.fiberPerUnit} g / un`);
+
+            else if (f.fiberPerScoop != null) info.push(`F: ${f.fiberPerScoop} g / scoop`);
+
+            else if (f.fiberPer100g != null) info.push(`F: ${f.fiberPer100g} g / 100`);
+
+
+
+            return `
 
     <div class="meal-item" style = "cursor: pointer;" data-id="${f.id}">
 
                     <div class="meal-info">
 
-                        <div class="meal-name">${f.name}</div>
+                        <div class="meal-name">${SecurityUtils.escapeHTML(f.name)}</div>
 
                         <div class="meal-details">${info.join(' | ')}</div>
 
@@ -359,79 +361,79 @@ renderCustomFoods() {
 
                 </div> `;
 
-    }).join('');
+        }).join('');
 
 
 
-    // Selection Listener
+        // Selection Listener
 
-    list.querySelectorAll('.meal-item').forEach(item => {
+        list.querySelectorAll('.meal-item').forEach(item => {
 
-        item.onclick = (e) => {
+            item.onclick = (e) => {
 
-            if (e.target.closest('.table-btn-delete')) return;
+                if (e.target.closest('.table-btn-delete')) return;
 
-            const food = custom.find(f => f.id == item.dataset.id);
+                const food = custom.find(f => f.id == item.dataset.id);
 
-            if (food) {
+                if (food) {
 
-                this.selectedFood = food;
+                    this.selectedFood = food;
 
-                document.getElementById('meal-food').value = food.name;
+                    document.getElementById('meal-food').value = food.name;
 
 
 
-                const unitEl = document.getElementById('meal-unit');
+                    const unitEl = document.getElementById('meal-unit');
 
-                if (unitEl) {
+                    if (unitEl) {
 
-                    if (food.proteinPerUnit !== undefined || food.fiberPerUnit !== undefined) unitEl.value = 'unidade';
+                        if (food.proteinPerUnit !== undefined || food.fiberPerUnit !== undefined) unitEl.value = 'unidade';
 
-                    else if (food.proteinPerScoop !== undefined || food.fiberPerScoop !== undefined) unitEl.value = 'scoop';
+                        else if (food.proteinPerScoop !== undefined || food.fiberPerScoop !== undefined) unitEl.value = 'scoop';
 
-                    else if (food.defaultUnit === 'ml') unitEl.value = 'ml';
+                        else if (food.defaultUnit === 'ml') unitEl.value = 'ml';
 
-                    else unitEl.value = 'g';
+                        else unitEl.value = 'g';
+
+                    }
+
+                    this.updateProteinPreview();
+
+                    UI.toast('Alimento selecionado: ' + food.name);
 
                 }
 
-                this.updateProteinPreview();
+            };
 
-                UI.toast('Alimento selecionado: ' + food.name);
-
-            }
-
-        };
-
-    });
+        });
 
 
 
-    // Delete Listener
+        // Delete Listener
 
-    list.querySelectorAll('.table-btn-delete').forEach(btn => {
+        list.querySelectorAll('.table-btn-delete').forEach(btn => {
 
-        btn.onclick = (e) => {
+            btn.onclick = (e) => {
 
-            e.stopPropagation();
+                e.stopPropagation();
 
-            NutritionService.deleteCustomFood(btn.dataset.id); // string — suporta UUID e timestamp
+                NutritionService.deleteCustomFood(btn.dataset.id); // string — suporta UUID e timestamp
 
-            this.renderCustomFoods();
+                this.renderCustomFoods();
 
-            UI.toast('Alimento removido');
+                UI.toast('Alimento removido');
 
-        };
+            };
 
-    });
+        });
 
-},
+    },
 
 
 
-showAddFoodModal() {
+    showAddFoodModal() {
 
-    const content = `
+        const content = `
 
     <div class="input-group">
 
@@ -501,123 +503,125 @@ showAddFoodModal() {
 
 `;
 
-    UI.showModal('Adicionar Alimento', content, [
+        UI.showModal('Adicionar Alimento', content, [
 
-        { text: 'Cancelar', class: 'btn-secondary', onClick: () => { } },
+            { text: 'Cancelar', class: 'btn-secondary', onClick: () => { } },
 
-        {
+            {
 
-            text: 'Salvar', class: 'btn-primary', onClick: () => {
+                text: 'Salvar', class: 'btn-primary', onClick: () => {
 
-                const name = document.getElementById('custom-food-name').value.trim();
+                    const name = document.getElementById('custom-food-name').value.trim();
 
-                const protein = parseFloat(document.getElementById('custom-food-protein').value) || 0;
+                    const protein = parseFloat(document.getElementById('custom-food-protein').value) || 0;
 
-                const fiber = parseFloat(document.getElementById('custom-food-fiber').value) || 0;
+                    const fiber = parseFloat(document.getElementById('custom-food-fiber').value) || 0;
 
-                const unitType = document.getElementById('custom-food-unit-type').value;
+                    const unitType = document.getElementById('custom-food-unit-type').value;
 
-                const category = document.getElementById('custom-food-category').value;
-
-
-
-                if (!name || (isNaN(protein) && isNaN(fiber))) { UI.toast('Preencha os campos corretamente', 'error'); return; }
+                    const category = document.getElementById('custom-food-category').value;
 
 
 
-                const foodData = { name, category };
+                    if (!name) { UI.toast('Preencha o nome do alimento', 'error'); return; }
+
+                    if (protein <= 0 && fiber <= 0) { UI.toast('Informe proteína ou fibra', 'error'); return; }
 
 
 
-                if (unitType === 'un') {
-
-                    foodData.proteinPerUnit = protein;
-
-                    foodData.fiberPerUnit = fiber;
-
-                    foodData.defaultUnit = 'unidade';
-
-                } else if (unitType === 'scoop') {
-
-                    foodData.proteinPerScoop = protein;
-
-                    foodData.fiberPerScoop = fiber;
-
-                    foodData.defaultUnit = 'scoop';
-
-                } else if (unitType === 'ml') {
-
-                    foodData.proteinPer100g = protein;
-
-                    foodData.fiberPer100g = fiber;
-
-                    foodData.defaultUnit = 'ml';
-
-                } else {
-
-                    foodData.proteinPer100g = protein;
-
-                    foodData.fiberPer100g = fiber;
-
-                    foodData.defaultUnit = 'g';
-
-                }
+                    const foodData = { name, category };
 
 
 
-                NutritionService.addCustomFood(foodData);
+                    if (unitType === 'un') {
 
-                this.renderCustomFoods();
+                        foodData.proteinPerUnit = protein;
 
-                UI.toast('Alimento salvo!');
+                        foodData.fiberPerUnit = fiber;
 
-                UI.hideModal();
+                        foodData.defaultUnit = 'unidade';
 
-            }, closeOnClick: false
+                    } else if (unitType === 'scoop') {
 
-        }
+                        foodData.proteinPerScoop = protein;
 
-    ], () => {
+                        foodData.fiberPerScoop = fiber;
 
-        // Modal OnRender Callback
+                        foodData.defaultUnit = 'scoop';
 
-        const select = document.getElementById('custom-food-unit-type');
+                    } else if (unitType === 'ml') {
 
-        const labelProt = document.getElementById('label-protein-value');
+                        foodData.proteinPer100g = protein;
 
-        const labelFib = document.getElementById('label-fiber-value');
+                        foodData.fiberPer100g = fiber;
 
-        if (select && labelProt && labelFib) {
+                        foodData.defaultUnit = 'ml';
 
-            const updateLabels = () => {
+                    } else {
 
-                let suffix = '(por 100g)';
+                        foodData.proteinPer100g = protein;
 
-                if (select.value === 'un') suffix = '(por Unidade)';
+                        foodData.fiberPer100g = fiber;
 
-                else if (select.value === 'scoop') suffix = '(por Scoop)';
+                        foodData.defaultUnit = 'g';
 
-                else if (select.value === 'ml') suffix = '(por 100ml)';
+                    }
 
 
 
-                labelProt.textContent = `Proteína ${suffix} `;
+                    NutritionService.addCustomFood(foodData);
 
-                labelFib.textContent = `Fibra ${suffix} `;
+                    this.renderCustomFoods();
 
-            };
+                    UI.toast('Alimento salvo!');
 
-            select.addEventListener('input', updateLabels);
+                    UI.hideModal();
 
-            select.addEventListener('change', updateLabels);
+                }, closeOnClick: false
 
-            updateLabels();
+            }
 
-        }
+        ], () => {
 
-    });
+            // Modal OnRender Callback
 
-},
+            const select = document.getElementById('custom-food-unit-type');
+
+            const labelProt = document.getElementById('label-protein-value');
+
+            const labelFib = document.getElementById('label-fiber-value');
+
+            if (select && labelProt && labelFib) {
+
+                const updateLabels = () => {
+
+                    let suffix = '(por 100g)';
+
+                    if (select.value === 'un') suffix = '(por Unidade)';
+
+                    else if (select.value === 'scoop') suffix = '(por Scoop)';
+
+                    else if (select.value === 'ml') suffix = '(por 100ml)';
+
+
+
+                    labelProt.textContent = `Proteína ${suffix} `;
+
+                    labelFib.textContent = `Fibra ${suffix} `;
+
+                };
+
+                select.addEventListener('input', updateLabels);
+
+                select.addEventListener('change', updateLabels);
+
+                updateLabels();
+
+            }
+
+        });
+
+    },
 
 };
 

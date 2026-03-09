@@ -49,14 +49,13 @@ const InsightService = {
         if (!window.DoseService) return null;
         const nextDate = DoseService.getNextInjectionDate();
         if (!nextDate) return null;
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowISO = tomorrow.toISOString().split('T')[0];
+        const tomorrowISO = DateService.addDays(DateService.today(), 1);
         if (nextDate !== tomorrowISO) return null;
+        const lastInj = DoseService.getLastInjection();
         return {
             icon: '📅',
             title: 'Aplicação Amanhã',
-            text: `Sua próxima aplicação é amanhã. Retire o medicamento da geladeira 30 min antes para reduzir a dor.`,
+            text: `Sua próxima dose de ${lastInj?.drugName || 'medicamento'} está programada para amanhã.`,
             type: 'info'
         };
     },

@@ -290,7 +290,7 @@ const HelpController = {
 
     filterHelp(query) {
         const q = (query || '').toLowerCase().trim();
-        document.querySelectorAll('.help-section').forEach((sec, idx) => {
+        document.querySelectorAll('#help-accordion .help-section').forEach((sec, idx) => {
             const content = this.HELP_CONTENT[idx];
             if (!content) return;
             const text = (content.title + ' ' + content.steps.join(' ') + ' ' + (content.tip || '')).toLowerCase();

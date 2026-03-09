@@ -198,24 +198,46 @@ window.ReportService = {
         }
 
         const kpiW = (contentWidth - 10) / 3;
-        const kpiH = 22;
+        const kpiH = 18;
 
         const drawKPI = (x, label, value) => {
             // Background
             doc.setFillColor(248, 250, 252); // Slate 50
-            doc.setDrawColor(226, 232, 240); // Slate 200
+            doc.setDrawColor(...colBrand);   // Navy border — premium feel
+            doc.setLineWidth(0.4);
             doc.roundedRect(x, y, kpiW, kpiH, 1, 1, 'FD');
+
+            // Top accent stripe (navy, 1.8mm)
+            doc.setFillColor(...colBrand);
+            doc.rect(x + 0.5, y + 0.5, kpiW - 1, 1.8, 'F');
 
             // Label
             doc.setFontSize(7);
             doc.setTextColor(...colTextLight);
             doc.setFont('helvetica', 'bold');
-            doc.text(label.toUpperCase(), x + 4, y + 8);
+            doc.text(label.toUpperCase(), x + 4, y + 6);
 
             // Value
-            doc.setFontSize(12);
+            doc.setFontSize(11);
             doc.setTextColor(...colBrand);
-            doc.text(value, x + 4, y + 17);
+            doc.text(value, x + 4, y + 14);
+        };
+
+        // Helper: Section title with left accent bar + bottom separator
+        const drawSectionTitle = (title) => {
+            // Left accent bar (navy, 2.5mm wide × 8mm tall)
+            doc.setFillColor(...colBrand);
+            doc.rect(margin, y, 2.5, 8, 'F');
+            // Title text (offset 5mm from margin to clear the bar)
+            doc.setFontSize(10);
+            doc.setTextColor(...colBrand);
+            doc.setFont('helvetica', 'bold');
+            doc.text(title, margin + 5, y + 6.5);
+            // Subtle bottom separator line
+            doc.setDrawColor(226, 232, 240);
+            doc.setLineWidth(0.3);
+            doc.line(margin, y + 9, pageWidth - margin, y + 9);
+            y += 14;
         };
 
         drawKPI(margin, 'Perda Total', `-${totalLoss} kg`);
@@ -233,14 +255,166 @@ window.ReportService = {
         y += kpiH + 15;
 
         // ---------------------------------------------------------
+        // 7. JORNADA VISUAL (3 FOTOS DE REFERÊNCIA)
+        // ---------------------------------------------------------
+        if (options.includePhotos && window.JourneyService) {
+            const startDateStr = startDate ? startDate.toISOString().split('T')[0] : null;
+            const endDateStr = endDate ? endDate.toISOString().split('T')[0] : null;
+
+            const comparison = JourneyService.getComparison(startDateStr, endDateStr);
+
+            // Fetch all photos in range for a mini-gallery
+            const allPhotos = (JourneyService.get()?.photos || [])
+                .filter(p => (!startDateStr || p.dateISO >= startDateStr) && (!endDateStr || p.dateISO <= endDateStr))
+                .sort((a, b) => a.dateISO.localeCompare(b.dateISO));
+
+            // Seleciona até 3 fotos de referência (início, meio, atual)
+            let refPhotos = [];
+            if (allPhotos.length === 1) {
+                refPhotos = [{ photo: allPhotos[0], label: 'ÚNICO' }];
+            } else if (allPhotos.length === 2) {
+                refPhotos = [
+                    { photo: allPhotos[0], label: 'INÍCIO' },
+                    { photo: allPhotos[allPhotos.length - 1], label: 'ATUAL' }
+                ];
+            } else if (allPhotos.length >= 3) {
+                const midIdx = Math.floor((allPhotos.length - 1) / 2);
+                refPhotos = [
+                    { photo: allPhotos[0], label: 'INÍCIO' },
+                    { photo: allPhotos[midIdx], label: 'PROGRESSO' },
+                    { photo: allPhotos[allPhotos.length - 1], label: 'ATUAL' }
+                ];
+            }
+
+            // Pré-carrega os dados de imagem com fallback completo:
+            // 1. IndexedDB local (mesmo dispositivo)
+            // 2. cloudUrl do Supabase Storage (outro dispositivo / PC)
+            // 3. Base64 legado
+            const refPhotosWithData = [];
+            for (const ref of refPhotos) {
+                let photoDataUrl = await PhotoStorageService.getPhotoAsDataUrl(ref.photo.id);
+
+                // Fallback: cloudUrl do Supabase (foto salva na nuvem)
+                if (!photoDataUrl && ref.photo.cloudUrl) {
+                    try {
+                        const resp = await fetch(ref.photo.cloudUrl);
+                        const blob = await resp.blob();
+                        photoDataUrl = await new Promise(res => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => res(reader.result);
+                            reader.readAsDataURL(blob);
+                        });
+                    } catch (e) {
+                        console.warn('PDF: falha ao buscar cloudUrl', ref.photo.id, e);
+                    }
+                }
+
+                // Fallback: base64 legado
+                if (!photoDataUrl) {
+                    photoDataUrl = ref.photo.image || ref.photo.dataUrl || null;
+                }
+
+                // Inclui SEMPRE: sem dados = placeholder será exibido no box
+                refPhotosWithData.push({ ...ref, dataUrl: photoDataUrl });
+            }
+
+            if (refPhotosWithData.length > 0) {
+                // Jornada Visual sempre começa em página própria para máximo impacto visual
+                if (y > 200) { doc.addPage(); y = 30; }
+                drawSectionTitle('JORNADA VISUAL');
+
+                const numPhotos = refPhotosWithData.length;
+                const gutter = 8;
+                const photoW = (contentWidth - gutter * (numPhotos - 1)) / numPhotos;
+                const photoH = 78;
+
+                const drawPhotoWithLabel = async (imgData, x, pY, w, h, labelDate, labelWeight) => {
+                    try {
+                        if (imgData) {
+                            const img = new Image();
+                            let finalSrc = imgData;
+                            if (typeof imgData === 'string' && !imgData.startsWith('data:')) {
+                                finalSrc = `data:image/jpeg;base64,${imgData}`;
+                            }
+                            img.src = finalSrc;
+                            // Aguarda load com timeout — evita promise pendurada se imagem falhar
+                            const loaded = await new Promise(res => {
+                                img.onload = () => res(true);
+                                img.onerror = () => res(false);
+                                setTimeout(() => res(false), 5000);
+                            });
+                            if (loaded && img.width && img.height) {
+                                const scale = Math.min(w / img.width, h / img.height);
+                                const renderW = img.width * scale;
+                                const renderH = img.height * scale;
+                                // Auto-detecta formato para evitar erro silencioso no jsPDF
+                                const imgFormat = finalSrc.includes('image/png') ? 'PNG' : 'JPEG';
+                                doc.addImage(finalSrc, imgFormat, x + (w - renderW) / 2, pY + (h - renderH) / 2, renderW, renderH, undefined, 'FAST');
+                            }
+                        } else {
+                            // Placeholder: box cinza com aviso de foto indisponível
+                            doc.setFillColor(241, 245, 249);
+                            doc.roundedRect(x, pY, w, h, 2, 2, 'F');
+                            doc.setFontSize(8);
+                            doc.setFont('helvetica', 'normal');
+                            doc.setTextColor(148, 163, 184);
+                            doc.text('Foto nao', x + w / 2, pY + h / 2 - 4, { align: 'center' });
+                            doc.text('disponivel', x + w / 2, pY + h / 2 + 4, { align: 'center' });
+                        }
+                        // Borda do box — sempre visível
+                        doc.setDrawColor(226, 232, 240);
+                        doc.setLineWidth(0.5);
+                        doc.roundedRect(x, pY, w, h, 2, 2, 'S');
+                        // Barra inferior escura com data e peso — sempre visível
+                        const lbH = 10;
+                        const lbY = pY + h - lbH;
+                        doc.setFillColor(30, 41, 59);
+                        doc.rect(x, lbY, w, lbH, 'F');
+                        doc.setFontSize(7);
+                        doc.setFont('helvetica', 'bold');
+                        doc.setTextColor(255, 255, 255);
+                        doc.text(labelDate || 'N/D', x + 2, lbY + 6.5);
+                        if (labelWeight) doc.text(`${labelWeight} kg`, x + w - 2, lbY + 6.5, { align: 'right' });
+                        doc.setTextColor(...colTextMain);
+                    } catch (e) { console.error('Error adding PDF image', e); }
+                };
+
+                for (let i = 0; i < refPhotosWithData.length; i++) {
+                    const { photo, label, dataUrl } = refPhotosWithData[i];
+                    const photoX = margin + i * (photoW + gutter);
+                    const weight = photo.weightKg || findNearestWeight(photo.dateISO);
+
+                    // Container box
+                    doc.setFillColor(248, 250, 252);
+                    doc.roundedRect(photoX, y, photoW, photoH + 12, 2, 2, 'F');
+
+                    // Label badge (colored pill at top of box)
+                    doc.setFontSize(8);
+                    doc.setFont('helvetica', 'bold');
+                    const lblW = doc.getTextWidth(label) + 8;
+                    const lblX = photoX + (photoW - lblW) / 2;
+                    doc.setFillColor(...colBrand);
+                    doc.roundedRect(lblX, y + 2, lblW, 7, 2, 2, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.text(label, lblX + 4, y + 7);
+
+                    await drawPhotoWithLabel(dataUrl, photoX + 2, y + 11, photoW - 4, photoH - 2, DateService.format(photo.dateISO), weight);
+                }
+                y += photoH + 22;
+            }
+        }
+        doc.setTextColor(...colTextMain);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+
+        // ---------------------------------------------------------
+
         // 5. GRÁFICO (Protocolo Alta Fidelidade - 300 DPI)
         // ---------------------------------------------------------
+        doc.addPage(); y = 30;
+
         if (options.includeChart && weights.length >= 2) {
-            doc.setFontSize(10);
-            doc.setTextColor(...colBrand);
-            doc.setFont('helvetica', 'bold');
-            doc.text('EVOLUÇÃO PONDERAL E DOSES', margin, y);
-            y += 8;
+            drawSectionTitle('EVOLUÇÃO PONDERAL E DOSES');
 
             // Reset ANTES do canvas — legenda vai reutilizar as cores já atribuídas aqui
             if (window.DoseColorManager) DoseColorManager.reset();
@@ -303,14 +477,261 @@ window.ReportService = {
         }
 
         // ---------------------------------------------------------
-        // 6. HISTÓRICO DE APLICAÇÕES (Compact Table)
+
+        // 6. EFICÁCIA POR DOSE (antes das aplicações — mais relevante para o médico)
+        // ---------------------------------------------------------
+        if (injections.length >= 2) {
+            if (y > 245) { doc.addPage(); y = 30; }
+            drawSectionTitle('EFICÁCIA POR DOSE (RESUMO)');
+
+            // Constrói fases consecutivas (mesma droga+dose sem interrupção)
+            const dosePhases2 = [];
+            let activePhase2 = null;
+            [...injections].sort((a, b) => a.dateISO.localeCompare(b.dateISO)).forEach(inj => {
+                const normalizedDrug2 = window.MedicationLevelService
+                    ? MedicationLevelService.formatDrugName(inj.drugName || 'tirzepatida').toLowerCase()
+                    : (inj.drugName || 'tirzepatida').toLowerCase();
+                const key2 = `${normalizedDrug2}_${inj.doseMg}`;
+                if (!activePhase2 || activePhase2.key !== key2) {
+                    if (activePhase2) dosePhases2.push(activePhase2);
+                    activePhase2 = { key: key2, drugName: inj.drugName || 'Tirzepatida', doseMg: inj.doseMg, startDate: inj.dateISO, endDate: inj.dateISO, count: 1 };
+                } else { activePhase2.endDate = inj.dateISO; activePhase2.count++; }
+            });
+            if (activePhase2) dosePhases2.push(activePhase2);
+
+            // ── ABORDAGEM CLINICAMENTE CORRETA ──────────────────────────────
+            // Cada fase é medida do seu início até o INÍCIO DA PRÓXIMA fase
+            // (ou hoje se for a última). Isso evita lacunas e captura o efeito
+            // completo da dose, incluindo o período residual pós-última aplicação.
+            // É o mesmo critério usado em estudos clínicos de GLP-1.
+            const todayISO = new Date().toISOString().split('T')[0];
+            for (let pi = 0; pi < dosePhases2.length; pi++) {
+                dosePhases2[pi].measureEndDate = pi < dosePhases2.length - 1
+                    ? dosePhases2[pi + 1].startDate  // início da próxima dose
+                    : todayISO;                       // hoje para a fase atual
+            }
+
+            const rowH2 = 8;
+            dosePhases2.forEach((phase, i) => {
+                if (y > 270) { doc.addPage(); y = 30; }
+                if (i % 2 === 0) {
+                    doc.setFillColor(248, 250, 252);
+                    doc.rect(margin, y, contentWidth, rowH2, 'F');
+                }
+
+                // Peso no início da fase vs peso no fim do período (transição ou hoje)
+                const wS2 = findNearestWeight(phase.startDate);
+                const wE2 = findNearestWeight(phase.measureEndDate);
+                const lossKg2 = (wS2 && wE2) ? wS2 - wE2 : null;
+
+                // Duração real da fase (sem mínimo artificial de 1 semana)
+                const dDays2 = Math.floor((new Date(phase.measureEndDate) - new Date(phase.startDate)) / 86400000);
+                const dWeeks2 = dDays2 / 7;
+                const dWeeksDisplay = dWeeks2 >= 1 ? `${dWeeks2.toFixed(1)} sem` : `${dDays2} dias`;
+
+                const lossStr2 = lossKg2 !== null
+                    ? `${lossKg2 > 0 ? '-' : lossKg2 < 0 ? '+' : ''}${Math.abs(lossKg2).toFixed(1)} kg`
+                    : '--';
+                const rateStr2 = (lossKg2 !== null && lossKg2 > 0 && dWeeks2 > 0)
+                    ? `${(lossKg2 / dWeeks2).toFixed(2)} kg/sem`
+                    : '--';
+
+                const drugLabel2 = window.MedicationLevelService ? MedicationLevelService.formatDrugName(phase.drugName) : phase.drugName;
+                const c1 = margin + 2, c2 = margin + 50, c3 = margin + 90, c4 = margin + 130;
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...colTextMain);
+                doc.text(`${drugLabel2} ${phase.doseMg}mg`, c1, y + 5.5);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(...colTextLight);
+                doc.text(`${dWeeksDisplay} (${phase.count} apps)`, c2, y + 5.5);
+
+                // Verde se perdeu peso, vermelho se ganhou, cinza se sem dados/neutro
+                const lossColor2 = lossKg2 === null ? colTextLight
+                    : lossKg2 > 0 ? colGreen
+                        : lossKg2 < 0 ? colRed
+                            : colTextLight;
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...lossColor2);
+                doc.text(lossStr2, c3, y + 5.5);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(...colTextLight);
+                const tWidth2 = doc.getTextWidth(rateStr2);
+                doc.setFillColor(226, 232, 240);
+                doc.roundedRect(c4 - 2, y + 2, tWidth2 + 4, 5, 1, 1, 'F');
+                doc.text(rateStr2, c4, y + 5.5);
+                y += rowH2;
+            });
+            y += 8;
+        }
+
+        // ---------------------------------------------------------
+
+        // 9. EVOLUÇÃO DE MEDIDAS CORPORAIS
+        // ---------------------------------------------------------
+        if (options.includeTable && measurements && measurements.length > 0) {
+            if (y > 230) { doc.addPage(); y = 30; }
+
+            // Title
+            drawSectionTitle('EVOLUÇÃO DE MEDIDAS CORPORAIS');
+
+            // Table Header
+            doc.setFillColor(241, 245, 249);
+            doc.rect(margin, y, contentWidth, 6, 'F');
+            doc.setFontSize(7);
+            doc.setTextColor(...colTextLight);
+
+            // Columns (Date, Cintura, Abdômen, Quadril, Braço, Coxa, Peitoral)
+            const mCols = [margin + 2, margin + 28, margin + 54, margin + 80, margin + 106, margin + 132, margin + 158];
+            doc.text('DATA', mCols[0], y + 4);
+            doc.text('CINTURA', mCols[1], y + 4);
+            doc.text('ABDÔMEN', mCols[2], y + 4);
+            doc.text('QUADRIL', mCols[3], y + 4);
+            doc.text('BRAÇO', mCols[4], y + 4);
+            doc.text('COXA', mCols[5], y + 4);
+            doc.text('PEITORAL', mCols[6], y + 4);
+            y += 6;
+
+            // Rows
+            doc.setFont('helvetica', 'normal');
+
+            // Sort measurements by date descending (newest first)
+            const sortedMeasurements = [...measurements].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
+            const oldestMeasurement = sortedMeasurements[sortedMeasurements.length - 1];
+
+            sortedMeasurements.forEach((m, i) => {
+                if (y > 270) {
+                    doc.addPage(); y = 30;
+                    doc.setFillColor(241, 245, 249);
+                    doc.rect(margin, y, contentWidth, 6, 'F');
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colTextLight);
+                    doc.text('DATA', mCols[0], y + 4);
+                    doc.text('CINTURA', mCols[1], y + 4);
+                    doc.text('ABDÔMEN', mCols[2], y + 4);
+                    doc.text('QUADRIL', mCols[3], y + 4);
+                    doc.text('BRAÇO', mCols[4], y + 4);
+                    doc.text('COXA', mCols[5], y + 4);
+                    doc.text('PEITORAL', mCols[6], y + 4);
+                    doc.setFont('helvetica', 'normal');
+                    y += 6;
+                }
+
+                if (i % 2 !== 0) {
+                    doc.setFillColor(252, 252, 252);
+                    doc.rect(margin, y, contentWidth, 5.5, 'F');
+                }
+
+                doc.setTextColor(...colTextMain);
+                doc.text(DateService.format(m.dateISO), mCols[0], y + 4);
+
+                // Helper to format measurement with variation
+                const drawMeasure = (val, initialVal, xPos) => {
+                    if (!val) {
+                        doc.setTextColor(...colTextLight);
+                        doc.text('--', xPos, y + 4);
+                        return;
+                    }
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colTextMain);
+                    doc.text(`${val} cm`, xPos, y + 4);
+                    doc.setFont('helvetica', 'normal');
+
+                    if (initialVal && val !== initialVal) {
+                        const diff = val - initialVal;
+                        const tWidth = doc.getTextWidth(`${val} cm`);
+                        const dColor = diff > 0 ? colRed : colGreen; // For measurements, losing cm is green
+                        doc.setFontSize(6);
+                        doc.setTextColor(...dColor);
+                        doc.text(`${diff > 0 ? '+' : ''}${parseFloat(diff).toFixed(1)} cm`, xPos + tWidth + 1, y + 3.5);
+                        doc.setFontSize(7);
+                    }
+                };
+
+                drawMeasure(m.waist, oldestMeasurement?.waist, mCols[1]);
+                drawMeasure(m.abdomen, oldestMeasurement?.abdomen, mCols[2]);
+                drawMeasure(m.hip, oldestMeasurement?.hip, mCols[3]);
+                drawMeasure(m.arm, oldestMeasurement?.arm, mCols[4]);
+                drawMeasure(m.thigh, oldestMeasurement?.thigh, mCols[5]);
+                drawMeasure(m.chest, oldestMeasurement?.chest, mCols[6]);
+
+                y += 5.5;
+            });
+            y += 10;
+        }
+
+        // ---------------------------------------------------------
+
+        // 9. MONITORAMENTO DE PESO (High Density)
+        // ---------------------------------------------------------
+        if (options.includeTable) {
+            if (y > 230) { doc.addPage(); y = 30; }
+
+            drawSectionTitle('DADOS BIOMÉTRICOS DETALHADOS (PESO)');
+
+            // Table Header
+            doc.setFillColor(241, 245, 249);
+            doc.rect(margin, y, contentWidth, 6, 'F');
+            doc.setFontSize(7);
+            doc.setTextColor(...colTextLight);
+
+            const wCols = [margin + 2, margin + 50, margin + 100, margin + 140];
+            doc.text('DATA', wCols[0], y + 4);
+            doc.text('PESO (KG)', wCols[1], y + 4);
+            doc.text('IMC', wCols[2], y + 4);
+            doc.text('VAR. TOTAL (KG)', wCols[3], y + 4);
+            y += 6;
+
+            // Rows
+            doc.setFont('helvetica', 'normal');
+
+            weightsDesc.forEach((w, i) => {
+                if (y > 270) {
+                    doc.addPage();
+                    y = 30;
+                    doc.setFillColor(241, 245, 249);
+                    doc.rect(margin, y, contentWidth, 6, 'F');
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colTextLight);
+                    doc.text('DATA', wCols[0], y + 4);
+                    doc.text('PESO (KG)', wCols[1], y + 4);
+                    doc.text('IMC', wCols[2], y + 4);
+                    doc.text('VAR. TOTAL (KG)', wCols[3], y + 4);
+                    doc.setFont('helvetica', 'normal');
+                    y += 6;
+                }
+
+                const deltaTotalVal = w.weightKg - initialWeight;
+
+                if (i % 2 !== 0) {
+                    doc.setFillColor(252, 252, 252);
+                    doc.rect(margin, y, contentWidth, 5.5, 'F');
+                }
+
+                doc.setTextColor(...colTextMain);
+                doc.text(DateService.format(w.dateISO), wCols[0], y + 4);
+
+                doc.setFont('helvetica', 'bold');
+                doc.text(w.weightKg.toFixed(1) + ' kg', wCols[1], y + 4);
+                doc.setFont('helvetica', 'normal');
+
+                const wBMI = w.bmi || WeightService.calculateBMI(w.weightKg, profile.heightCm);
+                doc.text(wBMI.toFixed(1), wCols[2], y + 4);
+
+                const cTotal = deltaTotalVal > 0 ? colRed : (deltaTotalVal < 0 ? colGreen : colTextLight);
+                doc.setTextColor(...cTotal);
+                const txtTotal = deltaTotalVal === 0 ? '0.0 kg' : `${deltaTotalVal > 0 ? '+' : ''}${deltaTotalVal.toFixed(1)} kg`;
+                doc.text(txtTotal, wCols[3], y + 4);
+
+                y += 5.5;
+            });
+            y += 10;
+        }
+
+        // 7. HISTÓRICO DE APLICAÇÕES (Compact Table)
         // ---------------------------------------------------------
         if (injections.length > 0) {
-            doc.setFontSize(10);
-            doc.setTextColor(...colBrand);
-            doc.setFont('helvetica', 'bold');
-            doc.text('REGISTRO DE APLICAÇÕES', margin, y);
-            y += 5;
+            drawSectionTitle('REGISTRO DE APLICAÇÕES');
 
             // Header
             const drawInjHeader = (curY) => {
@@ -364,361 +785,270 @@ window.ReportService = {
                 doc.text(medicationDisplay, cols[1], y + 3.5);
                 doc.text(`${inj.doseMg} mg`, cols[2], y + 3.5);
                 // Safe site access
-                const site = inj.site || 'N/D';
-                // Try format if available
-                const siteFormatted = window.InjectionService && InjectionService.formatSite ? InjectionService.formatSite(site) : site;
+                const site = inj.site || null;
+                // Constrói a chave site+side igual ao DoseService.formatSite espera
+                const siteKey = (site && inj.side) ? `${site}-${inj.side}` : (site || 'N/D');
+                const siteFormatted = window.DoseService && DoseService.formatSite ? DoseService.formatSite(siteKey) : siteKey;
                 doc.text(siteFormatted, cols[3], y + 3.5);
                 y += 5;
             });
             y += 10;
         }
 
-        // ---------------------------------------------------------
-        // 6b. EFICÁCIA POR DOSE
-        // ---------------------------------------------------------
-        if (injections.length >= 2) {
-            if (y > 245) { doc.addPage(); y = 30; }
-            doc.setFontSize(10);
-            doc.setTextColor(...colBrand);
-            doc.setFont('helvetica', 'bold');
-            doc.text('EFICÁCIA POR DOSE (RESUMO)', margin, y);
-            y += 8;
-
-            // Agrupa injeções em fases consecutivas de mesma dose
-            const dosePhases = [];
-            let activePhase = null;
-            [...injections].sort((a, b) => a.dateISO.localeCompare(b.dateISO)).forEach(inj => {
-                const key = `${(inj.drugName || 'tirzepatida').toLowerCase()}_${inj.doseMg}`;
-                if (!activePhase || activePhase.key !== key) {
-                    if (activePhase) dosePhases.push(activePhase);
-                    activePhase = { key, drugName: inj.drugName || 'Tirzepatida', doseMg: inj.doseMg, startDate: inj.dateISO, endDate: inj.dateISO, count: 1 };
-                } else { activePhase.endDate = inj.dateISO; activePhase.count++; }
-            });
-            if (activePhase) dosePhases.push(activePhase);
-
-            const rowH = 8;
-            dosePhases.forEach((phase, i) => {
-                if (y > 270) { doc.addPage(); y = 30; }
-
-                // Background zebra
-                if (i % 2 === 0) {
-                    doc.setFillColor(248, 250, 252);
-                    doc.rect(margin, y, contentWidth, rowH, 'F');
-                }
-
-                const wS = findNearestWeight(phase.startDate);
-                const wE = findNearestWeight(phase.endDate);
-                const lossKg = (wS && wE) ? wS - wE : null;
-                const dDays = Math.floor((new Date(phase.endDate) - new Date(phase.startDate)) / 86400000);
-                const dWeeks = Math.max(dDays / 7, 1);
-
-                const lossStr = lossKg !== null ? `${lossKg >= 0 ? '-' : '+'}${Math.abs(lossKg).toFixed(1)} kg` : '--';
-                const rateStr = (lossKg !== null && lossKg > 0) ? `${(lossKg / dWeeks).toFixed(2)} kg/sem` : '--';
-                const drugLabel = window.MedicationLevelService ? MedicationLevelService.formatDrugName(phase.drugName) : phase.drugName;
-
-                const c1 = margin + 2;       // Medicação
-                const c2 = margin + 50;      // Semanas
-                const c3 = margin + 90;      // Perda Total
-                const c4 = margin + 130;     // Taxa
-
-                // Drug Name & Dose (Premium bold)
-                doc.setFontSize(8);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(...colTextMain);
-                doc.text(`${drugLabel} ${phase.doseMg}mg`, c1, y + 5.5);
-
-                // Duration
-                doc.setFont('helvetica', 'normal');
-                doc.setTextColor(...colTextLight);
-                doc.text(`${dWeeks.toFixed(1)} semanas (${phase.count} apps)`, c2, y + 5.5);
-
-                // Loss Total
-                const lossColor = (lossKg !== null && lossKg > 0) ? colGreen : colRed;
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(...lossColor);
-                doc.text(lossStr, c3, y + 5.5);
-
-                // Rate
-                doc.setFont('helvetica', 'normal');
-                doc.setTextColor(...colTextLight);
-                const tWidth = doc.getTextWidth(rateStr);
-                doc.setFillColor(226, 232, 240);
-                doc.roundedRect(c4 - 2, y + 2, tWidth + 4, 5, 1, 1, 'F');
-                doc.text(rateStr, c4, y + 5.5);
-
-                y += rowH;
-            });
-            y += 8;
-        }
 
         // ---------------------------------------------------------
-        // 7. JORNADA VISUAL (3 FOTOS DE REFERÊNCIA)
+
+        // 8. SINTOMAS RELATADOS NO PERÍODO
         // ---------------------------------------------------------
-        if (options.includePhotos && window.JourneyService) {
-            const startDateStr = startDate ? startDate.toISOString().split('T')[0] : null;
-            const endDateStr = endDate ? endDate.toISOString().split('T')[0] : null;
+        if (options.includeAnalysis && window.SymptomsService) {
+            const sStartStr = startDate ? startDate.toISOString().split('T')[0] : null;
+            const sEndStr = endDate ? endDate.toISOString().split('T')[0] : null;
 
-            const comparison = JourneyService.getComparison(startDateStr, endDateStr);
-
-            // Fetch all photos in range for a mini-gallery
-            const allPhotos = (JourneyService.get()?.photos || [])
-                .filter(p => (!startDateStr || p.dateISO >= startDateStr) && (!endDateStr || p.dateISO <= endDateStr))
-                .sort((a, b) => a.dateISO.localeCompare(b.dateISO));
-
-            // Seleciona até 3 fotos de referência (início, meio, atual)
-            let refPhotos = [];
-            if (allPhotos.length === 1) {
-                refPhotos = [{ photo: allPhotos[0], label: 'ÚNICO' }];
-            } else if (allPhotos.length === 2) {
-                refPhotos = [
-                    { photo: allPhotos[0], label: 'INÍCIO' },
-                    { photo: allPhotos[allPhotos.length - 1], label: 'ATUAL' }
-                ];
-            } else if (allPhotos.length >= 3) {
-                const midIdx = Math.floor((allPhotos.length - 1) / 2);
-                refPhotos = [
-                    { photo: allPhotos[0], label: 'INÍCIO' },
-                    { photo: allPhotos[midIdx], label: 'PROGRESSO' },
-                    { photo: allPhotos[allPhotos.length - 1], label: 'ATUAL' }
-                ];
+            let allSymptoms = SymptomsService.getAll() || [];
+            if (sStartStr) {
+                allSymptoms = allSymptoms.filter(s => s.dateISO >= sStartStr && s.dateISO <= sEndStr);
             }
 
-            if (refPhotos.length > 0) {
-                if (y > 200) { doc.addPage(); y = 30; }
-                doc.setFontSize(10);
-                doc.setTextColor(...colBrand);
-                doc.setFont('helvetica', 'bold');
-                doc.text('JORNADA VISUAL', margin, y);
-                y += 8;
+            // Puxa as configurações dinâmicas do SymptomsService (se existirem), ou define um fallback seguro
+            let SKEYS = (window.SymptomsService && window.SymptomsService.SYMPTOMS) ? [...window.SymptomsService.SYMPTOMS] : [];
+            const SLABELS = (window.SymptomsService && window.SymptomsService.LABELS) ? { ...window.SymptomsService.LABELS } : {};
 
-                const numPhotos = refPhotos.length;
-                const gutter = 8;
-                const photoW = (contentWidth - gutter * (numPhotos - 1)) / numPhotos;
-                const photoH = 78;
+            // MISTURA: Varre os dados existentes para descobrir chaves dinâmicas nos dados clássicos
+            const ignoreKeys = ['dateISO', 'date', 'note', 'notes', 'id', 'user_id', 'created_at', 'score', 'weather', 'mood', 'custom'];
+            const foundKeys = new Set(SKEYS);
+            allSymptoms.forEach(s => {
+                Object.keys(s).forEach(k => {
+                    if (!ignoreKeys.includes(k) && typeof s[k] === 'number') foundKeys.add(k);
+                });
+            });
+            SKEYS = Array.from(foundKeys);
 
-                const drawPhotoWithLabel = async (imgData, x, pY, w, h, labelDate, labelWeight) => {
-                    if (!imgData) return;
-                    try {
-                        const img = new Image();
-                        let finalSrc = imgData;
-                        if (typeof imgData === 'string' && !imgData.startsWith('data:')) {
-                            finalSrc = `data:image/jpeg;base64,${imgData}`;
-                        }
-                        img.src = finalSrc;
-                        await new Promise(r => img.onload = r);
-                        const scale = Math.min(w / img.width, h / img.height);
-                        const renderW = img.width * scale;
-                        const renderH = img.height * scale;
-                        doc.addImage(finalSrc, 'JPEG', x + (w - renderW) / 2, pY + (h - renderH) / 2, renderW, renderH, undefined, 'FAST');
-                        doc.setDrawColor(226, 232, 240);
-                        doc.setLineWidth(0.5);
-                        doc.roundedRect(x, pY, w, h, 2, 2, 'S');
-                        const lbH = 10;
-                        const lbY = pY + h - lbH;
-                        doc.setFillColor(30, 41, 59);
-                        doc.rect(x, lbY, w, lbH, 'F');
-                        doc.setFontSize(7);
-                        doc.setFont('helvetica', 'bold');
-                        doc.setTextColor(255, 255, 255);
-                        doc.text(labelDate || 'N/D', x + 2, lbY + 6.5);
-                        if (labelWeight) doc.text(`${labelWeight} kg`, x + w - 2, lbY + 6.5, { align: 'right' });
-                        doc.setTextColor(...colTextMain);
-                    } catch (e) { console.error('Error adding PDF image', e); }
+            // Garante que todo SKEY tenha uma Label (capitaliza a primeira letra caso não exista no dicionário)
+            SKEYS.forEach(k => {
+                if (!SLABELS[k]) {
+                    SLABELS[k] = k.charAt(0).toUpperCase() + k.slice(1).replace(/([A-Z])/g, ' $1').trim();
+                }
+            });
+
+            // ─── SINTOMAS PERSONALIZADOS (custom: [{name, value}]) ───
+            // Extrai e agrega separadamente, pois são armazenados como array, não como chaves top-level
+            const customStats = {}; // { "Tontura": { days, avg, max } }
+            const customDayMap = {}; // { "2025-03-01": [{name, value}] }
+            allSymptoms.forEach(s => {
+                if (!Array.isArray(s.custom) || s.custom.length === 0) return;
+                s.custom.forEach(({ name, value }) => {
+                    if (!name || !value || value <= 0) return;
+                    if (!customStats[name]) customStats[name] = { days: 0, sum: 0, max: 0 };
+                    customStats[name].days++;
+                    customStats[name].sum += value;
+                    if (value > customStats[name].max) customStats[name].max = value;
+                    if (!customDayMap[s.dateISO]) customDayMap[s.dateISO] = [];
+                    customDayMap[s.dateISO].push({ name, value });
+                });
+            });
+            // Finaliza média dos sintomas personalizados
+            Object.keys(customStats).forEach(name => {
+                customStats[name].avg = customStats[name].sum / customStats[name].days;
+            });
+
+            const sStats = {};
+            SKEYS.forEach(key => {
+                const vals = allSymptoms.map(s => s[key] || 0).filter(v => v > 0);
+                sStats[key] = {
+                    days: vals.length,
+                    avg: vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0,
+                    max: vals.length ? Math.max(...vals) : 0
                 };
+            });
 
-                for (let i = 0; i < refPhotos.length; i++) {
-                    const { photo, label } = refPhotos[i];
-                    const photoX = margin + i * (photoW + gutter);
-                    const weight = photo.weightKg || findNearestWeight(photo.dateISO);
-                    doc.setFontSize(8);
+            const hasAnySym = SKEYS.some(k => sStats[k].days > 0) || Object.keys(customStats).length > 0;
+
+            if (hasAnySym) {
+                if (y > 210) { doc.addPage(); y = 30; }
+
+                drawSectionTitle('SINTOMAS RELATADOS NO PERÍODO');
+
+                // Table header
+                const sCols = [margin + 2, margin + 58, margin + 110, margin + 152];
+                doc.setFillColor(241, 245, 249);
+                doc.rect(margin, y, contentWidth, 6, 'F');
+                doc.setFontSize(7);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...colTextLight);
+                doc.text('SINTOMA', sCols[0], y + 4);
+                doc.text('DIAS COM RELATO', sCols[1], y + 4);
+                doc.text('INTENSIDADE MÉDIA', sCols[2], y + 4);
+                doc.text('PICO', sCols[3], y + 4);
+                y += 6;
+
+                let sRow = 0;
+                SKEYS.forEach(key => {
+                    const st = sStats[key];
+                    if (st.days === 0) return;
+                    if (y > 270) { doc.addPage(); y = 30; }
+
+                    if (sRow % 2 !== 0) {
+                        doc.setFillColor(250, 250, 250);
+                        doc.rect(margin, y, contentWidth, 5.5, 'F');
+                    }
+
                     doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(...colTextLight);
-                    doc.text(label, photoX + 2, y + 5);
-                    doc.setFillColor(248, 250, 252);
-                    doc.roundedRect(photoX, y, photoW, photoH + 12, 2, 2, 'F');
-                    const photoDataUrl = await PhotoStorageService.getPhotoAsDataUrl(photo.id) || photo.image || photo.dataUrl;
-                    await drawPhotoWithLabel(photoDataUrl, photoX + 2, y + 8, photoW - 4, photoH, DateService.format(photo.dateISO), weight);
-                }
-                y += photoH + 22;
-            }
-        }
-        doc.setTextColor(...colTextMain);
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(9);
+                    doc.setTextColor(...colTextMain);
+                    doc.text(SLABELS[key], sCols[0], y + 3.5);
 
-
-        // ---------------------------------------------------------
-        // 8. EVOLUÇÃO DE MEDIDAS CORPORAIS
-        // ---------------------------------------------------------
-        if (options.includeTable && measurements && measurements.length > 0) {
-            if (y > 230) { doc.addPage(); y = 30; }
-
-            // Title
-            doc.setFontSize(10);
-            doc.setTextColor(...colBrand);
-            doc.setFont('helvetica', 'bold');
-            doc.text('EVOLUÇÃO DE MEDIDAS CORPORAIS', margin, y);
-            y += 8;
-
-            // Table Header
-            doc.setFillColor(241, 245, 249);
-            doc.rect(margin, y, contentWidth, 6, 'F');
-            doc.setFontSize(7);
-            doc.setTextColor(...colTextLight);
-
-            // Columns (Date, Cintura, Quadril, Coxas, Peitoral)
-            const mCols = [margin + 2, margin + 40, margin + 70, margin + 100, margin + 130];
-            doc.text('DATA', mCols[0], y + 4);
-            doc.text('CINTURA', mCols[1], y + 4);
-            doc.text('QUADRIL', mCols[2], y + 4);
-            doc.text('COXAS', mCols[3], y + 4);
-            doc.text('PEITORAL', mCols[4], y + 4);
-            y += 6;
-
-            // Rows
-            doc.setFont('helvetica', 'normal');
-
-            // Sort measurements by date descending (newest first)
-            const sortedMeasurements = [...measurements].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
-            const oldestMeasurement = sortedMeasurements[sortedMeasurements.length - 1];
-
-            sortedMeasurements.forEach((m, i) => {
-                if (y > 270) {
-                    doc.addPage(); y = 30;
-                    doc.setFillColor(241, 245, 249);
-                    doc.rect(margin, y, contentWidth, 6, 'F');
-                    doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(...colTextLight);
-                    doc.text('DATA', mCols[0], y + 4);
-                    doc.text('CINTURA', mCols[1], y + 4);
-                    doc.text('QUADRIL', mCols[2], y + 4);
-                    doc.text('COXAS', mCols[3], y + 4);
-                    doc.text('PEITORAL', mCols[4], y + 4);
                     doc.setFont('helvetica', 'normal');
-                    y += 6;
-                }
+                    doc.setTextColor(...colTextLight);
+                    doc.text(`${st.days} dia${st.days !== 1 ? 's' : ''}`, sCols[1], y + 3.5);
 
-                if (i % 2 !== 0) {
-                    doc.setFillColor(252, 252, 252);
-                    doc.rect(margin, y, contentWidth, 5.5, 'F');
-                }
+                    const colAvg = st.avg >= 7 ? colRed : st.avg >= 4 ? [217, 119, 6] : colGreen;
+                    const colMax = st.max >= 7 ? colRed : st.max >= 4 ? [217, 119, 6] : colGreen;
 
-                doc.setTextColor(...colTextMain);
-                doc.text(DateService.format(m.dateISO), mCols[0], y + 4);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colAvg);
+                    doc.text(`${st.avg.toFixed(1)}/10`, sCols[2], y + 3.5);
 
-                // Helper to format measurement with variation
-                const drawMeasure = (val, initialVal, xPos) => {
-                    if (!val) {
-                        doc.setTextColor(...colTextLight);
-                        doc.text('--', xPos, y + 4);
-                        return;
+                    doc.setTextColor(...colMax);
+                    doc.text(`${st.max}/10`, sCols[3], y + 3.5);
+
+                    y += 5.5;
+                    sRow++;
+                });
+
+                // ─── Linhas dos SINTOMAS PERSONALIZADOS no Resumo ───
+                Object.keys(customStats).forEach(name => {
+                    const st = customStats[name];
+                    if (y > 270) { doc.addPage(); y = 30; }
+                    if (sRow % 2 !== 0) {
+                        doc.setFillColor(250, 250, 250);
+                        doc.rect(margin, y, contentWidth, 5.5, 'F');
                     }
                     doc.setFont('helvetica', 'bold');
                     doc.setTextColor(...colTextMain);
-                    doc.text(`${val} cm`, xPos, y + 4);
+                    doc.text(name, sCols[0], y + 3.5); // usa o nome exato digitado pelo usuário
                     doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(...colTextLight);
+                    doc.text(`${st.days} dia${st.days !== 1 ? 's' : ''}`, sCols[1], y + 3.5);
+                    const colAvg2 = st.avg >= 7 ? colRed : st.avg >= 4 ? [217, 119, 6] : colGreen;
+                    const colMax2 = st.max >= 7 ? colRed : st.max >= 4 ? [217, 119, 6] : colGreen;
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colAvg2);
+                    doc.text(`${st.avg.toFixed(1)}/10`, sCols[2], y + 3.5);
+                    doc.setTextColor(...colMax2);
+                    doc.text(`${st.max}/10`, sCols[3], y + 3.5);
+                    y += 5.5;
+                    sRow++;
+                });
 
-                    if (initialVal && val !== initialVal) {
-                        const diff = val - initialVal;
-                        const tWidth = doc.getTextWidth(`${val} cm`);
-                        const dColor = diff > 0 ? colRed : colGreen; // For measurements, losing cm is green
-                        doc.setFontSize(6);
-                        doc.setTextColor(...dColor);
-                        doc.text(`${diff > 0 ? '+' : ''}${diff} cm`, xPos + tWidth + 2, y + 3.5);
-                        doc.setFontSize(7);
-                    }
-                };
+                // Tabela detalhada — dia a dia com sintomas registrados
+                const daysWithSymptoms = allSymptoms.filter(s => SKEYS.some(k => (s[k] || 0) > 0));
+                if (daysWithSymptoms.length > 0) {
+                    y += 6;
+                    if (y > 230) { doc.addPage(); y = 30; }
 
-                drawMeasure(m.waist, oldestMeasurement?.waist, mCols[1]);
-                drawMeasure(m.hips, oldestMeasurement?.hips, mCols[2]);
-                drawMeasure(m.thighs, oldestMeasurement?.thighs, mCols[3]);
-                drawMeasure(m.chest, oldestMeasurement?.chest, mCols[4]);
+                    // Mini-título
+                    doc.setFontSize(8);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colBrand);
+                    doc.text('DETALHAMENTO POR DIA:', margin, y);
+                    y += 4;
 
-                y += 5.5;
-            });
-            y += 10;
-        }
-
-        // ---------------------------------------------------------
-        // 9. MONITORAMENTO DE PESO (High Density)
-        // ---------------------------------------------------------
-        if (options.includeTable) {
-            if (y > 230) { doc.addPage(); y = 30; }
-
-            doc.setFontSize(10);
-            doc.setTextColor(...colBrand);
-            doc.setFont('helvetica', 'bold');
-            doc.text('DADOS BIOMÉTRICOS DETALHADOS (PESO)', margin, y);
-            y += 8;
-
-            // Table Header
-            doc.setFillColor(241, 245, 249);
-            doc.rect(margin, y, contentWidth, 6, 'F');
-            doc.setFontSize(7);
-            doc.setTextColor(...colTextLight);
-
-            const wCols = [margin + 2, margin + 40, margin + 70, margin + 100, margin + 140];
-            doc.text('DATA', wCols[0], y + 4);
-            doc.text('PESO (KG)', wCols[1], y + 4);
-            doc.text('IMC', wCols[2], y + 4);
-            doc.text('VAR. DIÁRIA (KG)', wCols[3], y + 4);
-            doc.text('VAR. TOTAL (KG)', wCols[4], y + 4);
-            y += 6;
-
-            // Rows
-            doc.setFont('helvetica', 'normal');
-
-            weightsDesc.forEach((w, i) => {
-                if (y > 270) {
-                    doc.addPage();
-                    y = 30;
+                    // Header da tabela detalhada (Data + sintomas ativos)
                     doc.setFillColor(241, 245, 249);
-                    doc.rect(margin, y, contentWidth, 6, 'F');
+                    doc.rect(margin, y, contentWidth, 5.5, 'F');
+                    doc.setFontSize(6.5);
                     doc.setFont('helvetica', 'bold');
                     doc.setTextColor(...colTextLight);
-                    doc.text('DATA', wCols[0], y + 4);
-                    doc.text('PESO (KG)', wCols[1], y + 4);
-                    doc.text('IMC', wCols[2], y + 4);
-                    doc.text('VAR. DIÁRIA (KG)', wCols[3], y + 4);
-                    doc.text('VAR. TOTAL (KG)', wCols[4], y + 4);
-                    doc.setFont('helvetica', 'normal');
-                    y += 6;
+                    doc.text('DATA', margin + 2, y + 3.8);
+                    doc.text('SINTOMAS DO DIA', margin + 28, y + 3.8);
+                    y += 5.5;
+
+                    // Ordenar por data crescente
+                    const sortedDays = [...daysWithSymptoms].sort((a, b) => a.dateISO.localeCompare(b.dateISO));
+                    sortedDays.forEach((s, i) => {
+                        if (y > 270) { doc.addPage(); y = 30; }
+                        if (i % 2 !== 0) {
+                            doc.setFillColor(252, 252, 252);
+                            doc.rect(margin, y, contentWidth, 5, 'F');
+                        }
+
+                        // Data
+                        doc.setFontSize(7);
+                        doc.setFont('helvetica', 'bold');
+                        doc.setTextColor(...colTextMain);
+                        doc.text(DateService.format(s.dateISO), margin + 2, y + 3.5);
+
+                        // Sintomas clássicos ativos com intensidade
+                        const activeBuiltIn = SKEYS
+                            .filter(k => (s[k] || 0) > 0)
+                            .map(k => `${SLABELS[k]} ${s[k]}/10`);
+
+                        // Sintomas personalizados desse dia (do customDayMap)
+                        const activeCustom = (customDayMap[s.dateISO] || [])
+                            .map(c => `${c.name} ${c.value}/10`);
+
+                        const activeSym = [...activeBuiltIn, ...activeCustom].join('  •  ');
+
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor(...colTextLight);
+                        const symLines = doc.splitTextToSize(activeSym, contentWidth - 30);
+                        doc.text(symLines[0] || '', margin + 28, y + 3.5);
+                        y += 5;
+                    });
+
+                    // ─── Dias com APENAS sintomas personalizados (sem sintoma clássico) ───
+                    const pureCustomDays = Object.keys(customDayMap)
+                        .filter(d => !daysWithSymptoms.find(s => s.dateISO === d))
+                        .sort();
+                    pureCustomDays.forEach((d, i) => {
+                        if (y > 270) { doc.addPage(); y = 30; }
+                        const idx = daysWithSymptoms.length + i;
+                        if (idx % 2 !== 0) {
+                            doc.setFillColor(252, 252, 252);
+                            doc.rect(margin, y, contentWidth, 5, 'F');
+                        }
+                        doc.setFontSize(7);
+                        doc.setFont('helvetica', 'bold');
+                        doc.setTextColor(...colTextMain);
+                        doc.text(DateService.format(d), margin + 2, y + 3.5);
+                        const customLine = customDayMap[d].map(c => `${c.name} ${c.value}/10`).join('  •  ');
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor(...colTextLight);
+                        const cLines = doc.splitTextToSize(customLine, contentWidth - 30);
+                        doc.text(cLines[0] || '', margin + 28, y + 3.5);
+                        y += 5;
+                    });
                 }
 
-                let deltaDay = 0;
-                const prev = weightsDesc[i + 1];
-                if (prev) deltaDay = w.weightKg - prev.weightKg;
-                const deltaTotalVal = w.weightKg - initialWeight;
+                // Patient notes
+                const notedDays = allSymptoms.filter(s => (s.note || s.notes || '').trim());
+                if (notedDays.length > 0) {
+                    y += 4;
+                    doc.setFontSize(8);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...colTextLight);
+                    doc.text('NOTAS DO PACIENTE:', margin, y);
+                    y += 5;
 
-                if (i % 2 !== 0) {
-                    doc.setFillColor(252, 252, 252);
-                    doc.rect(margin, y, contentWidth, 5.5, 'F');
+                    notedDays.slice(0, 5).forEach(s => {
+                        if (y > 270) { doc.addPage(); y = 30; }
+                        const noteStr = (s.note || s.notes || '').trim();
+                        const dateLabel = DateService.format(s.dateISO) + ':  ';
+                        doc.setFont('helvetica', 'bold');
+                        doc.setTextColor(...colTextMain);
+                        doc.text(dateLabel, margin + 2, y);
+                        const dLabelW = doc.getTextWidth(dateLabel);
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor(...colTextLight);
+                        const noteLines = doc.splitTextToSize(noteStr, contentWidth - dLabelW - 4);
+                        doc.text(noteLines[0] || '', margin + 2 + dLabelW, y);
+                        y += 5;
+                    });
                 }
-
-                doc.setTextColor(...colTextMain);
-                doc.text(DateService.format(w.dateISO), wCols[0], y + 4);
-
-                doc.setFont('helvetica', 'bold');
-                doc.text(w.weightKg.toFixed(1) + ' kg', wCols[1], y + 4);
-                doc.setFont('helvetica', 'normal');
-
-                // BMI check
-                const wBMI = w.bmi || WeightService.calculateBMI(w.weightKg, profile.heightCm);
-                doc.text(wBMI.toFixed(1), wCols[2], y + 4);
-
-                const cDay = deltaDay > 0 ? colRed : (deltaDay < 0 ? colGreen : colTextLight);
-                doc.setTextColor(...cDay);
-                const txtDay = deltaDay === 0 ? '0.0 kg' : `${deltaDay > 0 ? '+' : ''}${deltaDay.toFixed(1)} kg`;
-                doc.text(txtDay, wCols[3], y + 4);
-
-                const cTotal = deltaTotalVal > 0 ? colRed : (deltaTotalVal < 0 ? colGreen : colTextLight);
-                doc.setTextColor(...cTotal);
-                const txtTotal = deltaTotalVal === 0 ? '0.0 kg' : `${deltaTotalVal > 0 ? '+' : ''}${deltaTotalVal.toFixed(1)} kg`;
-                doc.text(txtTotal, wCols[4], y + 4);
-
-                y += 5.5;
-            });
+                y += 8;
+            }
         }
+
+        // ---------------------------------------------------------
 
         // Footer
         const pageCount = doc.internal.getNumberOfPages();
@@ -728,24 +1058,38 @@ window.ReportService = {
             doc.line(margin, 280, pageWidth - margin, 280);
             doc.setFontSize(7);
             doc.setTextColor(...colTextLight);
-            doc.text('Ascenda • Documento Confidencial', margin, 285);
+            doc.text('Ascenda', margin, 285);
+            doc.setFont('helvetica', 'italic');
+            doc.text('Dados auto-reportados pelo paciente via aplicativo Ascenda. Não substitui avaliação clínica.', pageWidth / 2, 285, { align: 'center' });
+            doc.setFont('helvetica', 'normal');
             doc.text(`Página ${i}/${pageCount}`, pageWidth - margin, 285, { align: 'right' });
         }
 
-        // Output logic (Print-like)
-        const string = doc.output('datauristring');
-        const embed = `<embed width='100%' height='100%' src='${string}'/>`;
-        const w = window.open();
-        if (w) {
-            w.document.open();
-            w.document.write(embed);
-            w.document.close();
-            setTimeout(() => {
-                w.print();
-            }, 500);
-        } else {
-            doc.save(`Relatorio_Ascenda_${DateService.today()}.pdf`);
+        // Output logic — Web Share API (mobile) or direct download (desktop)
+        const filename = `Relatorio_Ascenda_${DateService.today()}.pdf`;
+
+        // Tenta Web Share API: no celular, abre o menu nativo de compartilhamento
+        // (WhatsApp, Email, Telegram etc.) sem precisar abrir popup
+        if (typeof navigator.share === 'function' && typeof navigator.canShare === 'function') {
+            try {
+                const pdfBlob = doc.output('blob');
+                const file = new File([pdfBlob], filename, { type: 'application/pdf' });
+                if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Relatório Ascenda',
+                        text: 'Segue o relatório de acompanhamento gerado pelo Ascenda.'
+                    });
+                    return; // Compartilhamento concluído — não baixa também
+                }
+            } catch (e) {
+                if (e.name === 'AbortError') return; // Usuário cancelou — não baixa
+                console.warn('ReportService: Web Share API indisponível, usando download:', e.message);
+            }
         }
+
+        // Fallback: download direto (desktop ou browsers sem suporte a Web Share com arquivos)
+        doc.save(filename);
     },
 
     /**

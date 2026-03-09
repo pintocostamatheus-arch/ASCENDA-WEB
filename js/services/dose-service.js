@@ -112,12 +112,11 @@ window.DoseService = {
 
         const last = history[history.length - 1];
         const dateStr = last.dateISO || last.date;
-        const lastDate = new Date(dateStr);
 
         // Usa o intervalo configurado ou padrão de 7 dias
+        // DateService.addDays usa T12:00:00 internamente para evitar drift de fuso horário (UTC-3)
         const interval = (schedule && schedule.intervalDays) ? parseInt(schedule.intervalDays) : 7;
-        lastDate.setDate(lastDate.getDate() + interval);
-        return lastDate.toISOString().split('T')[0];
+        return DateService.addDays(dateStr, interval);
     },
 
     calculateNextOccurrence(dayOfWeek) {
