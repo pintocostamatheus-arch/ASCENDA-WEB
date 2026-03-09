@@ -4091,20 +4091,53 @@ body::before {
    SKELETON LOADING
    ============================================ */
 @keyframes skeleton-shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
 }
+
 .skeleton {
     background: linear-gradient(90deg, var(--border-color) 25%, var(--bg-card) 50%, var(--border-color) 75%);
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.5s ease-in-out infinite;
     border-radius: 6px;
 }
-.skeleton-text { height: 14px; width: 60%; margin: 6px 0; }
-.skeleton-text-sm { height: 10px; width: 40%; margin: 4px 0; }
-.skeleton-value { height: 32px; width: 45%; margin: 8px 0; }
-.skeleton-bar { height: 8px; width: 100%; margin: 8px 0; border-radius: 4px; }
-.skeleton-ring { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 8px; }
+
+.skeleton-text {
+    height: 14px;
+    width: 60%;
+    margin: 6px 0;
+}
+
+.skeleton-text-sm {
+    height: 10px;
+    width: 40%;
+    margin: 4px 0;
+}
+
+.skeleton-value {
+    height: 32px;
+    width: 45%;
+    margin: 8px 0;
+}
+
+.skeleton-bar {
+    height: 8px;
+    width: 100%;
+    margin: 8px 0;
+    border-radius: 4px;
+}
+
+.skeleton-ring {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+}
 
 /* Hide real content when skeleton active */
 .skeleton-active .card-value,
@@ -4119,33 +4152,58 @@ body::before {
 .skeleton-active .injection-main-v10,
 .skeleton-active .injection-date-v10,
 .skeleton-active .injection-drug-v10,
-.skeleton-active .insight-text { visibility: hidden; height: 0; overflow: hidden; margin: 0; padding: 0; }
+.skeleton-active .insight-text {
+    visibility: hidden;
+    height: 0;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
 
-.skeleton-active .skeleton-ph { display: block !important; }
-.skeleton-ph { display: none; }
+.skeleton-active .skeleton-ph {
+    display: block !important;
+}
+
+.skeleton-ph {
+    display: none;
+}
 
 /* ============================================
    GUIDED ONBOARDING TUTORIAL
    ============================================ */
 .tutorial-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.7);
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
     z-index: 9998;
     transition: opacity 0.3s;
 }
+
 .tutorial-spotlight {
     position: absolute;
     border-radius: 12px;
-    box-shadow: 0 0 0 4000px rgba(0,0,0,0.7);
+    box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.7);
     z-index: 9999;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
 }
+
 @keyframes spotlight-pulse {
-    0%, 100% { box-shadow: 0 0 0 4000px rgba(0,0,0,0.7), 0 0 0 0 rgba(16,185,129,0.4); }
-    50% { box-shadow: 0 0 0 4000px rgba(0,0,0,0.7), 0 0 0 8px rgba(16,185,129,0.2); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.7), 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.7), 0 0 0 8px rgba(16, 185, 129, 0.2);
+    }
 }
-.tutorial-spotlight.active { animation: spotlight-pulse 2s infinite; }
+
+.tutorial-spotlight.active {
+    animation: spotlight-pulse 2s infinite;
+}
+
 .tutorial-tooltip {
     position: fixed;
     background: var(--bg-card);
@@ -4154,17 +4212,47 @@ body::before {
     padding: 20px;
     z-index: 10000;
     max-width: 300px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.tutorial-tooltip-title { font-weight: 700; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 6px; }
-.tutorial-tooltip-text { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; }
-.tutorial-tooltip-footer { display: flex; justify-content: space-between; align-items: center; }
-.tutorial-tooltip-steps { font-size: 0.72rem; color: var(--text-muted); }
-.tutorial-tooltip-btn {
-    background: var(--primary); color: #fff;
-    border: none; border-radius: 10px;
-    padding: 8px 20px; font-weight: 600; font-size: 0.85rem;
-    cursor: pointer; transition: transform 0.2s;
+
+.tutorial-tooltip-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin-bottom: 6px;
 }
-.tutorial-tooltip-btn:active { transform: scale(0.96); }
+
+.tutorial-tooltip-text {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 14px;
+}
+
+.tutorial-tooltip-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tutorial-tooltip-steps {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.tutorial-tooltip-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.tutorial-tooltip-btn:active {
+    transform: scale(0.96);
+}

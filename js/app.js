@@ -786,8 +786,8 @@ window._Tutorial = {
 
 window.addEventListener("DOMContentLoaded", async () => {
 
-    // 0. Verifica consentimento LGPD antes de qualquer ação
-    _checkLgpdConsent();
+    // 0. (Movido para depois do loadFromCloud para evitar race conditions)
+
 
     // Botão "Política de Privacidade" nas configurações
     const btnOpenLgpd = document.getElementById('btn-open-lgpd-info');
@@ -857,8 +857,7 @@ window.addEventListener("DOMContentLoaded", async () => {
                 if (window.App && window.Router) {
                     App.refreshTab(Router.currentTab || 'hoje');
                 }
-                // Verifica gate após carregar dados atualizados do perfil
-                if (window.AuthService) AuthService.gate();
+
                 // Restaura consentimento LGPD do perfil cloud se ausente localmente
                 if (!localStorage.getItem('monjaro_lgpd_consent')) {
                     const profile = StorageService.getSafe(StorageService.KEYS.PROFILE, {});
@@ -868,9 +867,23 @@ window.addEventListener("DOMContentLoaded", async () => {
                         if (lgpdOverlay) lgpdOverlay.style.display = 'none';
                     }
                 }
-            }).catch(e => console.warn('loadFromCloud falhou:', e));
 
-            // 6b. Tutorial guiado (só na primeira vez, depois dos dados carregarem)
+                // Verifica gate após carregar dados atualizados do perfil
+                if (window.AuthService) AuthService.gate();
+
+                // 6a. Verifica consentimento LGPD APÓS carregar os dados da nuvem (evitar piscar modal à toa)
+                _checkLgpdConsent();
+
+                // 6b. Verifica primeiro acesso APÓS a nuvem confirmar onboardingComplete
+                if (window.ProfileService && ProfileService.isFirstRun()) {
+                    if (typeof App.showOnboardingModal === 'function') {
+                        App.showOnboardingModal();
+                    }
+                }
+
+            }).catch(e => { console.warn('loadFromCloud falhou:', e); _checkLgpdConsent(); });
+
+            // 6c. Tutorial guiado (só na primeira vez, depois dos dados carregarem)
             setTimeout(() => { if (window._Tutorial) _Tutorial.start(); }, 1200);
 
             // 7. Agenda notificações do dia

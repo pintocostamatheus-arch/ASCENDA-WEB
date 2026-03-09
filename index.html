@@ -7,9 +7,18 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <!-- theme-color adaptativo: branco no modo claro, escuro no modo noturno -->
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
     <meta name="description"
         content="Ascenda - Acompanhamento completo para seu tratamento com GLP-1 (Semaglutida, Tirzepatida, Retatrutida).">
+
+    <!-- Open Graph Tags para SEO e Compartilhamento -->
+    <meta property="og:title" content="Ascenda - Desperte sua melhor versão">
+    <meta property="og:description" content="Acompanhamento completo para seu tratamento com GLP-1.">
+    <meta property="og:image" content="https://ascenda.app/assets/icons/icon-512.png">
+    <meta property="og:url" content="https://ascenda.app">
+    <meta property="og:type" content="website">
+
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,7 +28,7 @@
                  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
                  font-src 'self' https://fonts.gstatic.com;
                  connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io;
-                 img-src 'self' data: blob:;
+                 img-src 'self' data: blob: https://*.supabase.co;
                  media-src 'self' blob:;
                  worker-src 'self';
                  frame-ancestors 'none';
@@ -429,10 +438,12 @@
         <header class="app-header">
             <div class="header-top">
                 <div class="header-brand">
-                    <img src="assets/img/logo.svg" alt="Icon" class="header-logo-icon">
-                    <svg class="header-logo-svg" viewBox="0 0 7619.98 2539.98">
-                        <use href="#logo-wordmark"></use>
-                    </svg>
+                    <h1 style="display: flex; align-items: flex-end; margin: 0; padding: 0; gap: 2px;">
+                        <img src="assets/img/logo.svg" alt="Ascenda Icon" class="header-logo-icon">
+                        <svg class="header-logo-svg" viewBox="0 0 7619.98 2539.98">
+                            <use href="#logo-wordmark"></use>
+                        </svg>
+                    </h1>
                 </div>
                 <div class="header-actions">
                     <div class="theme-selector" id="theme-selector">
@@ -1211,6 +1222,10 @@
                                         id="m-hip">--</span></div>
                                 <div class="measure-item"><span class="m-label">Braço</span><span class="m-val"
                                         id="m-arm">--</span></div>
+                                <div class="measure-item"><span class="m-label">Peito</span><span class="m-val"
+                                        id="m-chest">--</span></div>
+                                <div class="measure-item"><span class="m-label">Coxa</span><span class="m-val"
+                                        id="m-thigh">--</span></div>
                             </div>
                             <button class="btn-journey-add" onclick="App.showAddMeasurementModal()">
                                 <span>📏 Novo Registro de Medidas</span>
@@ -1370,7 +1385,7 @@
                         <div class="avatar-glass-ring"></div>
                         <div class="avatar-inner" id="profile-avatar-display">
                             <span id="avatar-initials">M</span>
-                            <img id="profile-photo-img" style="display:none;">
+                            <img id="profile-photo-img" style="display:none;" alt="Foto de Perfil">
                         </div>
                         <div class="avatar-plus-btn">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
@@ -2687,7 +2702,7 @@
                         <div style="position: relative;"
                             onclick="this.querySelector('input').showPicker ? this.querySelector('input').showPicker() : this.querySelector('input').focus()">
                             <input type="date" id="onboard-birth" class="md-input"
-                                style="color-scheme: dark; position: relative; z-index: 2; background: transparent; -webkit-appearance: none; max-height: 50px; box-sizing: border-box;"
+                                style="color-scheme: dark; position: relative; z-index: 2; background: transparent; -webkit-appearance: none; appearance: none; max-height: 50px; box-sizing: border-box;"
                                 onchange="App.checkAgeForSarcopenia(this); var ph = this.parentElement.querySelector('.date-placeholder'); if(this.value) { ph.style.display='none'; this.style.background='var(--md-input-bg)'; } else { ph.style.display='flex'; this.style.background='transparent'; }">
                             <div class="date-placeholder"
                                 style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; pointer-events: none; z-index: 1; background: var(--md-input-bg); border: 1px solid var(--md-border); border-radius: var(--md-radius-input);">

@@ -140,9 +140,9 @@ body {
 
 .header-brand {
     display: flex;
-    align-items: baseline;
+    align-items: flex-end;
     /* Strict baseline alignment as requested */
-    gap: 4px;
+    gap: 2px;
     flex: 1;
 }
 
@@ -151,7 +151,7 @@ body {
     /* Restored vibrancy */
     height: 42px;
     object-fit: contain;
-    margin-bottom: -4px;
+    margin-bottom: 0px;
     /* Align icon base with text baseline */
 }
 
@@ -161,8 +161,8 @@ body {
     width: auto;
     color: var(--text-primary);
     display: flex;
-    margin-bottom: 0px;
-    /* Reset precision nudge */
+    margin-bottom: -1.5px;
+    /* Micro adjustment to push the text downwards and match the angle of the triangle base exactly */
 }
 
 .header-date-display {
@@ -576,9 +576,6 @@ body {
     position: relative;
 }
 
-.bmi-segment {
-    /* flex property is now strictly inherited from custom-components.css mathematically */
-}
 
 .bmi-under {
     background: #3B82F6;

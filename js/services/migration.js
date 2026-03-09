@@ -291,7 +291,8 @@ window.MigrationService = {
                     date: p.dateISO,
                     weight_kg: p.weightKg ? parseFloat(p.weightKg) : null,
                     note: p.note || null,
-                    photo_url: p.cloudUrl || null // Preserva cloudUrl existente se houver
+                    photo_url: p.cloudUrl || null, // Preserva cloudUrl existente se houver
+                    local_id: p.id || null          // Preserva o id real para restauração correta em novos dispositivos
                 }));
 
             if (photoRows.length > 0) {

@@ -69,6 +69,21 @@ const JourneyController = {
 
 
 
+        // Render latest measurements summary
+        const journey = JourneyService.get();
+        const fields = ['m-waist', 'm-abdomen', 'm-hip', 'm-arm', 'm-chest', 'm-thigh'];
+        if (journey.measurements && journey.measurements.length > 0) {
+            const latest = [...journey.measurements].sort((a, b) => b.dateISO.localeCompare(a.dateISO))[0];
+            const keys = ['waist', 'abdomen', 'hip', 'arm', 'chest', 'thigh'];
+            fields.forEach((id, i) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = latest[keys[i]] ? `${latest[keys[i]]}cm` : '--';
+            });
+        } else {
+            // Sem medidas: limpa todos os campos para '--'
+            fields.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '--'; });
+        }
+
         this.renderJourneyMilestones();
 
     },

@@ -528,18 +528,22 @@ window.StorageService = {
 
                     cloudMeasurements.forEach(row => {
                         if (!row.name || row.value === undefined || row.value === null) return;
-                        // Só adiciona se não existir localmente (evita duplicatas)
-                        const exists = localJourney.measurements.find(m =>
-                            m.name === row.name && m.dateISO === row.date
-                        );
-                        if (!exists) {
-                            localJourney.measurements.push({
+
+                        // Encontra se já criamos (ou se já havia localmente) um registro para ESTA data
+                        let measureObj = localJourney.measurements.find(m => m.dateISO === row.date);
+
+                        if (!measureObj) {
+                            // Se não existe, cria o objeto agrupador para essa data
+                            measureObj = {
                                 id: Date.now() + Math.floor(Math.random() * 1000),
-                                dateISO: row.date,
-                                name: row.name,
-                                value: parseFloat(row.value),
-                                unit: row.unit || 'cm'
-                            });
+                                dateISO: row.date
+                            };
+                            localJourney.measurements.push(measureObj);
+                        }
+
+                        // Se esse campo específico ainda não existir no objeto (ou se a nuvem for nova pra ele), atribui
+                        if (measureObj[row.name] === undefined) {
+                            measureObj[row.name] = parseFloat(row.value);
                             measurementsUpdated = true;
                         }
                     });

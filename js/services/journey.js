@@ -89,7 +89,8 @@ window.JourneyService = {
                             date: photo.dateISO,
                             photo_url: cloudUrl,
                             weight_kg: photo.weightKg || null,
-                            note: photo.note || ''
+                            note: photo.note || '',
+                            local_id: id   // Preserva o id real para restauração correta em novos dispositivos
                         },
                         'user_id,date'
                     );
@@ -401,15 +402,24 @@ window.JourneyService = {
             if (!AuthService.isLoggedIn()) return;
             const profile = StorageService.getSafe(StorageService.KEYS.PROFILE, {});
             if (profile.is_approved === false) return;
-            if (!measurement.name || measurement.value === undefined || measurement.value === null) return;
 
-            const row = {
-                date: measurement.dateISO || DateService.today(),
-                name: measurement.name,
-                value: parseFloat(measurement.value),
-                unit: measurement.unit || 'cm'
-            };
-            await SupabaseService.upsert('journey_measurements', row, 'user_id,date,name');
+            const parts = ['waist', 'abdomen', 'hip', 'arm', 'chest', 'thigh'];
+            const rows = [];
+
+            parts.forEach(name => {
+                if (measurement[name] !== undefined && measurement[name] !== null && !isNaN(measurement[name])) {
+                    rows.push({
+                        date: measurement.dateISO || DateService.today(),
+                        name: name,
+                        value: parseFloat(measurement[name]),
+                        unit: 'cm'
+                    });
+                }
+            });
+
+            if (rows.length > 0) {
+                await SupabaseService.upsert('journey_measurements', rows, 'user_id,date,name');
+            }
         } catch (e) {
             console.warn('JourneyService._syncMeasurementToCloud: falha (não crítica):', e.message);
         }
@@ -424,12 +434,14 @@ window.JourneyService = {
             if (!window.SupabaseService || !window.AuthService) return;
             if (!AuthService.isLoggedIn()) return;
             const user = await SupabaseService.getUser();
-            if (!user || !measurement.dateISO || !measurement.name) return;
-            await SupabaseService.delete('journey_measurements', {
-                user_id: user.id,
-                date: measurement.dateISO,
-                name: measurement.name
-            });
+            if (!user || !measurement.dateISO) return;
+
+            const client = SupabaseService.getClient();
+            await client.from('journey_measurements')
+                .delete()
+                .eq('user_id', user.id)
+                .eq('date', measurement.dateISO);
+
         } catch (e) {
             console.warn('JourneyService._deleteMeasurementFromCloud: falha (não crítica):', e.message);
         }
