@@ -44,10 +44,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     opacity: 0;
     transition: opacity 0.3s ease;
     overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 
 .wizard-step.active {
@@ -216,6 +218,7 @@
     align-items: center;
     border-top: 1px solid var(--border-color);
     background: var(--bg-primary);
+    flex-shrink: 0;
 }
 
 .btn-wizard-back {
