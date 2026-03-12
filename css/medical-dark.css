@@ -97,7 +97,7 @@
     max-width: 480px;
     height: auto;
     max-height: 90vh;
-    max-height: 88dvh;
+    max-height: 85svh; /* svh ignores dynamically expanded toolbars and always fits perfectly! */
     /* dynamic viewport for iOS PWA safe areas */
     background: var(--md-surface);
     backdrop-filter: blur(24px);
@@ -358,7 +358,7 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto; /* Allow step content to scroll */
-    padding-bottom: 16px; /* spacing for scrolling */
+    padding-bottom: 32px; /* Extra padding for bottom visibility */
 }
 
 .md-step.active {
@@ -433,7 +433,7 @@
     }
 
     .md-step {
-        padding-bottom: 8px; 
+        padding-bottom: 24px; 
     }
 
     .md-select-card {
