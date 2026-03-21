@@ -321,18 +321,23 @@ window.Charts = {
         weightsRaw.forEach(w => weightMap[w.dateISO] = w.weightKg);
 
         // 4. Interpolation Helper
+        const weightTimes = weightsRaw.map(w => ({ time: new Date(w.dateISO).getTime(), ...w }));
+        let weightIdx = 0;
+
         const getInterpWeight = (targetDateISO) => {
             if (weightMap[targetDateISO] !== undefined) return weightMap[targetDateISO];
             const targetTime = new Date(targetDateISO).getTime();
-            let prev = null, next = null;
-            for (let w of weightsRaw) {
-                const t = new Date(w.dateISO).getTime();
-                if (t < targetTime) prev = w;
-                else if (t > targetTime && !next) { next = w; break; }
+            
+            while (weightIdx < weightTimes.length && weightTimes[weightIdx].time <= targetTime) {
+                weightIdx++;
             }
+            
+            const prev = weightIdx > 0 ? weightTimes[weightIdx - 1] : null;
+            const next = weightIdx < weightTimes.length ? weightTimes[weightIdx] : null;
+
             if (prev && next) {
-                const prevTime = new Date(prev.dateISO).getTime();
-                const nextTime = new Date(next.dateISO).getTime();
+                const prevTime = prev.time;
+                const nextTime = next.time;
                 const ratio = (targetTime - prevTime) / (nextTime - prevTime);
                 return (prev.weightKg || 0) + ((next.weightKg || 0) - (prev.weightKg || 0)) * ratio;
             } else if (prev) return prev.weightKg || 0;

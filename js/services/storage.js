@@ -372,13 +372,33 @@ window.StorageService = {
                 if (arr.length < rawArr.length) {
                     console.warn(`loadFromCloud: ${rawArr.length - arr.length} injecao(oes) duplicada(s) removida(s) do cache local.`);
                 }
-                localStorage.setItem(this.KEYS.INJECTIONS, JSON.stringify(arr));
+                // Merge with existing local injections to prevent data loss 
+                // (e.g., if local has unsynced entries, don't overwrite them)
+                const localInjections = this.getSafe(this.KEYS.INJECTIONS, []);
+                const merged = [...arr];
+
+                localInjections.forEach(localInj => {
+                    const isDup = merged.find(c => 
+                        (c.id && localInj.id && c.id === localInj.id) || 
+                        (c.dateISO === localInj.dateISO && (c.time || '') === (localInj.time || '') && c.drugName === localInj.drugName && c.doseMg === localInj.doseMg)
+                    );
+                    if (!isDup) merged.push(localInj);
+                });
+
+                // Sort by date
+                merged.sort((a, b) => {
+                    const dateA = a.dateISO || a.date || "";
+                    const dateB = b.dateISO || b.date || "";
+                    return dateA.localeCompare(dateB);
+                });
+
+                localStorage.setItem(this.KEYS.INJECTIONS, JSON.stringify(merged));
             }
 
             // Nutrition
             const nutrition = await SupabaseService.select('nutrition', {}, 'date', true);
             if (nutrition.length > 0) {
-                const obj = {};
+                const obj = this.getSafe(this.KEYS.NUTRITION, {});
                 nutrition.forEach(n => {
                     obj[n.date] = {
                         dateISO: n.date,
@@ -395,7 +415,7 @@ window.StorageService = {
             // Symptoms
             const symptoms = await SupabaseService.select('symptoms', {}, 'date', true);
             if (symptoms.length > 0) {
-                const obj = {};
+                const obj = this.getSafe(this.KEYS.SYMPTOMS, {});
                 symptoms.forEach(s => {
                     obj[s.date] = {
                         dateISO: s.date,
