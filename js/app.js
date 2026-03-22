@@ -1,4 +1,4 @@
-﻿﻿/* ============================================
+﻿/* ============================================
    MAIN APPLICATION CONTROLLER
    ============================================ */
 window.App = {
@@ -240,12 +240,7 @@ window.App = {
 
         const btnHeroRegister = document.getElementById('btn-hero-register');
         if (btnHeroRegister) btnHeroRegister.onclick = () => {
-            const modal = document.getElementById('modal-register-injection');
-            if (modal) {
-                modal.hidden = false;
-                document.getElementById('injection-date').value = DateService.today();
-                document.getElementById('injection-time-reg').value = new Date().toTimeString().slice(0, 5);
-            }
+            if (this.openRegisterModal) this.openRegisterModal();
         };
         UI.setClick('btn-close-register-modal', () => {
             const modal = document.getElementById('modal-register-injection');
