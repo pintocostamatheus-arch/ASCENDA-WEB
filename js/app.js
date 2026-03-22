@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    MAIN APPLICATION CONTROLLER
    ============================================ */
 window.App = {
@@ -240,7 +240,22 @@ window.App = {
 
         const btnHeroRegister = document.getElementById('btn-hero-register');
         if (btnHeroRegister) btnHeroRegister.onclick = () => {
-            if (this.openRegisterModal) this.openRegisterModal();
+            try {
+                if (window.InjectionsController && InjectionsController.openRegisterModal) {
+                    InjectionsController.openRegisterModal();
+                } else if (this.openRegisterModal) {
+                    this.openRegisterModal();
+                } else {
+                    const m = document.getElementById('modal-register-injection');
+                    if (m) { m.hidden = false; m.style.display = 'flex'; m.classList.add('active'); }
+                }
+            } catch (e) {
+                console.error("btnHeroRegister error:", e);
+                UI.toast("Erro ao abrir modal: " + e.message, "error");
+                // Fallback seguro
+                const m = document.getElementById('modal-register-injection');
+                if (m) { m.hidden = false; m.style.display = 'flex'; m.classList.add('active'); }
+            }
         };
         UI.setClick('btn-close-register-modal', () => {
             const modal = document.getElementById('modal-register-injection');

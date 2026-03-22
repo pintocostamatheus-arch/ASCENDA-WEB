@@ -1,4 +1,5 @@
 // Versão centralizada em js/version.js — só edite lá ao fazer deploy
+// FORCED UPDATE: 1.2.4
 importScripts('/js/version.js');
 const CACHE_NAME = 'ascenda-v' + (self.CACHE_VERSION || '1');
 const ASSETS = [
