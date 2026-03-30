@@ -104,7 +104,7 @@ refreshReportTab() {
 
                     clearInterval(checkVisibility);
 
-                    Charts.createInjectionWeightChart('injection-weight-chart', '30');
+                    Charts.createInjectionWeightChart('report-weight-chart', '30');
 
                 }
 
@@ -130,7 +130,7 @@ refreshReportTab() {
 
                     clearInterval(checkVisibility);
 
-                    Charts.createInjectionWeightChart('injection-weight-chart', period);
+                    Charts.createInjectionWeightChart('report-weight-chart', period);
 
                 }
 
@@ -178,7 +178,7 @@ refreshReportTab() {
 
             }
 
-            Charts.createInjectionWeightChart('injection-weight-chart', days);
+            Charts.createInjectionWeightChart('report-weight-chart', days);
 
         };
 
