@@ -511,6 +511,12 @@ window.ReportService = {
                     : todayISO;                       // hoje para a fase atual
             }
 
+            // Obtém dados do mesmo serviço usado na aba Peso (sem restrição de janela de dias)
+            const doseAnalysisMap = new Map();
+            if (window.DoseAnalysisService) {
+                DoseAnalysisService.getLossRateByDose().forEach(d => doseAnalysisMap.set(d.dose, d));
+            }
+
             const rowH2 = 8;
             dosePhases2.forEach((phase, i) => {
                 if (y > 270) { doc.addPage(); y = 30; }
@@ -519,15 +525,14 @@ window.ReportService = {
                     doc.rect(margin, y, contentWidth, rowH2, 'F');
                 }
 
-                // Peso no início da fase vs peso no fim do período (transição ou hoje)
-                const wS2 = findNearestWeight(phase.startDate);
-                const wE2 = findNearestWeight(phase.measureEndDate);
-                const lossKg2 = (wS2 && wE2) ? wS2 - wE2 : null;
-
-                // Duração real da fase (sem mínimo artificial de 1 semana)
+                // Duração real da fase
                 const dDays2 = Math.floor((new Date(phase.measureEndDate) - new Date(phase.startDate)) / 86400000);
                 const dWeeks2 = dDays2 / 7;
                 const dWeeksDisplay = dWeeks2 >= 1 ? `${dWeeks2.toFixed(1)} sem` : `${dDays2} dias`;
+
+                // Usa DoseAnalysisService (mesmo cálculo da aba Peso) em vez de findNearestWeight
+                const doseData = doseAnalysisMap.get(phase.doseMg);
+                const lossKg2 = doseData ? -doseData.totalLoss : null; // totalLoss negativo = perda; invertemos para lossKg2 positivo = perda
 
                 const lossStr2 = lossKg2 !== null
                     ? `${lossKg2 > 0 ? '-' : lossKg2 < 0 ? '+' : ''}${Math.abs(lossKg2).toFixed(1)} kg`

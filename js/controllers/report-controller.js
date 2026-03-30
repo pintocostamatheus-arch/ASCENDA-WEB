@@ -94,50 +94,6 @@ refreshReportTab() {
 
             btn30.classList.add('active');
 
-
-
-            const checkVisibility = setInterval(() => {
-
-                const tab = document.getElementById('tab-relatorios');
-
-                if (tab && tab.offsetParent !== null) {
-
-                    clearInterval(checkVisibility);
-
-                    Charts.createInjectionWeightChart('report-weight-chart', '30');
-
-                }
-
-            }, 50);
-
-            setTimeout(() => clearInterval(checkVisibility), 2000);
-
-        }
-
-    } else {
-
-        const activeBtn = document.querySelector('#tab-relatorios .date-presets .preset-btn.active');
-
-        if (activeBtn) {
-
-            const period = activeBtn.dataset.days || 'all';
-
-            const checkVisibility = setInterval(() => {
-
-                const tab = document.getElementById('tab-relatorios');
-
-                if (tab && tab.offsetParent !== null) {
-
-                    clearInterval(checkVisibility);
-
-                    Charts.createInjectionWeightChart('report-weight-chart', period);
-
-                }
-
-            }, 50);
-
-            setTimeout(() => clearInterval(checkVisibility), 2000);
-
         }
 
     }
@@ -177,8 +133,6 @@ refreshReportTab() {
                 }
 
             }
-
-            Charts.createInjectionWeightChart('report-weight-chart', days);
 
         };
 
