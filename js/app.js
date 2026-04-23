@@ -885,6 +885,9 @@ window.addEventListener("DOMContentLoaded", async () => {
             AuthService.gate();
             App.init();
 
+            // Remove o snapshot recursivo que crescia a cada save (bug: incluía a si mesmo)
+            try { localStorage.removeItem('monjaro_last_good_state'); } catch (e) {}
+
             // 5. Migração local → nuvem (só roda uma vez, se ainda não migrou)
             if (window.MigrationService) {
                 await MigrationService.migrateLocalDataToSupabase();
