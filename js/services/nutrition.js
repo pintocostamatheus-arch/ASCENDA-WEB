@@ -170,6 +170,10 @@ window.NutritionService = {
         let all = StorageService.getSafe(StorageService.KEYS.NUTRITION, {});
         if (Array.isArray(all)) all = {}; // Force object
         all[dateISO] = data;
+        // Mantém apenas os últimos 7 dias para não encher o localStorage
+        const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
+        const cutoffISO = cutoff.toISOString().split('T')[0];
+        Object.keys(all).forEach(k => { if (k < cutoffISO) delete all[k]; });
         StorageService.set(StorageService.KEYS.NUTRITION, all);
     },
 

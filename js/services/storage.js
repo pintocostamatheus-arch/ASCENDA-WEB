@@ -395,19 +395,24 @@ window.StorageService = {
                 localStorage.setItem(this.KEYS.INJECTIONS, JSON.stringify(merged));
             }
 
-            // Nutrition
+            // Nutrition — mantém apenas os últimos 7 dias no localStorage.
+            // Histórico completo fica no Supabase; relatório não usa nutrição.
+            const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
+            const cutoffISO = cutoff.toISOString().split('T')[0];
             const nutrition = await SupabaseService.select('nutrition', {}, 'date', true);
             if (nutrition.length > 0) {
-                const obj = this.getSafe(this.KEYS.NUTRITION, {});
+                const obj = {};
                 nutrition.forEach(n => {
-                    obj[n.date] = {
-                        dateISO: n.date,
-                        proteinConsumed: parseFloat(n.protein_g || 0),
-                        waterMl: parseInt(n.water_ml || 0),
-                        fiberG: parseFloat(n.fiber_g || 0),
-                        meals: n.meals || [],
-                        flags: n.flags || {}
-                    };
+                    if (n.date >= cutoffISO) {
+                        obj[n.date] = {
+                            dateISO: n.date,
+                            proteinConsumed: parseFloat(n.protein_g || 0),
+                            waterMl: parseInt(n.water_ml || 0),
+                            fiberG: parseFloat(n.fiber_g || 0),
+                            meals: n.meals || [],
+                            flags: n.flags || {}
+                        };
+                    }
                 });
                 localStorage.setItem(this.KEYS.NUTRITION, JSON.stringify(obj));
             }
@@ -587,13 +592,19 @@ window.StorageService = {
     // ─── SNAPSHOT, RESTORE, EXPORT, IMPORT (original) ──
 
     snapshot() {
+        // Usuários autenticados têm o Supabase como backup real — snapshot local é desnecessário
+        // e desperdiça ~50% do localStorage duplicando todos os dados
+        if (window.AuthService && AuthService.isLoggedIn()) {
+            try { localStorage.removeItem(this.KEYS.LAST_GOOD); } catch (e) {}
+            this.updateMeta();
+            return;
+        }
         const state = {};
         Object.values(this.KEYS).forEach(key => {
             if (key !== this.KEYS.JOURNEY) {
                 state[key] = this.getSafe(key);
             }
         });
-        // Snapshot é local-only (não sincroniza para cloud)
         try {
             localStorage.setItem(this.KEYS.LAST_GOOD, JSON.stringify(state));
         } catch (e) { /* ignore */ }

@@ -615,6 +615,34 @@ window.App = {
         if (el) el.scrollIntoView({ behavior: "smooth" });
     },
 
+    showStorageDiag() {
+        const keys = Object.keys(localStorage);
+        let lines = [];
+        let totalBytes = 0;
+        keys.forEach(k => {
+            const val = localStorage.getItem(k) || '';
+            const bytes = val.length * 2;
+            totalBytes += bytes;
+            lines.push({ key: k, kb: bytes / 1024 });
+        });
+        lines.sort((a, b) => b.kb - a.kb);
+        const totalKB = totalBytes / 1024;
+        const totalMB = totalKB / 1024;
+        const limitMB = 5;
+        const pct = Math.min(100, (totalMB / limitMB * 100)).toFixed(0);
+
+        let msg = `📦 Armazenamento local\n`;
+        msg += `${'─'.repeat(32)}\n`;
+        lines.forEach(l => {
+            const bar = l.kb > 1 ? ` ◀ ${l.kb.toFixed(0)} KB` : '';
+            msg += `${l.key.replace('monjaro_','')}: ${l.kb.toFixed(1)} KB${bar}\n`;
+        });
+        msg += `${'─'.repeat(32)}\n`;
+        msg += `TOTAL: ${totalKB.toFixed(0)} KB de ~5120 KB (${pct}% usado)`;
+
+        alert(msg);
+    },
+
 };
 
 // ─── BOOTSTRAP: Auth → App Init → Cloud Sync ───────────────────
