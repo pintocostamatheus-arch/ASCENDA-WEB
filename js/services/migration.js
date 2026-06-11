@@ -342,8 +342,7 @@ window.MigrationService = {
 
         const row = {
             day_of_week: raw.dayOfWeek !== undefined ? raw.dayOfWeek : null,
-            time: raw.time || null,
-            interval_days: raw.intervalDays || 7
+            time: raw.time || null
         };
 
         const { error } = await SupabaseService.upsert('injection_schedule', row, 'user_id');

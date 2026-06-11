@@ -142,8 +142,7 @@ window.StorageService = {
         } else if (mapping.table === 'injection_schedule') {
             const row = {
                 day_of_week: value.dayOfWeek !== undefined ? value.dayOfWeek : null,
-                time: value.time || null,
-                interval_days: value.intervalDays || 7
+                time: value.time || null
             };
             await SupabaseService.upsert('injection_schedule', row, 'user_id');
         }
