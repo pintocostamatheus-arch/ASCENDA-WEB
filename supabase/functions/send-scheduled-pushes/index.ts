@@ -31,9 +31,10 @@ const supabaseAdmin = createClient(
 );
 
 // ─── Janela de tolerância (minutos) ──────────────────────────────────────────
-// pg_cron roda a cada 1 min. WINDOW_MINUTES = 0 garante disparo exato,
-// sem duplicatas. Aumentar apenas se o cron for alterado para > 1 min.
-const WINDOW_MINUTES = 0;
+// pg_cron roda a cada 1 min. WINDOW_MINUTES = 1 garante que atrasos de até
+// 1 min no processamento não façam o cron perder o horário exato.
+// Não gera duplicatas pois o cron roda a cada 1 min (nunca bate 2x no mesmo minuto).
+const WINDOW_MINUTES = 1;
 
 // ─── Handler principal ────────────────────────────────────────────────────────
 // CORS headers for security

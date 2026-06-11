@@ -10,7 +10,12 @@
       "Bash(git -C \"D:\\\\Documentos\\\\GEMINI\\\\ASCENDA WEB\" status)",
       "mcp__Claude_Preview__preview_start",
       "Bash(where node)",
-      "Bash(node -e \"require\\(''child_process''\\).execSync\\(''npx serve --version'', {stdio:''inherit''}\\)\")"
+      "Bash(node -e \"require\\(''child_process''\\).execSync\\(''npx serve --version'', {stdio:''inherit''}\\)\")",
+      "Bash(grep -r \"eficiência\\\\|efficiency\\\\|tab\" '/d/Documentos/GEMINI/ASCENDA WEB/js' --include=*.js)",
+      "Bash(cd /d/Documentos/GEMINI/\"ASCENDA WEB\")",
+      "Bash(sed -n '1239,1350p' index.html)",
+      "Bash(grep -n \"taxa\\\\|eficiência\\\\|efficiency\\\\|dose.*tab\" /d/Documentos/GEMINI/\"ASCENDA WEB\"/js/controllers/*.js)",
+      "Bash(file /d/Documentos/GEMINI/\"ASCENDA WEB\"/assets/icons/icon-*.png)"
     ]
   }
 }
