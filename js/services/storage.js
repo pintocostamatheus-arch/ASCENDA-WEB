@@ -343,6 +343,12 @@ window.StorageService = {
                         bmi: parseFloat(bmi.toFixed(2))
                     };
                 });
+                // Merge com pesos locais que ainda não sincronizaram (ex: falha de rede/banco)
+                // para não perder registros recentes que a nuvem ainda não tem.
+                const localWeights = this.getSafe(this.KEYS.WEIGHTS, {});
+                Object.entries(localWeights).forEach(([dateKey, localEntry]) => {
+                    if (!obj[dateKey]) obj[dateKey] = localEntry;
+                });
                 localStorage.setItem(this.KEYS.WEIGHTS, JSON.stringify(obj));
             }
 
