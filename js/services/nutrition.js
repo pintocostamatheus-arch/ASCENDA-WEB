@@ -2,12 +2,6 @@
    NUTRITION SERVICE
    ============================================ */
 window.NutritionService = {
-    // Factors
-    PROTEIN_FACTORS: {
-        none: { sedentary: 0.8, light: 1.0, moderate: 1.0, active: 1.2, very_active: 1.2 }, // Normal
-        glp1: { sedentary: 1.5, light: 1.5, moderate: 1.5, active: 1.8, very_active: 1.8 }  // Anti-Catabolic (Requested 1.5 base)
-    },
-
     calculate(manualProfile = null) {
         if (!manualProfile && (typeof ProfileService === 'undefined' || typeof WeightService === 'undefined')) {
             return { protein: 60, water: 2000, fiber: 28, proteinBasis: 'Default', bmi: 25 };
@@ -37,6 +31,12 @@ window.NutritionService = {
 
         // Calcule o Peso Ideal (BMI 24.9) para regras renais
         const idealWeight = 24.9 * ((height / 100) ** 2);
+
+        // Peso de referência para o adulto saudável (abordagem pragmática ESPEN):
+        // peso total até IMC 30; acima disso, peso ajustado = ideal + 25% do excesso.
+        // Evita superestimar em obesidade sem penalizar quem está em faixa normal/sobrepeso.
+        const adjustedWeight = idealWeight + 0.25 * (currentWeight - idealWeight);
+        const refWeight = bmi < 30 ? currentWeight : adjustedWeight;
 
         // ETAPA 3: Árvore de Decisão Clínica
         let proteinTarget = 0;
@@ -68,15 +68,26 @@ window.NutritionService = {
             proteinTarget = currentWeight * 1.35; // Alvo ideal de 1.2 a 1.5 g/kg
             ruleApplied = 'Regra 5: Idoso Saudável (Resistência Anabólica)';
         }
-        // REGRA 7: Hipertrofia (Treino de Força Pesado) — Adult only
-        else if (activity === 'active' || activity === 'very_active') {
-            proteinTarget = idealWeight * 1.9; // 1.6 a 2.2 g/kg
-            ruleApplied = 'Regra 7: Hipertrofia / Treino Pesado';
-        }
-        // REGRA 6: Paciente Adulto Padrão (Foco Perda de Peso / GLP-1)
+        // REGRA 6: Adulto Saudável — fator escalonado sobre o peso de referência.
+        // Base 1.6 g/kg (breakpoint de Morton 2018), com incrementos por contexto e
+        // teto de 2.2 g/kg (ISSN Position Stand). Substitui a antiga Regra 7.
         else {
-            proteinTarget = ffmRef * 1.95; // 1.6 a 2.3 g/kg de FFM
-            ruleApplied = 'Regra 6: Adulto Padrão (Foco Preservação Muscular)';
+            const goal = profile.objective || profile.goalType || 'loss';
+            const inDeficit = (goal === 'loss' || goal === 'lose_weight');
+            const usesGlp1 = profile.useMedication || (profile.drug && profile.drug !== 'none');
+
+            let factor = 1.6;
+            const mods = [];
+            if (inDeficit) { factor += 0.2; mods.push('déficit'); }
+            if (activity === 'active' || activity === 'very_active') { factor += 0.1; mods.push('treino intenso'); }
+            else if (activity === 'moderate') { factor += 0.05; mods.push('treino moderado'); }
+            if (usesGlp1) { factor += 0.1; mods.push('GLP-1'); }
+            factor = Math.min(factor, 2.2);
+
+            proteinTarget = refWeight * factor;
+            const baseLabel = bmi < 30 ? 'peso total' : 'peso ajustado';
+            ruleApplied = `Regra 6: Adulto (${factor.toFixed(2)} g/kg de ${baseLabel}`
+                + (mods.length ? ` — ${mods.join(', ')}` : '') + ')';
         }
 
         // ETAPA 4: Regras de Retorno (Filtros Finais)
@@ -94,11 +105,32 @@ window.NutritionService = {
         if (todayFlags.heat) waterTarget += 500;
         if (todayFlags.symptoms) waterTarget += 1000;
 
+        // Fibra: Adequate Intake (IOM / Academy of Nutrition and Dietetics).
+        // 38g/dia homens e 25g/dia mulheres; cai para 30g/21g a partir dos 50 anos.
+        const fiberTarget = (sex === 'male')
+            ? (age >= 50 ? 30 : 38)
+            : (age >= 50 ? 21 : 25);
+
+        // Metas manuais definidas pelo usuário sobrepõem o cálculo automático.
+        // Exceção de segurança: em perfil renal a meta manual só pode REDUZIR o alvo,
+        // nunca ultrapassar a restrição do KDOQI — o app não tem supervisão clínica
+        // e não há nenhuma tela que exiba proteinBasis para avisar o usuário.
+        let manualProtein = profile.manualProteinGoal || null;
+        let basis = ruleApplied;
+        if (manualProtein) {
+            if (isRenal && manualProtein > proteinTarget) {
+                manualProtein = null;
+                basis = ruleApplied + ' [Meta manual ignorada: excede o limite renal]';
+            } else {
+                basis = 'Meta manual definida por você';
+            }
+        }
+
         return {
-            protein: Math.round(proteinTarget),
-            water: Math.round(waterTarget),
-            fiber: Math.round(currentWeight * 0.35),
-            proteinBasis: ruleApplied,
+            protein: Math.round(manualProtein || proteinTarget),
+            water: Math.round(profile.manualWaterGoal || waterTarget),
+            fiber: Math.round(profile.manualFiberGoal || fiberTarget),
+            proteinBasis: basis,
             bmi: bmi,
             ffm: ffmRef
         };
