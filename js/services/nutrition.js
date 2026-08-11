@@ -79,8 +79,12 @@ window.NutritionService = {
             let factor = 1.6;
             const mods = [];
             if (inDeficit) { factor += 0.2; mods.push('déficit'); }
-            if (activity === 'active' || activity === 'very_active') { factor += 0.1; mods.push('treino intenso'); }
-            else if (activity === 'moderate') { factor += 0.05; mods.push('treino moderado'); }
+            // Moderado/Ativo/Muito Ativo tratados igual aqui: a partir de 3x/sem de treino
+            // já ativo o estímulo de resistência que justifica a faixa alta do ISSN — a
+            // escala de 5 níveis serve para diferenciar gasto calórico (TDEE), não proteína.
+            if (activity === 'moderate' || activity === 'active' || activity === 'very_active') {
+                factor += 0.1; mods.push('treino regular');
+            }
             if (usesGlp1) { factor += 0.1; mods.push('GLP-1'); }
             factor = Math.min(factor, 2.2);
 
