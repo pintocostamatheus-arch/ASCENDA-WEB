@@ -15,7 +15,26 @@
       "Bash(cd /d/Documentos/GEMINI/\"ASCENDA WEB\")",
       "Bash(sed -n '1239,1350p' index.html)",
       "Bash(grep -n \"taxa\\\\|eficiência\\\\|efficiency\\\\|dose.*tab\" /d/Documentos/GEMINI/\"ASCENDA WEB\"/js/controllers/*.js)",
-      "Bash(file /d/Documentos/GEMINI/\"ASCENDA WEB\"/assets/icons/icon-*.png)"
+      "Bash(file /d/Documentos/GEMINI/\"ASCENDA WEB\"/assets/icons/icon-*.png)",
+      "Bash(where node *)",
+      "Bash(where npx *)",
+      "Bash(where py *)",
+      "Bash(cd \"D:/Arquivos/CLAUDE CODE/Rotinas/Conteudo Instagram\" && ls -laR \"00 - Guia de Marca/modelo-visual\" \"00 - Guia de Marca/logo\" \"00 - Guia de Marca/mascote\" \"03 - Carrosseis Prontos\" | head -120)",
+      "WebSearch",
+      "WebFetch(domain:www.pv-magazine-brasil.com)",
+      "WebFetch(domain:cenarioenergia.com.br)",
+      "WebFetch(domain:www.opovo.com.br)",
+      "WebFetch(domain:agenciainfra.com)",
+      "WebFetch(domain:canalsolar.com.br)",
+      "Bash(cd /d)",
+      "Read(//d//**)",
+      "Bash(python -c \"import pypdf; print\\('pypdf', pypdf.__version__\\)\")",
+      "Bash(python -c \"import fitz; print\\('pymupdf ok'\\)\")",
+      "Bash(python -c \"import playwright; print\\('playwright ok'\\)\")",
+      "Bash(python -c ' *)",
+      "Skill(update-config)",
+      "Bash(cat ~/.claude/settings.json 2>&1; echo; echo ~)",
+      "Bash([ -f \"$M\" ])"
     ]
   }
 }
