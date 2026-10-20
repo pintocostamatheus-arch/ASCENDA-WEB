@@ -1,7 +1,7 @@
 /**
  * ASCENDA — Edge Function: send-scheduled-pushes
  *
- * Chamada pelo pg_cron a cada 15 minutos.
+ * Chamada pelo pg_cron a cada 1 minuto.
  * Verifica quais usuários têm notificações devidas agora
  * e envia os Web Push correspondentes.
  *
@@ -101,6 +101,33 @@ serve(async (req) => {
 
     const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
     const scheduleMap = new Map((schedules ?? []).map((s) => [s.user_id, s]));
+
+    // Fallback: quem nunca salvou o cronograma no app usa a última injeção registrada
+    // (assume intervalo semanal, mesmo dia da semana e mesmo horário da última aplicação;
+    // sem horário registrado, usa 08:00).
+    const missingIds = userIds.filter((id) => !scheduleMap.has(id));
+    if (missingIds.length > 0) {
+      const lastInjections = await Promise.all(
+        missingIds.map((id) =>
+          supabaseAdmin
+            .from("injections")
+            .select("user_id, date, time")
+            .eq("user_id", id)
+            .order("date", { ascending: false })
+            .limit(1)
+        )
+      );
+      for (const { data } of lastInjections) {
+        const inj = data?.[0];
+        if (!inj?.date) continue;
+        const dow = new Date(`${inj.date}T12:00:00Z`).getUTCDay();
+        scheduleMap.set(inj.user_id, {
+          user_id: inj.user_id,
+          day_of_week: dow,
+          time: inj.time ?? "08:00:00",
+        });
+      }
+    }
 
     for (const userId of userIds) {
       const profile = profileMap.get(userId);
