@@ -31,10 +31,10 @@ const supabaseAdmin = createClient(
 );
 
 // ─── Janela de tolerância (minutos) ──────────────────────────────────────────
-// pg_cron roda a cada 1 min. WINDOW_MINUTES = 1 garante que atrasos de até
-// 1 min no processamento não façam o cron perder o horário exato.
-// Não gera duplicatas pois o cron roda a cada 1 min (nunca bate 2x no mesmo minuto).
-const WINDOW_MINUTES = 1;
+// pg_cron roda a cada 1 min. WINDOW_MINUTES = 0 faz cada lembrete bater em
+// exatamente 1 execução do cron. Com 1, o mesmo lembrete batia em 2 ou 3
+// minutos seguidos e o aparelho avisava de novo a cada vez (renotify).
+const WINDOW_MINUTES = 0;
 
 // ─── Handler principal ────────────────────────────────────────────────────────
 // CORS headers for security
